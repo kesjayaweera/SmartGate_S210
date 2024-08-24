@@ -1,6 +1,14 @@
+#!/usr/bin/env python3
 import Jetson.GPIO as GPIO
 import sys
 import time
+
+# Get the pin logical state from the Jetson Nano 
+# 
+# Usage: python3 get_pin.py <pin_number>
+#
+# pin_number: Pin index on the Jetson Nano
+#
 
 def main(pin):
     #Set up the GPIO pin
@@ -13,12 +21,12 @@ def main(pin):
             #Read state the pin
             pin_state = GPIO.input(pin)
             print(f"Pin {pin} state: {'HIGH' if pin_state else 'LOW'}")
-			#Delay
+            #Delay
             time.sleep(0.1) 
     except KeyboardInterrupt:
         print("\nKeyboard interrupt. Exiting program...")
     finally:
-		#Clean up here
+        #Clean up here
         GPIO.cleanup()  
 
 if __name__ == "__main__":

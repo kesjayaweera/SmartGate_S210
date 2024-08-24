@@ -1,6 +1,6 @@
 # SmartGate
 
-Utilizing real-time object detection for endangered animal detection under the Jetson Nano using TensorRT engine optimization. This detection model will be used to determine the state of the hardware-configured gate
+Utilizing real-time object detection for endangered animal species under the Jetson Nano using TensorRT engine optimization. This detection model will be used to determine the state of the hardware-configured gate
 
 ## Usage
 
