@@ -1,10 +1,18 @@
 import cv2
 import imutils
 from YoloDetTRT import YoloTRT
+
 import Jetson.GPIO as GPIO
 import doorControl as door
 import ioControl as io
+
 from enum import Enum, auto
+import threading
+
+from HTTPServer import Initialize_Server, Shutdown_Server, set_latest_frame
+
+import signal
+import sys
 
 def gstreamer_pipeline(
     capture_width=1280,
@@ -25,6 +33,8 @@ def gstreamer_pipeline(
         f"video/x-raw, format=(string)BGR ! appsink"
     )
 
+#latest_frame = None
+
 class State(Enum):
     IDLE       = auto()
     DETECT     = auto()
@@ -33,7 +43,29 @@ class State(Enum):
     DOOR_CLOSE = auto()
     DELAY      = auto()
 
+def cleanup():
+    print("[+] Cleaning up resources...")
+    cv2.destroyAllWindows()
+    io.allPinsOff()
+    GPIO.cleanup()
+    Shutdown_Server(http_server)
+
+def signal_handler(sig, frame):
+    print('[+] Ctrl+C Detected... Exiting...')
+    cleanup()
+    sys.exit(0)
+
 def main():
+    #Global HTTP server for resource allocation and deallocation
+    global http_server
+
+    #Set up signal handler keyboard interrupt
+    signal.signal(signal.SIGINT, signal_handler)
+
+    #Start HTTP server on a separate thread
+    #Should also make the web server optional as well
+    http_server = Initialize_Server()
+
     #Set up the GPIO channel
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(7, GPIO.OUT, initial=GPIO.LOW)
@@ -76,13 +108,12 @@ def main():
 
             #Perform inference
             detections, t = model.Inference(img)
+
+            #Update the latest_frame for streaming
+            set_latest_frame(img.copy())
+
             objectList = [obj['class'] for obj in detections]
             current_state = State.DECISION
-
-            #Display the frame
-            cv2.imshow('Frame', img)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
 
         #------------DECISION State --------------------------------------------------------
         elif current_state == State.DECISION:
