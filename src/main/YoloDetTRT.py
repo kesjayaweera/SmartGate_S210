@@ -17,21 +17,30 @@ bindings = []
 
 
 class YoloTRT():
-    def __init__(self, library, engine, conf, yolo_ver):
+    """
+    Initialize a YoloTRT object for TensorRT Engine Model.
+
+    :param library:      Path to the TensorRT library
+    :param engine:       Path to the TensorRT engine file
+    :param classes_file: Path to the classes file (dictionary of classifications)
+    :param conf:         Confidence threshold for detections
+    :param yolo_ver:     Version of YOLO being used
+    """
+    def __init__(self, library, engine, classes_file, conf, yolo_ver):
         self.CONF_THRESH = conf 
         self.IOU_THRESHOLD = 0.4
         self.LEN_ALL_RESULT = 38001
         self.LEN_ONE_RESULT = 38
         self.yolo_version = yolo_ver
-        self.categories = ["person", "bicycle", "car", "motorcycle", "airplane", "bus", "train", "truck", "boat", "traffic light",
-            "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep", "cow",
-            "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella", "handbag", "tie", "suitcase", "frisbee",
-            "skis", "snowboard", "sports ball", "kite", "baseball bat", "baseball glove", "skateboard", "surfboard",
-            "tennis racket", "bottle", "wine glass", "cup", "fork", "knife", "spoon", "bowl", "banana", "apple",
-            "sandwich", "orange", "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair", "couch",
-            "potted plant", "bed", "dining table", "toilet", "tv", "laptop", "mouse", "remote", "keyboard", "cell phone",
-            "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors", "teddy bear",
-            "hair drier", "toothbrush"]
+
+        #Categories will be obtained from human-readable label text files
+        classes = []
+        with open(classes_file, 'r') as file:
+            for line in file:
+                _, class_name = line.split(':')
+                classes.append(class_name.strip())
+
+        self.categories = classes
         
         TRT_LOGGER = trt.Logger(trt.Logger.INFO)
 
