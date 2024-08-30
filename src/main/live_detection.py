@@ -45,7 +45,6 @@ class State(Enum):
 
 def cleanup():
     print("[+] Cleaning up resources...")
-    cv2.destroyAllWindows()
     io.allPinsOff()
     GPIO.cleanup()
     Shutdown_Server(http_server)
@@ -159,8 +158,7 @@ def main():
         elif current_state == State.DELAY:
             print("Delaying operation.")
     
-    #Closes all windows and sets all pins to LOW
-    cv2.destroyAllWindows()
+    #Sets all pins to LOW
     io.allPinsOff()
 
 #Main logic
