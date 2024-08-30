@@ -1,4 +1,4 @@
-#TODO: Optimize and finish off Dockerfile
+#TODO: Optimize and finish off Dockerfile. Will need GStreamer support for cv2 package
 # Start with a base image that includes CUDA and Python
 FROM nvcr.io/nvidia/l4t-pytorch:r32.7.1-pth1.10-py3
 
