@@ -1,0 +1,13 @@
+{
+    "rules": [
+        {
+            "objects": ["dog"],
+            "action": "OPEN"
+        },
+        {
+            "objects": ["cat"],
+            "action": "CLOSE"
+        }
+    ],
+    "default_action": "IDLE"
+}

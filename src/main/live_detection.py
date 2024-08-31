@@ -10,6 +10,8 @@ from enum import Enum, auto
 import threading
 
 from HTTPServer import Initialize_Server, Shutdown_Server, set_latest_frame
+from Ruleset import RulesetDecider
+from GateStates import State
 
 import signal
 import sys
@@ -32,16 +34,6 @@ def gstreamer_pipeline(
         f"videoconvert ! "
         f"video/x-raw, format=(string)BGR ! appsink"
     )
-
-#latest_frame = None
-
-class State(Enum):
-    IDLE       = auto()
-    DETECT     = auto()
-    DECISION   = auto()
-    DOOR_OPEN  = auto()
-    DOOR_CLOSE = auto()
-    DELAY      = auto()
 
 def cleanup():
     print("[+] Cleaning up resources...")
@@ -82,6 +74,9 @@ def main():
     #Initialize YOLOv5 model via TensorRT engine
     model = YoloTRT(library="../../lib/libmyplugins.so", engine="../../models/yolov5s.engine", classes_file='../../models/classes/yolov5s.txt', conf=0.5, yolo_ver="v5")
 
+    #In the DECIDE state, the RulesetDecider will be responsible for setting the next state depending on the configuration
+    decider = RulesetDecider()
+
     #Open the camera using GStreamer pipeline
     cap = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
 
@@ -117,17 +112,18 @@ def main():
         #------------DECISION State --------------------------------------------------------
         elif current_state == State.DECISION:
             print("Decision making door.")
-            if ("cat" in objectList and "dog" in objectList):
-                print("Detecting cats and dogs")
-                current_state = State.DOOR_CLOSE
-            elif ("dog" in objectList):
-                print("Detecting dogs")
-                current_state = State.DOOR_OPEN
-            elif ("cat" in objectList):
-                print("Detecting cats")
-                current_state = State.DOOR_CLOSE
-            else: 
-                current_state = State.IDLE
+            # if ("cat" in objectList and "dog" in objectList):
+            #     print("Detecting cats and dogs")
+            #     current_state = State.DOOR_CLOSE
+            # elif ("dog" in objectList):
+            #     print("Detecting dogs")
+            #     current_state = State.DOOR_OPEN
+            # elif ("cat" in objectList):
+            #     print("Detecting cats")
+            #     current_state = State.DOOR_CLOSE
+            # else:
+            #     current_state = State.IDLE
+            current_state = decider.decide(objectList)
 
         #------------DOOR OPEN State -------------------------------------------------------
         elif current_state == State.DOOR_OPEN:
