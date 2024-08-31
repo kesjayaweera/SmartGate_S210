@@ -4,6 +4,11 @@ import json
 from GateStates import State
 
 class RulesetDecider:
+    """
+    Reads rules from a JSON config file and uses it to determine the appropriate state transition based on detected objects
+
+    :param config_path: Path to the config file, in JSON format, containing the rules (default: `../../config/config.json`)
+    """
     def __init__(self, config_path='../../config/config.json'):
         self.config_path = config_path
         self.rules = self.load_rules()
