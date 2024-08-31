@@ -112,17 +112,8 @@ def main():
         #------------DECISION State --------------------------------------------------------
         elif current_state == State.DECISION:
             print("Decision making door.")
-            # if ("cat" in objectList and "dog" in objectList):
-            #     print("Detecting cats and dogs")
-            #     current_state = State.DOOR_CLOSE
-            # elif ("dog" in objectList):
-            #     print("Detecting dogs")
-            #     current_state = State.DOOR_OPEN
-            # elif ("cat" in objectList):
-            #     print("Detecting cats")
-            #     current_state = State.DOOR_CLOSE
-            # else:
-            #     current_state = State.IDLE
+            
+            #Decide on ruleset
             current_state = decider.decide(objectList)
 
         #------------DOOR OPEN State -------------------------------------------------------
