@@ -25,17 +25,24 @@ class DoorControl:
     
     #Open door
     def open_door(self):
-        io.setVal('IN3', False)
-        io.setVal('IN4', True)
-        self.is_door_opening = True
-        self.is_door_closing = False
+        if not self.is_door_opening:
+            io.setVal('IN3', False)
+            io.setVal('IN4', True)
+            self.is_door_opening = True
+            self.is_door_closing = False
+            print("Door opening started.")
+        else:
+            print("Door is already opening.")
     
     #Close door
     def close_door(self):
-        io.setVal('IN3', True)
-        io.setVal('IN4', False)
-        self.is_door_opening = False
-        self.is_door_closing = True
+        if not self.is_door_closing:
+            io.setVal('IN3', True)
+            io.setVal('IN4', False)
+            self.is_door_opening = False
+            self.is_door_closing = True
+        else:
+            print("Door is already closing.")
     
     #Stop the door
     def stop_door(self):
