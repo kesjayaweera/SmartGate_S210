@@ -3,7 +3,7 @@ import imutils
 from YoloDetTRT import YoloTRT
 
 import Jetson.GPIO as GPIO
-import doorControl as door
+from doorControl import DoorControl
 import ioControl as io
 
 from enum import Enum, auto
@@ -61,9 +61,9 @@ def main():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(7, GPIO.OUT, initial=GPIO.LOW)
 
-    #Initialize door and IO pins
+    #Initialize IO pins and door control
     io.setAllPins()
-    door.initDoor()
+    door_control = DoorControl()
 
     #Initialize State Machine
     current_state = State.IDLE
@@ -85,6 +85,16 @@ def main():
         #------------IDLE State ------------------------------------------------------------
         if current_state == State.IDLE:
             print("System is idle.")
+
+            #Ensure the motor stops when Hall Effect sensors are detected during IDLE state
+            if door_control.is_door_fully_closed() and door_control.is_door_closing:
+                door_control.stop_door()
+                print("Door fully closed, stopping motor.")
+            elif door_control.is_door_fully_open() and door_control.is_door_opening:
+                door_control.stop_door()
+                print("Door fully open, stopping motor.")
+
+            #On any movement, set to DETECT state which will start capturing from the camera
             if io.getVal('PIR'):
                 current_state = State.DETECT
             else:
@@ -120,24 +130,24 @@ def main():
         elif current_state == State.DOOR_OPEN:
             print("Opening door.")
 
-            if not door.isDoorFullyOpen():
-                door.openDoor()
+            if not door_control.is_door_fully_open():
+                door_control.open_door()
             else:
                 print('Door stopped on opening')
-                door.stopDoor()
+                door_control.stop_door()
             
             current_state = State.IDLE
 
         #------------DOOR CLOSE State ------------------------------------------------------
         elif current_state == State.DOOR_CLOSE:
             print("Closing door.")
-            
+
             #Read Hall Effect sensor of Door Closed. Keep closing if the Hall effect sensor is 0
-            if not door.isDoorFullyClosed():
-                door.closeDoor()
+            if not door_control.is_door_fully_closed():
+                door_control.close_door()
             else:
                 print('Door stopped on closing')
-                door.stopDoor()
+                door_control.stop_door()
                 
             current_state = State.IDLE
 
