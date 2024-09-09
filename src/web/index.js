@@ -21,27 +21,13 @@ $(document).ready(function () {
         buttonprevious + buttonnext
     );
     $("#next").on("click", function () {
-        if (counter + 1 >= numberofcams) {
-            counter = 0;
-        $("#footage").attr("src", "image1.jpg");
-        } else {
-            counter++;
-            var nextcam = counter + 1;
-            $("#footage").attr('src', ("image" + nextcam + ".jpg"))
-        }     
+        counter = (counter + 1) % numberofcams;
+        $("#footage").attr('src', "image" + camarr[counter] + ".jpg"); 
     });
 
     $("#previous").on("click", function () {
-        if (counter - 1 < 0) {
-            counter = 3;
-            $("#footage").attr("src", "image4.jpg");
-        } else {
-            counter--;
-            var nextcam = counter + 1;
-            $("#footage").attr('src', ("image" + nextcam + ".jpg"))
-        }
+        counter = (counter - 1 + numberofcams) % numberofcams;
+        $("#footage").attr('src', "image" + camarr[counter] + ".jpg"); 
     });
-
-    
 
 });
