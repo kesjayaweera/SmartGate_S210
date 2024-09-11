@@ -48,31 +48,31 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
             except Exception as e:
                 print(f"[-] Streaming error: {str(e)}")
-
+        
+        else:
+            #Obtain any other web resources contained relatively within the 'web/' directory
+            print('Obtaining static resources...')
+            file_path = os.path.join('../web', self.path[1:])
+            if os.path.exists(file_path):
+                self.send_response(200)
+                #Dictionary to set the Content-type header depending on file extension
+                mime_types = {
+                    '.css' : 'text/css',
+                    '.js'  : 'application/javascript',
+                    '.html': 'text/html',
+                    '.jpg' : 'image/jpeg'
+                }
+                file_ext = os.path.splitext(file_path)[1]
+                content_type = mime_types.get(file_ext, 'application/octet-stream')
+                self.send_header('Content-type', content_type)
+                self.end_headers()
+                with open(file_path, 'rb') as file:
+                    self.wfile.write(file.read())
             else:
-                #Obtain any other web resources contained relatively within the 'web/' directory
-                print('Obtaining static resources...')
-                file_path = os.path.join('../web', self.path[1:])
-                if os.path.exists(file_path):
-                    self.send_response(200)
-                    #Dictionary to set the Content-type MIME header depending on file extension
-                    mime_types = {
-                        '.css' : 'text/css',
-                        '.js'  : 'application/javascript',
-                        '.html': 'text/html',
-                        '.jpg' : 'image/jpeg'
-                    }
-                    file_ext = os.path.splitext(file_path)[1]
-                    content_type = mime_types.get(file_ext, 'application/octet-stream')
-                    self.send_header('Content-type', content_type)
-                    self.end_headers()
-                    with open(file_path, 'rb') as file:
-                        self.wfile.write(file.read())
-                else:
-                    #Send 404. Requested content not found
-                    self.send_response(404)
-                    self.end_headers()
-                    self.wfile.write(b"<h1>[-] Error: File resource not found<h1>")
+                #Send 404. Requested content not found
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"<h1>[-] Error: File resource not found<h1>")
 
 #Set the frame to be passed to web server
 def set_latest_frame(frame):
