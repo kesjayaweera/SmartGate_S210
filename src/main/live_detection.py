@@ -9,7 +9,7 @@ import ioControl as io
 from enum import Enum, auto
 import threading
 
-from HTTPServer import Initialize_Server, Shutdown_Server, set_latest_frame
+from HTTPServer import Initialize_Server, Shutdown_Server, set_latest_frame, Fetch_Queued_Command
 from Ruleset import RulesetDecider
 from GateStates import State
 
@@ -82,6 +82,14 @@ def main():
 
     #Our main loop
     while True:
+        #----------Check for commands from POST requests coming from HTTP server------------
+        command = Fetch_Queued_Command()
+        if command:
+            if command == 'OPEN_DOOR':
+                current_state = State.DOOR_OPEN
+            elif command == 'CLOSE_DOOR':
+                current_state = State.DOOR_CLOSE
+
         #------------IDLE State ------------------------------------------------------------
         if current_state == State.IDLE:
             print("System is idle.")
