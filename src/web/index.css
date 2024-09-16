@@ -8,18 +8,20 @@
     height: 100%;
     background-color: black;
     width: 30%;
-    
 }
 
 #video {
-    
+    margin: auto;
+    position: relative;
     width: 100%;
     height: 100%;
 }
 
 #vidwrapper {
+    text-align: center;
     height: 100%;
-    
+    float: left;
+    width: 70%;
 }
 
 .stat {
@@ -30,9 +32,33 @@ button {
     text-decoration: none;
     display: inline-block;
     padding: 8px 16px;
+    height: 100%;
+    width: 100px;
+    
 }
 
  button:hover {
     background-color: #ddd;
     color: black;
  }
+
+#buttons {
+    position: inherit;
+    clear: both;
+    height: 50px;
+}
+
+.buttoncontainer {
+    float: left;
+    height: 100%;
+}
+
+#nextcontainer {
+    float: right;
+    margin-right: 30%;
+}
+
+#prevcontainer {
+    margin-left: 30%;
+}
+
