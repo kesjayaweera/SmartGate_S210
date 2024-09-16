@@ -63,7 +63,8 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
                     '.css' : 'text/css',
                     '.js'  : 'application/javascript',
                     '.html': 'text/html',
-                    '.jpg' : 'image/jpeg'
+                    '.jpg' : 'image/jpeg',
+                    '.png' : 'image/png'
                 }
                 file_ext = os.path.splitext(file_path)[1]
                 content_type = mime_types.get(file_ext, 'application/octet-stream')
