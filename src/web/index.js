@@ -31,14 +31,51 @@ $(document).ready(function () {
         "<div id='controlbuttons'><div id='opencontainer' class='buttoncontainer'>" + buttonopen + "</div><div id='closecontainer' class='buttoncontainer'>" + buttonclose + "</div></div>"
     );
 
+    //Traverse through next camera stream
     $("#next").on("click", function () {
         counter = (counter + 1) % numberofcams;
         $("#footage").attr('src', "image" + camarr[counter] + ".jpg"); 
     });
 
+    //Traverse through previous camera stream
     $("#previous").on("click", function () {
         counter = (counter - 1 + numberofcams) % numberofcams;
         $("#footage").attr('src', "image" + camarr[counter] + ".jpg"); 
+    });
+
+    //----- Send respective POST request to open or close door for manual intervention. -----
+    //Example JSON format:
+    // {"command" : "OPEN_DOOR"}
+    // {"command" : "CLOSE_DOOR"}
+
+    $("#open").on("click", function () {
+        $.ajax({
+            url: '/',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ command: "OPEN_DOOR" }),
+            success: function(response) {
+                console.log('[+] Open door command sent successfully');
+            },
+            error: function(xhr, status, error) {
+                console.error('[-] Error sending open door command:', error);
+            }
+        });
+    });
+
+    $("#close").on("click", function () {
+        $.ajax({
+            url: '/',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ command: "CLOSE_DOOR" }),
+            success: function(response) {
+                console.log('[+] Close door command sent successfully');
+            },
+            error: function(xhr, status, error) {
+                console.error('[-] Error sending close door command:', error);
+            }
+        });
     });
 
 });
