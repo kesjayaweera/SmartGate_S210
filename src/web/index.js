@@ -19,9 +19,18 @@ $(document).ready(function () {
 
     var buttonprevious = "<button class='cycle' id='previous'>&laquo; Previous</button>";
 
+    var buttonopen = "<button class='control' id='open'>Open</button>";
+
+    var buttonclose = "<button class='control' id='close'>Close</button>";
+
     vidwrapper.append(
-        "<div id='buttons'><div id='prevcontainer' class='buttoncontainer'>" + buttonprevious + "</div><div id='nextcontainer' class='buttoncontainer'>" + buttonnext + "</div></div>"
+        "<div id='cylebuttons'><div id='prevcontainer' class='buttoncontainer'>" + buttonprevious + "</div><div id='nextcontainer' class='buttoncontainer'>" + buttonnext + "</div></div>"
     );
+
+    vidwrapper.append(
+        "<div id='controlbuttons'><div id='opencontainer' class='buttoncontainer'>" + buttonopen + "</div><div id='closecontainer' class='buttoncontainer'>" + buttonclose + "</div></div>"
+    );
+
     $("#next").on("click", function () {
         counter = (counter + 1) % numberofcams;
         $("#footage").attr('src', "image" + camarr[counter] + ".jpg"); 

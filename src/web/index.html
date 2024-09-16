@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="index.css" />
 
     <script type="text/javascript" src="jquery-3.7.1.js"></script>
@@ -9,9 +13,12 @@
     <title>SmartGate Dashboard</title>
 </head>
 <body id="body">
+    <div id="nav">
+        <img src="logo.png" id="logo"  height="50">
+    </div>
     <div id="vidwrapper">
         <div id="video">
-            <h1>Camera Stream</h1>
+            <h1 id="title">Camera Stream</h1>
             <img src="image1.jpg" id="footage" width="600" height="400">
         </div>
     </div>
