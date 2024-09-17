@@ -16,7 +16,7 @@ Utilizing real-time object detection for endangered animal species under the Jet
 
 Features include:
 
-- Real-time object detection to set the state of the physical gate. The rules are set within the `config/` folder to set the list of stimuli that triggers the specified state of the gate (more details in [Setup](#setup)).
+- Real-time object detection to set the state of the physical gate. The rules are set within the `config/` folder. The `config.json` file contains the general rules to set the list of stimuli that triggers the specified state of the gate (more details in [Setup](#setup)).
 
 - Utilizing TensorRT engine optimization to enhance inference performance under the Jetson Nano. The optimized models are saved as `.engine` files within the `models/` folder. Models are obtained from the [Marsupial](https://github.com/carlosclaiton/marsupial) dataset.
 
