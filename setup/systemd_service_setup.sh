@@ -1,6 +1,6 @@
 #!/bin/bash
 
-## Generate the systemd service ###
+### Generate the systemd service ###
 #This will produce a service file for the SmartGate to run on boot
 #Service must be set up with the Jetson Nano accordingly with the Requirements satisfied
 
