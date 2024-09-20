@@ -9,5 +9,8 @@
             "action": "CLOSE"
         }
     ],
-    "default_action": "IDLE"
+    
+    "server": {
+        "port": 8080
+    }
 }

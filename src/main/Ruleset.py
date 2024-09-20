@@ -5,34 +5,31 @@ from GateStates import State
 
 class RulesetDecider:
     """
-    Reads rules from a JSON config file and uses it to determine the appropriate state transition based on detected objects
+    Reads rules from the specified ruleset configuration, obtained from the JSON config file, and uses it to determine the appropriate state transition based on detected objects
 
-    :param config_path: Path to the config file, in JSON format, containing the rules (default: `../../config/config.json`)
+    :param rules_config: Path to the config file, in JSON format, containing the rules (default: `../../config/config.json`)
     """
-    def __init__(self, config_path='../../config/config.json'):
-        self.config_path = config_path
-        self.rules = self.load_rules()
+    def __init__(self, rules_config):
+        self.rules = rules_config
 
-    def load_rules(self):
-        with open(self.config_path, 'r') as file:
-            return json.load(file)
+    def decide(self, object_list: list) -> State:
+        """
+        Responsible for deciding and setting the appropriate state transition based on the detected objects.
 
-    def decide(self, objectList: list):
+        :param object_list: List of detected objects obtained from detection model
+        :return: The next state based on the detected objects of type `State` enum
+        """
         #Check the rules accordingly and set the state
         open_detected  = False
         close_detected = False
-        open_objects   = []
-        close_objects  = []
 
-        for rule in self.rules['rules']:
-            for obj in objectList:
+        for rule in self.rules:
+            for obj in object_list:
                 if obj in rule['objects']:
                     if rule['action'] == 'OPEN':
                         open_detected = True
-                        open_objects.append(obj)
                     elif rule['action'] == 'CLOSE':
                         close_detected = True
-                        close_objects.append(obj)
 
         #Decision Logic
         if close_detected and open_detected:

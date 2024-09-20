@@ -12,6 +12,7 @@ import threading
 from HTTPServer import Initialize_Server, Shutdown_Server, set_latest_frame, Fetch_Queued_Command
 from Ruleset import RulesetDecider
 from GateStates import State
+from json_config import JsonConfig
 
 import signal
 import sys
@@ -53,6 +54,9 @@ def main():
     #Set up signal handler keyboard interrupt
     signal.signal(signal.SIGINT, signal_handler)
 
+    #Initialize configuration settings for the SmartGate
+    config = JsonConfig()
+
     #Start HTTP server on a separate thread
     #Should also make the web server optional as well
     http_server = Initialize_Server()
@@ -75,7 +79,7 @@ def main():
     model = YoloTRT(library="../../lib/libmyplugins.so", engine="../../models/yolov5s.engine", classes_file='../../models/classes/yolov5s.txt', conf=0.5, yolo_ver="v5")
 
     #In the DECIDE state, the RulesetDecider will be responsible for setting the next state depending on the configuration
-    decider = RulesetDecider()
+    decider = RulesetDecider(config.get_rules_config())
 
     #Open the camera using GStreamer pipeline
     cap = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
