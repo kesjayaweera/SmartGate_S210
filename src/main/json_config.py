@@ -9,7 +9,8 @@ class JsonConfig:
     """
     def __init__(self, config_path='../../config/config.json'):
         #Return dictionary from the JSON configuration file
-        with open(self.config_path, 'r') as file:
+        self.config_path = config_path
+        with open(config_path, 'r') as file:
             self.config = json.load(file)
 
         #These rules are required
