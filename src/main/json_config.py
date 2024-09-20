@@ -17,7 +17,7 @@ class JsonConfig:
         self.rules_config  = self.config['rules']
         self.server_config = self.config['server']
 
-    def get_rules_config():
+    def get_rules_config(self):
         """
         Get the ruleset configuration.
         Example format in JSON:
@@ -34,7 +34,7 @@ class JsonConfig:
         """
         return self.rules_config
 
-    def get_server_config():
+    def get_server_config(self):
         """
         Get the server configuration
         Example format in JSON:
