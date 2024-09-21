@@ -117,10 +117,13 @@ def Read_Web_Page(html_path):
         return b"Error: File path could not be found"
 
 #Initialize and run server listener
-def Initialize_Server(port=8000):
+def Initialize_Server(server_config : dict) -> ThreadedHTTPServer:
     #with socketserver.TCPServer(("", port), HTTPHandler) as httpd:
     #    print('[+] Running server under port {port}')
     #    httpd.serve_forever()
+
+    #Ensure to obtain port number from configuration. Default port would be '8000'
+    port = server_config.get('port', 8000)
 
     server = ThreadedHTTPServer(("", port), HTTPHandler)
     print(f'[+] Running server under port {port}')
