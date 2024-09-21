@@ -3,8 +3,7 @@
 ### Setup as per requirements ###
 #This script is for setting up the SmartGate locally within the Jetson Nano.
 #This step is required if you're deploying under a fresh system
-
-## Script needs to be tested! ##
+#Ensure that the script runs as super user
 
 if [ "$EUID" -ne 0 ]; then 
   echo "[-] Please run as root"
