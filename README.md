@@ -56,7 +56,7 @@ sudo docker build -t smartgate:latest .
 
 ## Setup
 
-** Ensure the [Requirements](#requirements) are satisfied before proceeding. **
+**Ensure the [Requirements](#requirements) are satisfied before proceeding.**
 
 Users are free to configure the rules to set the behaviour of the gate specified on a list of stimuli. Within `config/config.json` a base template would be provided with:
 
@@ -93,7 +93,7 @@ In this example:
 
 ## Usage
 
-** Ensure the [Requirements](#requirements) are satisfied before proceeding. **
+**Ensure the [Requirements](#requirements) are satisfied before proceeding.**
 
 To get started run the following 
 
