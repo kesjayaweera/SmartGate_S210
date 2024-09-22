@@ -83,11 +83,11 @@ Users are free to configure the rules to set the behaviour of the gate specified
     - `objects` array represents the list of strings of the objects that should trigger the specified `action`. This should be referred from your specified classes file (from `models/classes`)
     - `action` is the action to take when the specified objects from `objects` are detected. Can be either `OPEN` or `CLOSE`.
 
-In this example:
+- In this example:
 
-- If `dog` is detected the gate should open
-- If `cat` is detected the gate should close
-- If both are detected the gate should close. This should be the default behaviour of the SmartGate when both stimuli are detected
+    - If `dog` is detected the gate should open
+    - If `cat` is detected the gate should close
+    - If both are detected the gate should close. This should be the default behaviour of the SmartGate when both stimuli are detected
 
 - `server` section contains the settings for the web server
     - `port` is the port number for which the web server would run under. In the example it's set to `8080` 
