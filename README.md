@@ -8,7 +8,8 @@
 - [Features](#features) 
 - [Requirements](#requirements) 
 - [Setup](#setup) 
-- [Usage](#usage) 
+- [Usage](#usage)
+- [Contributing](#contributing)
 
 Utilizing real-time object detection for endangered animal species under the Jetson Nano using TensorRT engine optimization. This detection model will be used to determine the state of the hardware-configured gate.
 
@@ -24,19 +25,85 @@ Features include:
 
 ## Requirements
 
-`Work in progress`
+Installing the requirements should be ran under the Jetson Nano with the Jetpack SDK. For more info on setting this up, please refer to NVIDIA's official guides for your respective Jetson Nano model: 
+
+- [Jetson Nano 4GB](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) 
+- [Jetson Nano 2GB](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-2gb-devkit).
+
+There are two options users can use to set up the requirements.
+
+1. Install the dependencies locally on the Nano.
+
+```sh
+git clone https://github.com/TheOpenSI/SmartGate.git
+cd SmartGate/setup
+./setup_requirements.sh
+```
+
+Optional: Generate the systemd service and automatically enable and start the service to run on boot. 
+```sh
+cd SmartGate/setup
+./systemd_service_setup.sh
+```
+
+2. Build Docker container.
+
+```sh
+git clone https://github.com/TheOpenSI/SmartGate.git
+cd SmartGate/
+sudo docker build -t smartgate:latest .
+```
 
 ## Setup
 
-`Work in progress`
+** Ensure the [Requirements](#requirements) are satisfied before proceeding. **
+
+Users are free to configure the rules to set the behaviour of the gate specified on a list of stimuli. Within `config/config.json` a base template would be provided with:
+
+```json
+{
+    "rules": [
+        {
+            "objects": ["dog"],
+            "action": "OPEN"
+        },
+        {
+            "objects": ["cat"],
+            "action": "CLOSE"
+        }
+    ],
+    
+    "server": {
+        "port": 8080
+    }
+}
+```
+
+- `rules` section define how the gate should respond to detected objects
+    - `objects` array represents the list of strings of the objects that should trigger the specified `action`. This should be referred from your specified classes file (from `models/classes`)
+    - `action` is the action to take when the specified objects from `objects` are detected. Can be either `OPEN` or `CLOSE`.
+
+In this example:
+    - If `dog` is detected the gate should open
+    - If `cat` is detected the gate should close
+    - If both are detected the gate should close. This should be the default behaviour of the SmartGate when both stimuli are detected
+
+- `server` section contains the settings for the web server
+    - `port` is the port number for which the web server would run under. In the example it's set to `8080` 
 
 ## Usage
 
-To get started run the following
+** Ensure the [Requirements](#requirements) are satisfied before proceeding. **
 
-```
-git clone https://github.com/TheOpenSI/SmartGate.git
+To get started run the following 
+
+```sh
 cd SmartGate/src/main/
 python3 live_detection.py
 ```
 
+A web server should run in which the camera stream can be viewed from the main dashboard.
+
+## Contributing
+
+`Work in Progress`
