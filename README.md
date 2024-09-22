@@ -84,6 +84,7 @@ Users are free to configure the rules to set the behaviour of the gate specified
     - `action` is the action to take when the specified objects from `objects` are detected. Can be either `OPEN` or `CLOSE`.
 
 In this example:
+
     - If `dog` is detected the gate should open
     - If `cat` is detected the gate should close
     - If both are detected the gate should close. This should be the default behaviour of the SmartGate when both stimuli are detected
