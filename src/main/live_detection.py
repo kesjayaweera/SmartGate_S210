@@ -10,7 +10,7 @@ from enum import Enum, auto
 import threading
 
 from http_server import Initialize_Server, Shutdown_Server, set_latest_frame, Fetch_Queued_Command
-from Ruleset import RulesetDecider
+from ruleset_decider import RulesetDecider
 from gate_states import State
 from json_config import JsonConfig
 
