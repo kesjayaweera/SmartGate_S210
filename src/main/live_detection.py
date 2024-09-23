@@ -11,7 +11,7 @@ import threading
 
 from HTTPServer import Initialize_Server, Shutdown_Server, set_latest_frame, Fetch_Queued_Command
 from Ruleset import RulesetDecider
-from GateStates import State
+from gate_states import State
 from json_config import JsonConfig
 
 import signal

@@ -1,7 +1,7 @@
 #This module implements a rule-based decision system for controlling the next state in the state machine for the gate
 #It will read from a JSON file that has the rules set accordingly
 import json
-from GateStates import State
+from gate_states import State
 
 class RulesetDecider:
     """
