@@ -1,4 +1,4 @@
-import ioControl as io
+import io_control as io
 import time
 
 #This class is used to set and control the state of the door of the gate

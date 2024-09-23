@@ -4,7 +4,7 @@ from YoloDetTRT import YoloTRT
 
 import Jetson.GPIO as GPIO
 from door_control import DoorControl
-import ioControl as io
+import io_control as io
 
 from enum import Enum, auto
 import threading
