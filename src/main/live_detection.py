@@ -9,7 +9,7 @@ import ioControl as io
 from enum import Enum, auto
 import threading
 
-from HTTPServer import Initialize_Server, Shutdown_Server, set_latest_frame, Fetch_Queued_Command
+from http_server import Initialize_Server, Shutdown_Server, set_latest_frame, Fetch_Queued_Command
 from Ruleset import RulesetDecider
 from gate_states import State
 from json_config import JsonConfig
@@ -40,7 +40,7 @@ def cleanup():
     print("[+] Cleaning up resources...")
     io.allPinsOff()
     GPIO.cleanup()
-    Shutdown_Server(http_server)
+    Shutdown_Server(web_server)
 
 def signal_handler(sig, frame):
     print('[+] Ctrl+C Detected... Exiting...')
@@ -49,7 +49,7 @@ def signal_handler(sig, frame):
 
 def main():
     #Global HTTP server for resource allocation and deallocation
-    global http_server
+    global web_server
 
     #Set up signal handler keyboard interrupt
     signal.signal(signal.SIGINT, signal_handler)
@@ -61,9 +61,9 @@ def main():
     rules_config  = config.get_rules_config() 
     server_config = config.get_server_config()
 
-    #Start HTTP server on a separate thread
+    #Start web server on a separate thread
     #Should also make the web server optional as well
-    http_server = Initialize_Server(server_config)
+    web_server = Initialize_Server(server_config)
 
     #In the DECIDE state, the RulesetDecider will be responsible for setting the next state depending on the configuration
     decider = RulesetDecider(rules_config)
