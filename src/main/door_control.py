@@ -17,17 +17,17 @@ class DoorControl:
     
     #Door initial state
     def init_door(self):
-        io.setVal('ENB', True)
-        io.setVal('IN3', False)
-        io.setVal('IN4', False)
+        io.set_val('ENB', True)
+        io.set_val('IN3', False)
+        io.set_val('IN4', False)
         self.is_door_opening = False
         self.is_door_closing = False
     
     #Open door
     def open_door(self):
         if not self.is_door_opening:
-            io.setVal('IN3', False)
-            io.setVal('IN4', True)
+            io.set_val('IN3', False)
+            io.set_val('IN4', True)
             self.is_door_opening = True
             self.is_door_closing = False
             print("Door opening started.")
@@ -37,8 +37,8 @@ class DoorControl:
     #Close door
     def close_door(self):
         if not self.is_door_closing:
-            io.setVal('IN3', True)
-            io.setVal('IN4', False)
+            io.set_val('IN3', True)
+            io.set_val('IN4', False)
             self.is_door_opening = False
             self.is_door_closing = True
         else:
@@ -46,15 +46,15 @@ class DoorControl:
     
     #Stop the door
     def stop_door(self):
-        io.setVal('IN3', False)
-        io.setVal('IN4', False)
+        io.set_val('IN3', False)
+        io.set_val('IN4', False)
         self.is_door_opening = False
         self.is_door_closing = False
     
     #Check if door is fully open by checking Hall Effect sensors
     def is_door_fully_open(self):
-        return io.getVal('OPEN') == 0 and io.getVal('CLOSE') == 1
+        return io.get_val('OPEN') == 0 and io.get_val('CLOSE') == 1
 
     #Check if door is fully closed by checking Hall Effect sensors
     def is_door_fully_closed(self):
-        return io.getVal('OPEN') == 1 and io.getVal('CLOSE') == 0
+        return io.get_val('OPEN') == 1 and io.get_val('CLOSE') == 0

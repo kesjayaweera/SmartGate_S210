@@ -15,7 +15,7 @@ oPins = {
 }
 
 # Changes the state of a provided GPIO pin name to the specified state
-def setVal(pinName, val):
+def set_val(pinName, val):
     if pinName in oPins and isinstance(val, bool):
         GPIO.output(oPins.get(pinName), val)
         return True
@@ -23,14 +23,14 @@ def setVal(pinName, val):
         return False
 
 # Changes the state of a provided GPIO pin name to the specified state
-def getVal(pinName):
+def get_val(pinName):
     if pinName in iPins:
         return GPIO.input(iPins.get(pinName))
     else:
         return False
 
 # Configures all GPIO pins as in/outputs
-def setAllPins():
+def set_all_pins():
     GPIO.setmode(GPIO.BOARD)
 
     # Ouput pins
@@ -43,10 +43,9 @@ def setAllPins():
     
     return True
 
-
 # Sets the state of all output pins to low
-def allPinsOff():
-    setVal('ENB', False)
-    setVal('IN3', False)
-    setVal('IN4', False)
+def all_pins_off():
+    set_val('ENB', False)
+    set_val('IN3', False)
+    set_val('IN4', False)
     return True

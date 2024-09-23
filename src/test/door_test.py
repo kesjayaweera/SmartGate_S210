@@ -5,20 +5,20 @@ import cv2
 
 reqClose = 0
 
-io.setAllPins()
+io.set_all_pins()
 
 def initDoor():
-    io.setVal('ENB', True)
+    io.set_val('ENB', True)
     return True
 
 def openDoor():
-    io.setVal('IN3', False)
-    io.setVal('IN4', True)
+    io.set_val('IN3', False)
+    io.set_val('IN4', True)
     return True
 
 def closeDoor():
-    io.setVal('IN3', True)
-    io.setVal('IN4', False)
+    io.set_val('IN3', True)
+    io.set_val('IN4', False)
     return True
 
 initDoor()
@@ -28,4 +28,4 @@ for i in range(500):
     openDoor()
     print('Opening')
     time.sleep(0.4)
-io.allPinsOff()
+io.all_pins_off()

@@ -38,7 +38,7 @@ def gstreamer_pipeline(
 
 def cleanup():
     print("[+] Cleaning up resources...")
-    io.allPinsOff()
+    io.all_pins_off()
     GPIO.cleanup()
     Shutdown_Server(web_server)
 
@@ -73,7 +73,7 @@ def main():
     GPIO.setup(7, GPIO.OUT, initial=GPIO.LOW)
 
     #Initialize IO pins and door control
-    io.setAllPins()
+    io.set_all_pins()
     door_controller = DoorControl()
 
     #Initialize State Machine
@@ -111,7 +111,7 @@ def main():
                 print("Door fully open, stopping motor.")
 
             #On any movement, set to DETECT state which will start capturing from the camera
-            if io.getVal('PIR'):
+            if io.get_val('PIR'):
                 current_state = State.DETECT
             else:
                 current_state = State.IDLE #Put back to IDLE state
@@ -172,7 +172,7 @@ def main():
             print("Delaying operation.")
     
     #Sets all pins to LOW
-    io.allPinsOff()
+    io.all_pins_off()
 
 #Main logic
 if __name__ == "__main__":
