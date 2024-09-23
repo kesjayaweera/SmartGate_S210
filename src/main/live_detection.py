@@ -80,7 +80,7 @@ def main():
     current_state = State.IDLE
 
     #Initialize object detection class list
-    objectList = []
+    object_list = []
 
     #Initialize YOLOv5 model via TensorRT engine
     model = YoloTRT(library="../../lib/libmyplugins.so", engine="../../models/yolov5s.engine", classes_file='../../models/classes/yolov5s.txt', conf=0.5, yolo_ver="v5")
@@ -132,7 +132,7 @@ def main():
             #Update the latest_frame for streaming
             set_latest_frame(img.copy())
 
-            objectList = [obj['class'] for obj in detections]
+            object_list = [obj['class'] for obj in detections]
             current_state = State.DECISION
 
         #------------DECISION State --------------------------------------------------------
@@ -140,7 +140,7 @@ def main():
             print("Decision making door.")
             
             #Decide on ruleset
-            current_state = decider.decide(objectList)
+            current_state = decider.decide(object_list)
 
         #------------DOOR OPEN State -------------------------------------------------------
         elif current_state == State.DOOR_OPEN:
