@@ -78,4 +78,28 @@ $(document).ready(function () {
         });
     });
 
+    //------ Obtain statistics from the Jetson Nano -------
+    //We could make it autoupdate, but making it manually obtained would be good for now because of potential performance impacts and to avoid unnecessary network traffic
+    //Click event for the "Get Status" button
+    $("#getStatus").on("click", function () {
+        //getStatus();
+        $.ajax({
+            url: '/status',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                var statusHtml = '<h3>Jetson Nano Status:</h3>' +
+                                 '<p>CPU Temperature: ' + data.cpu_temperature + '</p>' +
+                                 '<p>CPU Usage: '       + data.cpu_usage       + '</p>' +
+                                 '<p>Memory Usage: '    + data.memory_usage    + '</p>' +
+                                 '<p>Disk Usage: '      + data.disk_usage      + '</p>';
+                $('.stat').html(statusHtml);
+            },
+            error: function(xhr, status, error) {
+                console.error('[-] Error fetching status:', error);
+                $('.stat').html('<p>Error fetching status</p>');
+            }
+        });
+    });
+
 });
