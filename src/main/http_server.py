@@ -8,11 +8,13 @@ import threading
 from queue import Queue
 import json
 import psutil
+from door_control import DoorControl
 
 ### HTTP Server Handler. ###
 
 #Global variable to store the latest frame
 latest_frame = None
+gate_status  = None
 
 # Global queue to communicate between HTTP server and main thread
 command_queue = Queue()
@@ -117,6 +119,11 @@ def set_latest_frame(frame):
     global latest_frame
     latest_frame = frame
 
+#Set the door_controller reference to read door status 
+def set_door_controller_reference(door_controller : DoorControl):
+    global gate_status
+    gate_status = door_controller
+
 #Obtain the statistics from the SmartGate (Jetson Nano and board)
 def get_jetson_status():
     cpu_temp = psutil.sensors_temperatures()['thermal-fan-est'][0].current
@@ -124,11 +131,20 @@ def get_jetson_status():
     memory = psutil.virtual_memory()
     disk = psutil.disk_usage('/')
 
+    door_state = "N/A"
+    if gate_status.is_door_fully_closed():
+        door_state = "Closed"
+    elif gate_status.is_door_fully_open():
+        door_state = "Open"
+
     return {
         "cpu_temperature": f"{cpu_temp:.1f}°C",
         "cpu_usage": f"{cpu_usage}%",
         "memory_usage": f"{memory.percent}%",
-        "disk_usage": f"{disk.percent}%"
+        "disk_usage": f"{disk.percent}%",
+        "door_state" : door_state,
+        "is_door_closing": gate_status.is_door_closing,
+        "is_door_opening": gate_status.is_door_opening
     }
 
 #Read HTML web page from file

@@ -1,5 +1,6 @@
 import io_control as io
 import time
+import threading
 
 #This class is used to set and control the state of the door of the gate
 
@@ -11,9 +12,14 @@ class DoorControl:
     It also includes methods to check if the door is fully open or closed using Hall Effect sensors.
     """
     def __init__(self):
+        #Keep track of door opening and closing states
         self.is_door_opening = False
         self.is_door_closing = False
+
+        self.lock = threading.Lock()
+        
         self.init_door()
+        
     
     #Door initial state
     def init_door(self):
@@ -75,18 +81,22 @@ class DoorControl:
     def is_door_fully_open(self):
         """
         Check if the door is fully open using Hall Effect sensors.
+        This function is thread-safe when reading Hall Effect sensors.
 
         Returns:
             bool: True if the door is fully open, False otherwise.
         """
-        return io.get_val('OPEN') == 0 and io.get_val('CLOSE') == 1
+        with self.lock:
+            return io.get_val('OPEN') == 0 and io.get_val('CLOSE') == 1
 
     #Check if door is fully closed by checking Hall Effect sensors
     def is_door_fully_closed(self):
         """
         Check if the door is fully closed using Hall Effect sensors.
+        This function is thread-safe when reading Hall Effect sensors.
 
         Returns:
             bool: True if the door is fully closed, False otherwise.
         """
-        return io.get_val('OPEN') == 1 and io.get_val('CLOSE') == 0
+        with self.lock:
+            return io.get_val('OPEN') == 1 and io.get_val('CLOSE') == 0

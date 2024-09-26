@@ -9,7 +9,7 @@ import io_control as io
 from enum import Enum, auto
 import threading
 
-from http_server import Initialize_Server, Shutdown_Server, set_latest_frame, Fetch_Queued_Command
+from http_server import Initialize_Server, Shutdown_Server, set_latest_frame, set_door_controller_reference, Fetch_Queued_Command
 from ruleset_decider import RulesetDecider
 from gate_states import State
 from json_config import JsonConfig
@@ -75,6 +75,9 @@ def main():
     #Initialize IO pins and door control
     io.set_all_pins()
     door_controller = DoorControl()
+
+    #The HTTP Server would need the reference of the door_controller object to get status on each '/status' GET request
+    set_door_controller_reference(door_controller)
 
     #Initialize State Machine
     current_state = State.IDLE

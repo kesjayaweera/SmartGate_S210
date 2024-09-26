@@ -82,7 +82,6 @@ $(document).ready(function () {
     //We could make it autoupdate, but making it manually obtained would be good for now because of potential performance impacts and to avoid unnecessary network traffic
     //Click event for the "Get Status" button
     $("#getStatus").on("click", function () {
-        //getStatus();
         $.ajax({
             url: '/status',
             type: 'GET',
@@ -92,7 +91,11 @@ $(document).ready(function () {
                                  '<p>CPU Temperature: ' + data.cpu_temperature + '</p>' +
                                  '<p>CPU Usage: '       + data.cpu_usage       + '</p>' +
                                  '<p>Memory Usage: '    + data.memory_usage    + '</p>' +
-                                 '<p>Disk Usage: '      + data.disk_usage      + '</p>';
+                                 '<p>Disk Usage: '      + data.disk_usage      + '</p>' +
+                                 '<h3>Motor Board Status</h3>' +
+                                 '<p>Door state: '      + data.door_state + '</p>' +
+                                 '<p>Door opening: '    + data.is_door_opening + '</p>' +
+                                 '<p>Door closing: '    + data.is_door_closing + '</p>';
                 $('.stat').html(statusHtml);
             },
             error: function(xhr, status, error) {
