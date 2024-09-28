@@ -62,6 +62,12 @@ Users are free to configure the rules to set the behaviour of the gate specified
 
 ```json
 {
+     "model": {
+        "path": "../models/yolov5s.engine",
+        "classes": "../models/classes/yolov5s.txt",
+        "confidence": 0.5
+    },
+
     "rules": [
         {
             "objects": ["dog"],
@@ -79,6 +85,17 @@ Users are free to configure the rules to set the behaviour of the gate specified
 }
 ```
 
+### Model Configuration
+
+*Note that in the configuration file, any path specified can be relative to the location of the configuration file itself.*
+
+- The `model` section defines the settings for the object detection model
+    - `path` specifies the file path to the trained model (in this case, a YOLOv5 model in TensorRT format).
+    - `classes` points to a text file containing the list of object classes the model can detect.
+    - `confidence`: Sets the confidence threshold for object detection (0.5 or 50% in this example).
+
+### Rules Configuration
+
 - `rules` section define how the gate should respond to detected objects
     - `objects` array represents the list of strings of the objects that should trigger the specified `action`. This should be referred from your specified classes file (from `models/classes`)
     - `action` is the action to take when the specified objects from `objects` are detected. Can be either `OPEN` or `CLOSE`.
@@ -88,6 +105,8 @@ Users are free to configure the rules to set the behaviour of the gate specified
     - If `dog` is detected the gate should open
     - If `cat` is detected the gate should close
     - If both are detected the gate should close. This should be the default behaviour of the SmartGate when both stimuli are detected
+
+### Server Configuration
 
 - `server` section contains the settings for the web server
     - `port` is the port number for which the web server would run under. In the example it's set to `8080` 
