@@ -24,7 +24,6 @@ class YoloTRT():
     :param library: Path to the TensorRT library
     :param yolor_ver: Version of YOLO being used
     """
-    #def __init__(self, library, engine, classes_file, conf, yolo_ver):
     def __init__(self, config : dict, library : str="../../lib/libmyplugins.so", yolo_ver : str="v5"):
         #Set config attributes appropriately
         engine       = config['path']
