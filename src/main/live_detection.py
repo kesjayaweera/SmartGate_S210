@@ -58,6 +58,7 @@ def main():
     config = JsonConfig()
 
     #Grab respective configurations from config.json file
+    model_config  = config.get_model_config() 
     rules_config  = config.get_rules_config() 
     server_config = config.get_server_config()
 
@@ -86,7 +87,8 @@ def main():
     object_list = []
 
     #Initialize YOLOv5 model via TensorRT engine
-    model = YoloTRT(library="../../lib/libmyplugins.so", engine="../../models/yolov5s.engine", classes_file='../../models/classes/yolov5s.txt', conf=0.5, yolo_ver="v5")
+    #model = YoloTRT(library="../../lib/libmyplugins.so", engine="../../models/yolov5s.engine", classes_file='../../models/classes/yolov5s.txt', conf=0.5, yolo_ver="v5")
+    model = YoloTRT(model_config)
 
     #Open the camera using GStreamer pipeline
     cap = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)

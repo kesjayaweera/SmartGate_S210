@@ -20,13 +20,17 @@ class YoloTRT():
     """
     Initialize a YoloTRT object for TensorRT Engine Model.
 
-    :param library:      Path to the TensorRT library
-    :param engine:       Path to the TensorRT engine file
-    :param classes_file: Path to the classes file (dictionary of classifications)
-    :param conf:         Confidence threshold for detections
-    :param yolo_ver:     Version of YOLO being used
+    :param config: Dictionary that contains the 'model' configuration
+    :param library: Path to the TensorRT library
+    :param yolor_ver: Version of YOLO being used
     """
-    def __init__(self, library, engine, classes_file, conf, yolo_ver):
+    #def __init__(self, library, engine, classes_file, conf, yolo_ver):
+    def __init__(self, config : dict, library : str="../../lib/libmyplugins.so", yolo_ver : str="v5"):
+        #Set config attributes appropriately
+        engine       = config['path']
+        classes_file = config['classes']
+        conf         = config['confidence']
+
         self.CONF_THRESH = conf 
         self.IOU_THRESHOLD = 0.4
         self.LEN_ALL_RESULT = 38001

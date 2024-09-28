@@ -1,4 +1,10 @@
 {
+    "model": {
+        "path": "../models/yolov5s.engine",
+        "classes": "../models/classes/yolov5s.txt",
+        "confidence": 0.5
+    },
+
     "rules": [
         {
             "objects": ["dog"],
