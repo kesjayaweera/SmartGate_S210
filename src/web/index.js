@@ -23,6 +23,7 @@ $(document).ready(function () {
 
     var buttonclose = "<button class='control' id='close'>Close</button>";
 
+    //This should make it so we can traverse through multiple cameras, but as of right now we only have one camera set up.
     vidwrapper.append(
         "<div id='cylebuttons'><div id='prevcontainer' class='buttoncontainer'>" + buttonprevious + "</div><div id='nextcontainer' class='buttoncontainer'>" + buttonnext + "</div></div>"
     );

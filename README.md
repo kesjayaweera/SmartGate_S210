@@ -92,7 +92,7 @@ Users are free to configure the rules to set the behaviour of the gate specified
 - The `model` section defines the settings for the object detection model
     - `path` specifies the file path to the trained model (in this case, a YOLOv5 model in TensorRT format). If you are working with a `.pt` file, you will need to convert it to a `.engine` file. You can use the following [repo](https://github.com/mailrocketsystems/JetsonYolov5) to convert it, or follow this [tutorial](https://youtube.com/watch?v=ErWC3nBuV6k)
     - `classes` points to a text file containing the list of object classes the model can detect. It will need to be in the following format `index: class` (check the files in `models/classes` for some examples)
-    - `confidence`: Sets the confidence threshold for object detection (`0.5` or 50% in this example).
+    - `confidence` sets the confidence threshold for object detection (`0.5` or 50% in this example).
 
 ### Rules Configuration
 
