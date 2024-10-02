@@ -21,7 +21,7 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/bin/bash -c 'sleep 30 && /sbin/ip addr add 192.168.0.21/24 dev wlan0 && /sbin/ip addr add 192.168.0.26/24 dev wlan0 && /sbin/ip addr add 192.168.0.27/24 dev wlan0'
+ExecStart=/bin/bash -c 'sleep 15; /sbin/ip addr add 192.168.0.21/24 dev wlan0; /sbin/ip addr add 192.168.0.26/24 dev wlan0; /sbin/ip addr add 192.168.0.27/24 dev wlan0'
 RemainAfterExit=yes
 
 [Install]
