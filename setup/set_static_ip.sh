@@ -8,6 +8,11 @@
 SERVICE_NAME="static-ip-addresses"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
+if [ "$EUID" -ne 0 ]; then
+  echo "[-] Please run as root"
+  exit
+fi
+
 # Create the service file content
 cat << EOF > "$SERVICE_FILE"
 [Unit]
