@@ -9,6 +9,7 @@
 - [Requirements](#requirements) 
 - [Setup](#setup) 
 - [Usage](#usage)
+- [Contact](#contact)
 - [Contributing](#contributing)
 
 Utilizing real-time object detection for endangered animal species under the Jetson Nano using TensorRT engine optimization. This detection model will be used to determine the state of the hardware-configured gate.
@@ -123,6 +124,10 @@ python3 live_detection.py
 ```
 
 A web server should run in which the camera stream can be viewed from the main dashboard.
+
+## Contact
+
+For project supports, please contact [Carlos C. N. Kuhn](mailto:carlos.noschangkuhn@canberra.edu.au).
 
 ## Contributing
 
