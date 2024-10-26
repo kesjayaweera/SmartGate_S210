@@ -123,7 +123,7 @@ cd SmartGate/src/main/
 python3 live_detection.py
 ```
 
-A web server should run in which the camera stream can be viewed from the main dashboard.
+A web server should run in which the camera stream can be viewed from the main dashboard and dedicated controls to manually control the gate.
 
 ## Contact
 
