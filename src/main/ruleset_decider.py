@@ -7,7 +7,7 @@ class RulesetDecider:
     """
     Reads rules from the specified ruleset configuration, obtained from the JSON config file, and uses it to determine the appropriate state transition based on detected objects
 
-    :param rules_config: Path to the config file, in JSON format, containing the rules (default: `../../config/config.json`)
+    :param rules_config: Ruleset dictionary (read json_config.py to see format)
     """
     def __init__(self, rules_config):
         self.rules = rules_config

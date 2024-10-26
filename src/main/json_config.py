@@ -32,8 +32,7 @@ class JsonConfig:
         "model": {
             "path": "...",
             "classes": "...",
-            "confidence": ...,
-            "yolo_ver": "..."
+            "confidence": ...
         }
         """
         return self.model_config
