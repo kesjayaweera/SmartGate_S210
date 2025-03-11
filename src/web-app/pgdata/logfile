@@ -1,0 +1,55 @@
+2025-03-11 19:09:41.375 AEDT [6297] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-11 19:09:41.376 AEDT [6297] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-11 19:09:41.376 AEDT [6297] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-11 19:09:41.377 AEDT [6297] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-03-11 19:09:41.379 AEDT [6297] LOG:  database system is shut down
+2025-03-11 19:12:54.403 AEDT [6716] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-11 19:12:54.403 AEDT [6716] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-11 19:12:54.403 AEDT [6716] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-11 19:12:54.404 AEDT [6716] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-11 19:12:54.408 AEDT [6719] LOG:  database system was shut down at 2025-03-11 19:07:35 AEDT
+2025-03-11 19:12:54.414 AEDT [6716] LOG:  database system is ready to accept connections
+2025-03-11 19:17:45.664 AEDT [6716] LOG:  received fast shutdown request
+2025-03-11 19:17:45.671 AEDT [6716] LOG:  aborting any active transactions
+2025-03-11 19:17:45.674 AEDT [6716] LOG:  background worker "logical replication launcher" (PID 6722) exited with exit code 1
+2025-03-11 19:17:45.674 AEDT [6717] LOG:  shutting down
+2025-03-11 19:17:45.675 AEDT [6717] LOG:  checkpoint starting: shutdown immediate
+2025-03-11 19:17:45.685 AEDT [6717] LOG:  checkpoint complete: wrote 50 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.004 s, total=0.012 s; sync files=15, longest=0.002 s, average=0.001 s; distance=273 kB, estimate=273 kB; lsn=0/1531298, redo lsn=0/1531298
+2025-03-11 19:17:45.688 AEDT [6716] LOG:  database system is shut down
+2025-03-11 19:19:45.800 AEDT [7523] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-11 19:19:45.802 AEDT [7523] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-11 19:19:45.802 AEDT [7523] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-11 19:19:45.803 AEDT [7523] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-11 19:19:45.806 AEDT [7526] LOG:  database system was shut down at 2025-03-11 19:17:45 AEDT
+2025-03-11 19:19:45.809 AEDT [7523] LOG:  database system is ready to accept connections
+2025-03-11 19:20:31.381 AEDT [7635] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.383 AEDT [7636] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.384 AEDT [7637] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.385 AEDT [7638] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.387 AEDT [7639] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.389 AEDT [7640] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.391 AEDT [7641] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.393 AEDT [7642] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.396 AEDT [7643] LOG:  invalid length of startup packet
+2025-03-11 19:20:31.398 AEDT [7644] LOG:  invalid length of startup packet
+2025-03-11 19:24:45.822 AEDT [7524] LOG:  checkpoint starting: time
+2025-03-11 19:24:45.856 AEDT [7524] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.034 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/15313A0, redo lsn=0/1531348
+2025-03-11 19:34:46.016 AEDT [7524] LOG:  checkpoint starting: time
+2025-03-11 19:36:20.040 AEDT [7524] LOG:  checkpoint complete: wrote 938 buffers (5.7%); 0 WAL file(s) added, 0 removed, 0 recycled; write=94.002 s, sync=0.013 s, total=94.025 s; sync files=304, longest=0.002 s, average=0.001 s; distance=4266 kB, estimate=4266 kB; lsn=0/195BFA0, redo lsn=0/195BF10
+2025-03-11 19:37:17.794 AEDT [13504] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.797 AEDT [13505] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.801 AEDT [13506] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.803 AEDT [13507] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.805 AEDT [13508] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.806 AEDT [13509] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.807 AEDT [13510] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.809 AEDT [13511] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.810 AEDT [13512] LOG:  invalid length of startup packet
+2025-03-11 19:37:17.812 AEDT [13513] LOG:  invalid length of startup packet
+2025-03-11 20:36:17.744 AEDT [7523] LOG:  received fast shutdown request
+2025-03-11 20:36:17.748 AEDT [7523] LOG:  aborting any active transactions
+2025-03-11 20:36:17.750 AEDT [7523] LOG:  background worker "logical replication launcher" (PID 7529) exited with exit code 1
+2025-03-11 20:36:17.750 AEDT [7524] LOG:  shutting down
+2025-03-11 20:36:17.751 AEDT [7524] LOG:  checkpoint starting: shutdown immediate
+2025-03-11 20:36:17.756 AEDT [7524] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.007 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=3840 kB; lsn=0/195C068, redo lsn=0/195C068
+2025-03-11 20:36:17.760 AEDT [7523] LOG:  database system is shut down
