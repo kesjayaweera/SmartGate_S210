@@ -7,7 +7,7 @@ data_bp = Blueprint("data", "smartgate")
 def get_status():
     return jsonify({"message": "Hello! Smart Gate Backend active!", "status": "Success!"})
 
-@test_bp.route('/')
-def home():
-    return "Hello from the test blueprint!"
+#@test_bp.route('/')
+#def home():
+#    return "Hello from the test blueprint!"
 
