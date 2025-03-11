@@ -53,3 +53,78 @@
 2025-03-11 20:36:17.751 AEDT [7524] LOG:  checkpoint starting: shutdown immediate
 2025-03-11 20:36:17.756 AEDT [7524] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.007 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=3840 kB; lsn=0/195C068, redo lsn=0/195C068
 2025-03-11 20:36:17.760 AEDT [7523] LOG:  database system is shut down
+2025-03-11 20:46:42.222 AEDT [2627] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-11 20:46:42.223 AEDT [2627] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-11 20:46:42.223 AEDT [2627] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-11 20:46:42.225 AEDT [2627] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-03-11 20:46:42.227 AEDT [2627] LOG:  database system is shut down
+2025-03-11 20:49:29.154 AEDT [3041] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-11 20:49:29.155 AEDT [3041] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-11 20:49:29.155 AEDT [3041] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-11 20:49:29.156 AEDT [3041] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-11 20:49:29.160 AEDT [3044] LOG:  database system was shut down at 2025-03-11 20:36:17 AEDT
+2025-03-11 20:49:29.165 AEDT [3041] LOG:  database system is ready to accept connections
+2025-03-11 20:54:29.257 AEDT [3042] LOG:  checkpoint starting: time
+2025-03-11 20:54:29.267 AEDT [3042] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.002 s, total=0.010 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/195C170, redo lsn=0/195C118
+2025-03-11 20:56:51.591 AEDT [3786] ERROR:  syntax error at or near "/" at character 1
+2025-03-11 20:56:51.591 AEDT [3786] STATEMENT:  /du
+	ALTER USER main WITH CREATEROLE
+	ALTER USER main WITH CREATEROLE;
+2025-03-11 20:59:29.364 AEDT [3042] LOG:  checkpoint starting: time
+2025-03-11 20:59:29.679 AEDT [3042] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.302 s, sync=0.005 s, total=0.315 s; sync files=4, longest=0.003 s, average=0.002 s; distance=5 kB, estimate=5 kB; lsn=0/195D598, redo lsn=0/195D540
+2025-03-11 21:00:47.159 AEDT [4682] FATAL:  database "postgrs" does not exist
+2025-03-11 21:02:03.878 AEDT [4695] ERROR:  cannot reassign ownership of objects owned by role tal because they are required by the database system
+2025-03-11 21:02:03.878 AEDT [4695] STATEMENT:  REASSIGN OWNED BY tal TO main;
+2025-03-11 21:04:29.779 AEDT [3042] LOG:  checkpoint starting: time
+2025-03-11 21:04:30.194 AEDT [3042] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.403 s, sync=0.005 s, total=0.416 s; sync files=5, longest=0.005 s, average=0.001 s; distance=1 kB, estimate=4 kB; lsn=0/195DD08, redo lsn=0/195DCB0
+2025-03-11 21:07:26.357 AEDT [5141] ERROR:  cannot reassign ownership of objects owned by role tal because they are required by the database system
+2025-03-11 21:07:26.357 AEDT [5141] STATEMENT:  REASSIGN OWNED BY tal to main;
+2025-03-11 21:08:55.409 AEDT [5141] ERROR:  cannot drop role tal because it is required by the database system
+2025-03-11 21:08:55.409 AEDT [5141] STATEMENT:  DROP ROLE tal;
+2025-03-11 21:09:05.565 AEDT [5141] ERROR:  cannot drop objects owned by role tal because they are required by the database system
+2025-03-11 21:09:05.565 AEDT [5141] STATEMENT:  DROP OWNED BY tal;
+2025-03-11 21:09:29.294 AEDT [3042] LOG:  checkpoint starting: time
+2025-03-11 21:09:29.707 AEDT [3042] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.403 s, sync=0.005 s, total=0.414 s; sync files=5, longest=0.004 s, average=0.001 s; distance=2 kB, estimate=4 kB; lsn=0/195E7B0, redo lsn=0/195E758
+2025-03-11 21:09:57.499 AEDT [5451] ERROR:  syntax error at or near "users" at character 20
+2025-03-11 21:09:57.499 AEDT [5451] STATEMENT:  SELECT user
+	SELECT users;
+2025-03-11 21:10:36.390 AEDT [5451] ERROR:  permission denied to alter role
+2025-03-11 21:10:36.390 AEDT [5451] DETAIL:  The bootstrap superuser must have the SUPERUSER attribute.
+2025-03-11 21:10:36.390 AEDT [5451] STATEMENT:  ALTER ROLE tal WITH NOSUPERUSER;
+2025-03-11 21:14:29.807 AEDT [3042] LOG:  checkpoint starting: time
+2025-03-11 21:14:30.121 AEDT [3042] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.303 s, sync=0.005 s, total=0.314 s; sync files=4, longest=0.004 s, average=0.002 s; distance=6 kB, estimate=6 kB; lsn=0/1960138, redo lsn=0/19600E0
+2025-03-11 21:14:40.125 AEDT [5755] ERROR:  role "main" cannot be dropped because some objects depend on it
+2025-03-11 21:14:40.125 AEDT [5755] DETAIL:  owner of database template1
+	owner of database template0
+	owner of database postgres
+2025-03-11 21:14:40.125 AEDT [5755] STATEMENT:  DROP ROLE main;
+2025-03-11 21:16:58.768 AEDT [5755] ERROR:  role "talha" cannot be dropped because some objects depend on it
+2025-03-11 21:16:58.768 AEDT [5755] DETAIL:  owner of database smartgate
+2025-03-11 21:16:58.768 AEDT [5755] STATEMENT:  DROP ROLE talha;
+2025-03-11 21:19:23.399 AEDT [6305] ERROR:  column "users" does not exist at character 8
+2025-03-11 21:19:23.399 AEDT [6305] STATEMENT:  SELECT users;
+2025-03-11 21:19:29.177 AEDT [3042] LOG:  checkpoint starting: time
+2025-03-11 21:19:29.696 AEDT [3042] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.503 s, sync=0.005 s, total=0.519 s; sync files=6, longest=0.004 s, average=0.001 s; distance=8 kB, estimate=8 kB; lsn=0/19622D8, redo lsn=0/1962280
+2025-03-11 21:20:11.880 AEDT [6305] ERROR:  syntax error at or near "SELECT" at character 10
+2025-03-11 21:20:11.880 AEDT [6305] STATEMENT:  SELECT *
+	SELECT *;
+2025-03-11 21:20:13.415 AEDT [6305] ERROR:  SELECT * with no tables specified is not valid at character 8
+2025-03-11 21:20:13.415 AEDT [6305] STATEMENT:  SELECT *;
+2025-03-11 21:23:03.681 AEDT [6600] FATAL:  database "template0" is not currently accepting connections
+2025-03-11 21:23:44.348 AEDT [6672] ERROR:  syntax error at or near "SELECT" at character 10
+2025-03-11 21:23:44.348 AEDT [6672] STATEMENT:  SELECT *
+	SELECT *;
+2025-03-11 21:23:48.119 AEDT [6672] ERROR:  SELECT * with no tables specified is not valid at character 8
+2025-03-11 21:23:48.119 AEDT [6672] STATEMENT:  SELECT *;
+2025-03-11 21:24:34.443 AEDT [6812] FATAL:  database "postgre" does not exist
+2025-03-11 21:25:06.727 AEDT [3042] LOG:  checkpoint starting: immediate force wait
+2025-03-11 21:25:06.735 AEDT [3042] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.002 s, total=0.008 s; sync files=2, longest=0.002 s, average=0.001 s; distance=2 kB, estimate=7 kB; lsn=0/1962C20, redo lsn=0/1962BC8
+2025-03-11 21:30:06.835 AEDT [3042] LOG:  checkpoint starting: time
+2025-03-11 21:30:07.146 AEDT [3042] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.302 s, sync=0.002 s, total=0.311 s; sync files=4, longest=0.001 s, average=0.001 s; distance=3 kB, estimate=7 kB; lsn=0/1963B80, redo lsn=0/1963B28
+2025-03-11 21:33:28.908 AEDT [3041] LOG:  received fast shutdown request
+2025-03-11 21:33:28.911 AEDT [3041] LOG:  aborting any active transactions
+2025-03-11 21:33:28.912 AEDT [3041] LOG:  background worker "logical replication launcher" (PID 3047) exited with exit code 1
+2025-03-11 21:33:28.912 AEDT [3042] LOG:  shutting down
+2025-03-11 21:33:28.914 AEDT [3042] LOG:  checkpoint starting: shutdown immediate
+2025-03-11 21:33:28.920 AEDT [3042] LOG:  checkpoint complete: wrote 1 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.008 s; sync files=1, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=6 kB; lsn=0/1963C30, redo lsn=0/1963C30
+2025-03-11 21:33:28.923 AEDT [3041] LOG:  database system is shut down
