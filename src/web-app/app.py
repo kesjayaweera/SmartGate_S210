@@ -1,9 +1,9 @@
 from flask import Flask
-from controllers.main_controller import data_bp
+from controllers.main_controller import test_bp
 
 app = Flask("smartgate")
 
-app.register_blueprint(data_bp)
+app.register_blueprint(test_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)

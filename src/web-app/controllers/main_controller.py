@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify
 
-data_bp = Blueprint("data", "smartgate")
+test_bp = Blueprint("test", "smartgate")
 
-@data_bp.route('/data', methods=['GET'])
+@test_bp.route('/test', methods=['GET'])
 def get_status():
     return jsonify({"message": "Hello! Smart Gate Backend active!", "status": "Success!"})
 
