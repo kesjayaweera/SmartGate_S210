@@ -182,3 +182,20 @@
 2025-03-14 19:04:14.353 AEDT [14497] LOG:  checkpoint starting: shutdown immediate
 2025-03-14 19:04:14.357 AEDT [14497] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.006 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=33 kB; lsn=0/19851D8, redo lsn=0/19851D8
 2025-03-14 19:04:14.361 AEDT [14496] LOG:  database system is shut down
+2025-03-14 19:17:36.905 AEDT [16103] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-14 19:17:36.906 AEDT [16103] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-14 19:17:36.906 AEDT [16103] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-14 19:17:36.907 AEDT [16103] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-14 19:17:36.910 AEDT [16106] LOG:  database system was shut down at 2025-03-14 19:04:14 AEDT
+2025-03-14 19:17:36.916 AEDT [16103] LOG:  database system is ready to accept connections
+2025-03-14 19:19:20.203 AEDT [16168] ERROR:  column "id" of relation "test" does not exist at character 26
+2025-03-14 19:19:20.203 AEDT [16168] STATEMENT:  INSERT INTO public.test (ID) VALUES (1);
+2025-03-14 19:22:36.911 AEDT [16104] LOG:  checkpoint starting: time
+2025-03-14 19:22:37.326 AEDT [16104] LOG:  checkpoint complete: wrote 7 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.404 s, sync=0.005 s, total=0.416 s; sync files=6, longest=0.004 s, average=0.001 s; distance=19 kB, estimate=19 kB; lsn=0/198A0A0, redo lsn=0/198A048
+2025-03-14 19:24:49.325 AEDT [16103] LOG:  received fast shutdown request
+2025-03-14 19:24:49.330 AEDT [16103] LOG:  aborting any active transactions
+2025-03-14 19:24:49.331 AEDT [16103] LOG:  background worker "logical replication launcher" (PID 16109) exited with exit code 1
+2025-03-14 19:24:49.332 AEDT [16104] LOG:  shutting down
+2025-03-14 19:24:49.333 AEDT [16104] LOG:  checkpoint starting: shutdown immediate
+2025-03-14 19:24:49.339 AEDT [16104] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.002 s, total=0.008 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=17 kB; lsn=0/198A1F0, redo lsn=0/198A1F0
+2025-03-14 19:24:49.344 AEDT [16103] LOG:  database system is shut down

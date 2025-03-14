@@ -6,4 +6,5 @@ test_bp = Blueprint("test", "smartgate")
 def get_status():
     return jsonify({"message": "Hello! Smart Gate Backend active!", "status": "Success!"})
 
-
+def add_data():
+    pass
