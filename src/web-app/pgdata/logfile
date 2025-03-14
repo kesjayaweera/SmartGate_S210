@@ -128,3 +128,42 @@
 2025-03-11 21:33:28.914 AEDT [3042] LOG:  checkpoint starting: shutdown immediate
 2025-03-11 21:33:28.920 AEDT [3042] LOG:  checkpoint complete: wrote 1 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.008 s; sync files=1, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=6 kB; lsn=0/1963C30, redo lsn=0/1963C30
 2025-03-11 21:33:28.923 AEDT [3041] LOG:  database system is shut down
+2025-03-14 17:54:50.791 AEDT [7755] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-14 17:54:50.792 AEDT [7755] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-14 17:54:50.792 AEDT [7755] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-14 17:54:50.793 AEDT [7755] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-03-14 17:54:50.794 AEDT [7755] LOG:  database system is shut down
+2025-03-14 17:58:17.161 AEDT [8320] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-14 17:58:17.163 AEDT [8320] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-14 17:58:17.163 AEDT [8320] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-14 17:58:17.165 AEDT [8320] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": Permission denied
+2025-03-14 17:58:17.166 AEDT [8320] LOG:  database system is shut down
+2025-03-14 17:59:19.788 AEDT [8453] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-14 17:59:19.788 AEDT [8453] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-14 17:59:19.788 AEDT [8453] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-14 17:59:19.790 AEDT [8453] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": Permission denied
+2025-03-14 17:59:19.791 AEDT [8453] LOG:  database system is shut down
+2025-03-14 18:00:19.623 AEDT [8605] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-14 18:00:19.625 AEDT [8605] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-14 18:00:19.625 AEDT [8605] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-14 18:00:19.626 AEDT [8605] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-14 18:00:19.631 AEDT [8608] LOG:  database system was shut down at 2025-03-14 17:19:58 AEDT
+2025-03-14 18:00:19.636 AEDT [8605] LOG:  database system is ready to accept connections
+2025-03-14 18:05:19.732 AEDT [8606] LOG:  checkpoint starting: time
+2025-03-14 18:05:19.746 AEDT [8606] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.015 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/1964030, redo lsn=0/1963FC0
+2025-03-14 18:07:48.731 AEDT [9891] FATAL:  role "tal" does not exist
+2025-03-14 18:25:22.177 AEDT [10382] ERROR:  syntax error at or near "(" at character 37
+2025-03-14 18:25:22.177 AEDT [10382] STATEMENT:  CREATE TABLE "Test" (
+	  "ID" integer(255) NOT NULL
+	)
+2025-03-14 18:30:19.980 AEDT [8606] LOG:  checkpoint starting: time
+2025-03-14 18:30:22.404 AEDT [8606] LOG:  checkpoint complete: wrote 25 buffers (0.2%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.409 s, sync=0.007 s, total=2.425 s; sync files=20, longest=0.006 s, average=0.001 s; distance=94 kB, estimate=94 kB; lsn=0/197BBF0, redo lsn=0/197BB60
+2025-03-14 18:36:27.376 AEDT [11104] ERROR:  relation "test" does not exist at character 15
+2025-03-14 18:36:27.376 AEDT [11104] STATEMENT:  SELECT * FROM Test;
+2025-03-14 18:37:31.766 AEDT [8605] LOG:  received fast shutdown request
+2025-03-14 18:37:31.771 AEDT [8605] LOG:  aborting any active transactions
+2025-03-14 18:37:31.773 AEDT [8605] LOG:  background worker "logical replication launcher" (PID 8611) exited with exit code 1
+2025-03-14 18:37:31.773 AEDT [8606] LOG:  shutting down
+2025-03-14 18:37:31.774 AEDT [8606] LOG:  checkpoint starting: shutdown immediate
+2025-03-14 18:37:31.780 AEDT [8606] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.007 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=85 kB; lsn=0/197BCA0, redo lsn=0/197BCA0
+2025-03-14 18:37:31.789 AEDT [8605] LOG:  database system is shut down
