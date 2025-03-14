@@ -167,3 +167,18 @@
 2025-03-14 18:37:31.774 AEDT [8606] LOG:  checkpoint starting: shutdown immediate
 2025-03-14 18:37:31.780 AEDT [8606] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.007 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=85 kB; lsn=0/197BCA0, redo lsn=0/197BCA0
 2025-03-14 18:37:31.789 AEDT [8605] LOG:  database system is shut down
+2025-03-14 18:59:06.017 AEDT [14496] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-14 18:59:06.018 AEDT [14496] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-14 18:59:06.018 AEDT [14496] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-14 18:59:06.019 AEDT [14496] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-14 18:59:06.022 AEDT [14499] LOG:  database system was shut down at 2025-03-14 18:37:31 AEDT
+2025-03-14 18:59:06.025 AEDT [14496] LOG:  database system is ready to accept connections
+2025-03-14 19:04:06.102 AEDT [14497] LOG:  checkpoint starting: time
+2025-03-14 19:04:07.023 AEDT [14497] LOG:  checkpoint complete: wrote 12 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.909 s, sync=0.003 s, total=0.921 s; sync files=10, longest=0.002 s, average=0.001 s; distance=37 kB, estimate=37 kB; lsn=0/1985128, redo lsn=0/19850D0
+2025-03-14 19:04:14.346 AEDT [14496] LOG:  received fast shutdown request
+2025-03-14 19:04:14.350 AEDT [14496] LOG:  aborting any active transactions
+2025-03-14 19:04:14.352 AEDT [14496] LOG:  background worker "logical replication launcher" (PID 14502) exited with exit code 1
+2025-03-14 19:04:14.352 AEDT [14497] LOG:  shutting down
+2025-03-14 19:04:14.353 AEDT [14497] LOG:  checkpoint starting: shutdown immediate
+2025-03-14 19:04:14.357 AEDT [14497] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.006 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=33 kB; lsn=0/19851D8, redo lsn=0/19851D8
+2025-03-14 19:04:14.361 AEDT [14496] LOG:  database system is shut down
