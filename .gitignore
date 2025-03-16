@@ -9,3 +9,6 @@ setup/torchvision/
 
 # Ignore installation related files for driver installation
 setup/drivers/build
+
+src/web-app/pgdata/
+
