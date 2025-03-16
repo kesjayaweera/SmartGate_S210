@@ -199,3 +199,22 @@
 2025-03-14 19:24:49.333 AEDT [16104] LOG:  checkpoint starting: shutdown immediate
 2025-03-14 19:24:49.339 AEDT [16104] LOG:  checkpoint complete: wrote 2 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.002 s, sync=0.002 s, total=0.008 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=17 kB; lsn=0/198A1F0, redo lsn=0/198A1F0
 2025-03-14 19:24:49.344 AEDT [16103] LOG:  database system is shut down
+2025-03-16 14:58:56.334 AEDT [8201] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-16 14:58:56.335 AEDT [8201] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-16 14:58:56.335 AEDT [8201] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-16 14:58:56.336 AEDT [8201] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-03-16 14:58:56.337 AEDT [8201] LOG:  database system is shut down
+2025-03-16 15:00:06.724 AEDT [8480] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-16 15:00:06.725 AEDT [8480] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-16 15:00:06.725 AEDT [8480] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-16 15:00:06.726 AEDT [8480] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-16 15:00:06.732 AEDT [8483] LOG:  database system was shut down at 2025-03-14 20:53:58 AEDT
+2025-03-16 15:00:06.737 AEDT [8480] LOG:  database system is ready to accept connections
+2025-03-16 15:01:32.708 AEDT [8670] FATAL:  database "smartgatebd" does not exist
+2025-03-16 15:04:39.537 AEDT [8480] LOG:  received fast shutdown request
+2025-03-16 15:04:39.541 AEDT [8480] LOG:  aborting any active transactions
+2025-03-16 15:04:39.542 AEDT [8480] LOG:  background worker "logical replication launcher" (PID 8486) exited with exit code 1
+2025-03-16 15:04:39.542 AEDT [8481] LOG:  shutting down
+2025-03-16 15:04:39.543 AEDT [8481] LOG:  checkpoint starting: shutdown immediate
+2025-03-16 15:04:39.551 AEDT [8481] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.002 s, total=0.010 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/198A458, redo lsn=0/198A458
+2025-03-16 15:04:39.555 AEDT [8480] LOG:  database system is shut down
