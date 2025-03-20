@@ -1,0 +1,5 @@
+2025-03-20 17:25:46.128 AEDT [9199] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-20 17:25:46.129 AEDT [9199] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-20 17:25:46.129 AEDT [9199] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-20 17:25:46.131 AEDT [9199] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-03-20 17:25:46.132 AEDT [9199] LOG:  database system is shut down
