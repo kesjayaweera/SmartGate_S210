@@ -1,7 +1,7 @@
 from flask import Flask
 from controllers.main_controller import test_bp, backend_test_bp
 
-app = Flask("smartgate", template_folder="views")
+app = Flask("smartgate")
 
 app.register_blueprint(backend_test_bp)
 app.register_blueprint(test_bp)
