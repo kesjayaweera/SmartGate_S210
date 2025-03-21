@@ -1,4 +1,9 @@
-fetch("http://127.0.0.1:5000/test")
-    .then(response => response.json())
-    .then(data => console.log(data))
-    .catch(error => console.error("SmartGate Backend Error: ", error))
+// Fetch the JSON data from /test
+fetch("/test")
+    .then(response => response.json())  // Convert response to JSON
+    .then(data => {
+        // Update the page with the JSON data
+        document.getElementById("message").innerText = data.message;
+        document.getElementById("status").innerText = data.status;
+    })
+    .catch(error => console.error("Error fetching status:", error));
