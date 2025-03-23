@@ -9,7 +9,8 @@ RUN pacman -Syy --noconfirm && \
     pacman -Syu --noconfirm && \
     pacman -Scc --noconfirm  # Clean up cache
 
-EXPOSE 5000
+# Expose both Flask (5000) & PostgreSQL (5432)
+EXPOSE 5000 5432
 
 # Keep the container running
 CMD ["/bin/bash"]

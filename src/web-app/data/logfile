@@ -65,3 +65,29 @@
 2025-03-20 18:49:02.100 AEDT [17634] LOG:  checkpoint starting: shutdown immediate
 2025-03-20 18:49:02.108 AEDT [17634] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.002 s, total=0.010 s; sync files=3, longest=0.001 s, average=0.001 s; distance=2 kB, estimate=2 kB; lsn=0/16046A0, redo lsn=0/16046A0
 2025-03-20 18:49:02.112 AEDT [17633] LOG:  database system is shut down
+2025-03-23 21:31:15.180 AEDT [8842] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-23 21:31:15.181 AEDT [8842] LOG:  listening on IPv6 address "::1", port 5432
+2025-03-23 21:31:15.181 AEDT [8842] LOG:  listening on IPv4 address "127.0.0.1", port 5432
+2025-03-23 21:31:15.182 AEDT [8842] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-23 21:31:15.186 AEDT [8845] LOG:  database system was shut down at 2025-03-20 18:49:02 AEDT
+2025-03-23 21:31:15.192 AEDT [8842] LOG:  database system is ready to accept connections
+2025-03-23 21:31:35.881 AEDT [8842] LOG:  received fast shutdown request
+2025-03-23 21:31:35.887 AEDT [8842] LOG:  aborting any active transactions
+2025-03-23 21:31:35.891 AEDT [8842] LOG:  background worker "logical replication launcher" (PID 8848) exited with exit code 1
+2025-03-23 21:31:35.891 AEDT [8843] LOG:  shutting down
+2025-03-23 21:31:35.893 AEDT [8843] LOG:  checkpoint starting: shutdown immediate
+2025-03-23 21:31:35.911 AEDT [8843] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.020 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/1604750, redo lsn=0/1604750
+2025-03-23 21:31:35.913 AEDT [8842] LOG:  database system is shut down
+2025-03-23 21:47:08.661 AEDT [10073] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-23 21:47:08.661 AEDT [10073] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-03-23 21:47:08.661 AEDT [10073] LOG:  listening on IPv6 address "::", port 5432
+2025-03-23 21:47:08.662 AEDT [10073] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-23 21:47:08.666 AEDT [10076] LOG:  database system was shut down at 2025-03-23 21:31:35 AEDT
+2025-03-23 21:47:08.670 AEDT [10073] LOG:  database system is ready to accept connections
+2025-03-23 21:48:13.894 AEDT [10073] LOG:  received fast shutdown request
+2025-03-23 21:48:13.895 AEDT [10073] LOG:  aborting any active transactions
+2025-03-23 21:48:13.898 AEDT [10073] LOG:  background worker "logical replication launcher" (PID 10079) exited with exit code 1
+2025-03-23 21:48:13.898 AEDT [10074] LOG:  shutting down
+2025-03-23 21:48:13.899 AEDT [10074] LOG:  checkpoint starting: shutdown immediate
+2025-03-23 21:48:13.909 AEDT [10074] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.003 s, sync=0.001 s, total=0.012 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/1604800, redo lsn=0/1604800
+2025-03-23 21:48:13.915 AEDT [10073] LOG:  database system is shut down
