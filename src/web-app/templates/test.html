@@ -8,7 +8,13 @@
     </head>
     <body>
         <h1>This website is for backend testing!</h1>
-        {# <!-- <button onclick="location.href='{{ url_for('github_login') }}'">Login with GitHub</button> --> #}
+        {% if user %}
+            <p>Logged in as: <strong>{{ user.username }}</strong> (ID: {{ user.id }})</p>
+            <p>Access Token: <strong>{{ token['access_token'] }}</strong></p>
+            <button onclick="location.href='/logout'">Logout</button>
+        {% else %}
+            <button onclick="location.href='/login'">Login with GitHub</button>
+        {% endif %}
         <div id="status-container">
             <p><strong>Message:</strong> <span id="message"></span></p>
             <p><strong>Status:</strong> <span id="status"></span></p>
