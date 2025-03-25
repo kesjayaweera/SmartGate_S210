@@ -2,7 +2,7 @@
 FROM alpine:latest
 
 # Set the working directory
-WORKDIR /webapp
+WORKDIR /smartgate
 
 # Install necessary packages
 RUN apk update && \
@@ -21,7 +21,7 @@ RUN chown -R developer:developer /webapp
 USER developer
 
 # Clone the repo inside the container
-RUN git clone https://github.com/ChristopherLaff/SmartGate.git /webapp
+RUN git clone https://github.com/ChristopherLaff/SmartGate.git /smartgate
 
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
