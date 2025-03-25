@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}{{title}}{% endblock %} - SmartGate</title>
     <link rel="stylesheet" href="../static/css/site.css" />
-    <script src="../static/js/site.js"></script>
 </head>
 <body>
     <header>
@@ -27,7 +26,19 @@
                 <li><a href="#">STATS</a></li> --> #}
             </ul>
         </nav>
+        {% if user %}
+        <div class="user-info">
+            <div class="profile-avatar" onclick="toggleUserMenu()">
+                <img src="{{ user.avatar_url }}" alt="User Avatar" class="profile-pic">
+            </div>
+            <div class="user-menu" id="userMenu">
+                <p class="username">Username: {{ user.username }}</p>
+                <a href="{{ url_for('backend_logout.logout') }}" class="logout-btn">Logout</a>
+            </div>
+        </div>        
+        {% else %}
         <a href="{{ url_for('backend_login.github_login') }}" class="login-btn">LOGIN</a>
+        {% endif %}
     </header>
 
     <main>
@@ -50,6 +61,6 @@
         </div>
         <p class="footer-bottom">&copy; 2025 SmartGate. Powered by Jetson Nano & TensorRT.</p>
     </footer>
-
+    <script src="../static/js/site.js"></script>
 </body>
 </html>

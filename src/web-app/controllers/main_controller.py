@@ -37,7 +37,8 @@ def register_blueprints(app):
 
 @home_bp.route('/')
 def home():
-    return render_template('Index.html')
+    user = session.get("user")
+    return render_template('Index.html', user=user)
 
 @gates_bp.route('/gates')
 def gates():
@@ -73,7 +74,8 @@ def github_callback_route():
     # Store user info in session
     session["user"] = {
         "username": user_info.get("login"),
-        "id": user_info.get("id")
+        "id": user_info.get("id"),
+        "avatar_url": user_info.get("avatar_url")
     }
 
     return redirect(url_for("backend_homepage.home"))
