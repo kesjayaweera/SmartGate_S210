@@ -1,13 +1,13 @@
-# Use the official Arch Linux Docker image
-FROM archlinux:latest
+# Use the official Alpine Linux Docker image
+FROM alpine:latest
 
 # Set the working directory
-WORKDIR /SmartGate
+WORKDIR /webapp
 
 # Update the system
-RUN pacman -Syy --noconfirm && \
-    pacman -Syu --noconfirm && \
-    pacman -Scc --noconfirm  # Clean up cache
+RUN apk update && \
+    apk upgrade && \
+    rm -rf /var/cache/apk/*  # Clean up cache
 
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
