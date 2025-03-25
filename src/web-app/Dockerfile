@@ -7,12 +7,15 @@ WORKDIR /webapp
 # Install necessary packages
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache bash git openssh-client sudo python && \
+    apk add bash git openssh sudo && \
     rm -rf /var/cache/apk/*  # Clean up cache
 
 # Create a non-root user 'developer' and give them sudo privileges
 RUN adduser -D developer && \
     echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Set proper permissions for the developer user
+RUN chown -R developer:developer /webapp
 
 # Switch to the 'developer' user
 USER developer
@@ -25,4 +28,3 @@ EXPOSE 5000 5432
 
 # Keep the container running
 CMD ["/bin/bash"]
-
