@@ -2,7 +2,7 @@
 FROM archlinux:latest
 
 # Set the working directory
-WORKDIR /web-app
+WORKDIR /SmartGate
 
 # Update the system
 RUN pacman -Syy --noconfirm && \
