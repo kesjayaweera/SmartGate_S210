@@ -122,3 +122,21 @@
 2025-03-23 22:01:47.838 AEDT [10823] LOG:  checkpoint starting: shutdown immediate
 2025-03-23 22:01:47.843 AEDT [10823] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.007 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB; lsn=0/16049B8, redo lsn=0/16049B8
 2025-03-23 22:01:47.848 AEDT [10822] LOG:  database system is shut down
+2025-03-25 13:29:35.545 AEDT [3932] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-25 13:29:35.546 AEDT [3932] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-03-25 13:29:35.546 AEDT [3932] LOG:  listening on IPv6 address "::", port 5432
+2025-03-25 13:29:35.547 AEDT [3932] FATAL:  could not create lock file "/run/postgresql/.s.PGSQL.5432.lock": No such file or directory
+2025-03-25 13:29:35.548 AEDT [3932] LOG:  database system is shut down
+2025-03-25 13:29:47.912 AEDT [4019] LOG:  starting PostgreSQL 17.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 14.2.1 20250207, 64-bit
+2025-03-25 13:29:47.912 AEDT [4019] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2025-03-25 13:29:47.912 AEDT [4019] LOG:  listening on IPv6 address "::", port 5432
+2025-03-25 13:29:47.914 AEDT [4019] LOG:  listening on Unix socket "/run/postgresql/.s.PGSQL.5432"
+2025-03-25 13:29:47.918 AEDT [4022] LOG:  database system was shut down at 2025-03-23 22:01:47 AEDT
+2025-03-25 13:29:47.923 AEDT [4019] LOG:  database system is ready to accept connections
+2025-03-25 13:33:25.162 AEDT [4019] LOG:  received fast shutdown request
+2025-03-25 13:33:25.169 AEDT [4019] LOG:  aborting any active transactions
+2025-03-25 13:33:25.171 AEDT [4019] LOG:  background worker "logical replication launcher" (PID 4025) exited with exit code 1
+2025-03-25 13:33:25.171 AEDT [4020] LOG:  shutting down
+2025-03-25 13:33:25.172 AEDT [4020] LOG:  checkpoint starting: shutdown immediate
+2025-03-25 13:33:25.182 AEDT [4020] LOG:  checkpoint complete: wrote 3 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.001 s, total=0.011 s; sync files=2, longest=0.001 s, average=0.001 s; distance=0 kB, estimate=0 kB; lsn=0/1604A68, redo lsn=0/1604A68
+2025-03-25 13:33:25.186 AEDT [4019] LOG:  database system is shut down
