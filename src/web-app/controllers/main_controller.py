@@ -5,13 +5,20 @@ import requests
 oauth = OAuth()
 
 home_bp = Blueprint("backend_homepage", "smartgate")
+gates_bp = Blueprint("backend_gates", "smartgate")
+about_bp = Blueprint("backend_about", "smartgate")
+settings_bp = Blueprint("backend_setting", "smartgate")
 status_bp = Blueprint("backend_status", "smartgate")
 login_bp = Blueprint("backend_login", "smartgate")
 callback_bp = Blueprint("backend_callback", "smartgate")
 logout_bp = Blueprint("backend_logout", "smartgate")
 
+
 def register_blueprints(app):
     app.register_blueprint(home_bp)
+    app.register_blueprint(gates_bp)
+    app.register_blueprint(about_bp)
+    app.register_blueprint(settings_bp)
     app.register_blueprint(status_bp)
     app.register_blueprint(login_bp)
     app.register_blueprint(callback_bp)
@@ -22,7 +29,7 @@ def register_blueprints(app):
     oauth.register(
         "github",
         client_id="Ov23liNZIYmArduFmbdg",
-        client_secret="579adbc25c9fe9c81c7822570ae1c391b380586e",
+        client_secret="5562a74d01e9d3f61887e636ec6f05e184b267c6",
         authorize_url="https://github.com/login/oauth/authorize",
         access_token_url="https://github.com/login/oauth/access_token",
         client_kwargs={"scope":"user"}
@@ -30,9 +37,19 @@ def register_blueprints(app):
 
 @home_bp.route('/')
 def home():
-    user = session.get("user")
-    token = session.get("github_token")
-    return render_template('test.html', user=user, token=token)
+    return render_template('Index.html')
+
+@gates_bp.route('/gates')
+def gates():
+    return render_template('gates.html')
+
+@about_bp.route('/about')
+def about():
+    return render_template('About.html')
+
+@settings_bp.route('/setting')
+def setting():
+    return render_template('setting.html')
 
 @status_bp.route('/test', methods=['GET'])
 def get_status():
@@ -51,11 +68,8 @@ def github_login():
 @callback_bp.route('/callback')
 def github_callback_route():
     token = oauth.github.authorize_access_token()
-    session["github_token"] = token
-
     # Get user details from GitHub API
     user_info = oauth.github.get("https://api.github.com/user").json()
-
     # Store user info in session
     session["user"] = {
         "username": user_info.get("login"),

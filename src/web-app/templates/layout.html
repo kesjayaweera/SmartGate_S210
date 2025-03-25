@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{{title}}{% endblock %} - SmartGate</title>
+    <link rel="stylesheet" href="../static/css/site.css" />
+    <script src="../static/js/site.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo">SMARTGATE</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('backend_homepage.home') }}">DASHBOARD</a></li>
+                <li><a href="{{ url_for('backend_gates.gates') }}">GATES</a><li/>
+                <li><a href="{{ url_for('backend_about.about') }}">ABOUT US</a><li/>
+                <li class="dropdown">
+                    <a href="{{ url_for('backend_setting.setting') }}">SETTINGS</a>
+                    <div class="dropdown-content">
+                        
+                        <label for="brightness-slider">Brightness:</label>
+                        <input type="range" id="brightness-slider" min="50" max="150" value="100">
+                    </div>
+                </li>
+                {# <!-- <li><a href="#">ALERTS</a></li>
+                <li><a href="#">STATS</a></li> --> #}
+            </ul>
+        </nav>
+        <a href="{{ url_for('backend_login.github_login') }}" class="login-btn">LOGIN</a>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <p>© 2025 SmartGate | Protecting Endangered Species</p>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+                <li><a href="{{ url_for('backend_about.about') }}">ABOUT US</a><li/>
+
+            </div>
+
+        </div>
+        <p class="footer-bottom">&copy; 2025 SmartGate. Powered by Jetson Nano & TensorRT.</p>
+    </footer>
+
+</body>
+</html>

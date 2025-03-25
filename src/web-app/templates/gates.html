@@ -1,85 +1,81 @@
-﻿<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../static/css/site.css">
-    </head>
-    <body>
-        <!-- Main Content Wrapper -->
-        <div class="main-content">
-            <section class="hero">
-                <video autoplay muted loop id="backgroundVideo">
-                    <source src="../static/NewFolder/bakground_video.mp4" type="video/mp4"> <!-- need to change new folder to video -->
-                    Your browser does not support the video tag.
-                </video>
+﻿{% extends "layout.html" %}
 
-                <div class="overlay"></div>
-            </section>
+{% block title %}Gates{% endblock %}
 
-            <div class="about-container">
-                <h1>Gates Management</h1>
+{% block content %}
+<!-- Main Content Wrapper -->
+<div class="main-content">
+    <section class="hero">
+        <video autoplay muted loop id="backgroundVideo">
+            <source src="../static/NewFolder/bakground_video.mp4" type="video/mp4"> <!-- need to change new folder to video -->
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="overlay"></div>
+    </section>
+
+    <div class="about-container">
+        <h1>Gates Management</h1>
+    </div>
+
+    <!-- Gates Management Section -->
+    <div class="gates-container">
+
+        <!-- Gates Grid (Each Gate has Camera, Status, and Toggle) -->
+        <div class="gates-grid">
+            <div class="gate-item">
+                <h2>GATE 1</h2><BR>
+                <img src="../static/images/wild_fox.jpg" alt="Gate 1 Live Feed">
+                <p>Status: <span class="gate-status" data-status="OPEN">OPEN</span></p>
+                <button class="toggle-gate">Toggle Gate</button>
             </div>
 
-            <!-- Gates Management Section -->
-            <div class="gates-container">
+            <div class="gate-item">
+                <h2>GATE 2</h2><BR>
+                <img src="../static/images/panda.jpg" alt="Gate 2 Live Feed">
+                <p>Status: <span class="gate-status" data-status="CLOSED">CLOSED</span></p>
+                <button class="toggle-gate">Toggle Gate</button>
+            </div>
 
-                <!-- Gates Grid (Each Gate has Camera, Status, and Toggle) -->
-                <div class="gates-grid">
-                    <div class="gate-item">
-                        <h2>GATE 1</h2><BR>
-                        <img src="../static/images/wild_fox.jpg" alt="Gate 1 Live Feed">
-                        <p>Status: <span class="gate-status" data-status="OPEN">OPEN</span></p>
-                        <button class="toggle-gate">Toggle Gate</button>
-                    </div>
+            <div class="gate-item">
+                <h2>GATE 3</h2><BR>
+                <img src="../static/images/amur-leopard.jpg" alt="Gate 3 Live Feed">
+                <p>Status: <span class="gate-status" data-status="OPEN">OPEN</span></p>
+                <button class="toggle-gate">Toggle Gate</button>
+            </div>
 
-                    <div class="gate-item">
-                        <h2>GATE 2</h2><BR>
-                        <img src="../static/images/panda.jpg" alt="Gate 2 Live Feed">
-                        <p>Status: <span class="gate-status" data-status="CLOSED">CLOSED</span></p>
-                        <button class="toggle-gate">Toggle Gate</button>
-                    </div>
-
-                    <div class="gate-item">
-                        <h2>GATE 3</h2><BR>
-                        <img src="../static/amur-leopard.jpg" alt="Gate 3 Live Feed">
-                        <p>Status: <span class="gate-status" data-status="OPEN">OPEN</span></p>
-                        <button class="toggle-gate">Toggle Gate</button>
-                    </div>
-
-                    <div class="gate-item">
-                        <h2>GATE 4</h2><BR>
-                        <img src="../static/oranguton.jpg" alt="Gate 4 Live Feed">
-                        <p>Status: <span class="gate-status" data-status="CLOSED">CLOSED</span></p>
-                        <button class="toggle-gate">Toggle Gate</button>
-                    </div>
-                </div>
+            <div class="gate-item">
+                <h2>GATE 4</h2><BR>
+                <img src="../static/images/oranguton.jpg" alt="Gate 4 Live Feed">
+                <p>Status: <span class="gate-status" data-status="CLOSED">CLOSED</span></p>
+                <button class="toggle-gate">Toggle Gate</button>
             </div>
         </div>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                // Get all toggle buttons
-                const toggleButtons = document.querySelectorAll(".toggle-gate");
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Get all toggle buttons
+        const toggleButtons = document.querySelectorAll(".toggle-gate");
 
-                toggleButtons.forEach(button => {
-                    button.addEventListener("click", function () {
-                        // Get the status element inside the same gate-item
-                        const gateItem = this.closest(".gate-item");
-                        const statusElement = gateItem.querySelector(".gate-status");
+        toggleButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                // Get the status element inside the same gate-item
+                const gateItem = this.closest(".gate-item");
+                const statusElement = gateItem.querySelector(".gate-status");
 
-                        // Toggle the gate status
-                        if (statusElement.getAttribute("data-status") === "OPEN") {
-                            statusElement.setAttribute("data-status", "CLOSED");
-                            statusElement.textContent = "CLOSED";
-                            statusElement.style.color = "red"; // Update text color
-                        } else {
-                            statusElement.setAttribute("data-status", "OPEN");
-                            statusElement.textContent = "OPEN";
-                            statusElement.style.color = "green"; // Update text color
-                        }
-                    });
-                });
+                // Toggle the gate status
+                if (statusElement.getAttribute("data-status") === "OPEN") {
+                    statusElement.setAttribute("data-status", "CLOSED");
+                    statusElement.textContent = "CLOSED";
+                    statusElement.style.color = "red"; // Update text color
+                } else {
+                    statusElement.setAttribute("data-status", "OPEN");
+                    statusElement.textContent = "OPEN";
+                    statusElement.style.color = "green"; // Update text color
+                }
             });
-        </script>
-    </body>
-</html>
+        });
+    });
+</script>
+{% endblock %}
