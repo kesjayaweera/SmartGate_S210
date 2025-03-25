@@ -10,11 +10,16 @@ RUN apk update && \
     apk add bash git openssh sudo && \
     rm -rf /var/cache/apk/*  # Clean up cache
 
-# Create a non-root user 'developer' and give them sudo privileges
-RUN adduser -D developer && \
-    echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+# Create a non-root user 'developer'
+RUN adduser -D developer
 
-# Set proper permissions for the developer user
+# Add 'developer' user to the 'wheel' group to allow sudo privileges
+RUN adduser developer wheel
+
+# Give the 'developer' user sudo privileges without password
+RUN echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+# Set proper permissions for the 'developer' user
 RUN chown -R developer:developer /smartgate
 
 # Switch to the 'developer' user
