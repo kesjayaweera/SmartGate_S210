@@ -13,5 +13,5 @@ RUN apk update && \
 EXPOSE 5000 5432
 
 # Keep the container running
-CMD ["/bin/bash"]
+CMD ["/bin/sh"]
 
