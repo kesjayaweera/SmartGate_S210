@@ -15,7 +15,7 @@ RUN adduser -D developer && \
     echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Set proper permissions for the developer user
-RUN chown -R developer:developer /webapp
+RUN chown -R developer:developer /smartgate
 
 # Switch to the 'developer' user
 USER developer
