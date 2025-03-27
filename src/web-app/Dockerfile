@@ -6,6 +6,8 @@ WORKDIR /smartgate
 
 # Enable the testing repository
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+# Enable the community repository
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 
 # Install necessary packages
 RUN apk update && \
