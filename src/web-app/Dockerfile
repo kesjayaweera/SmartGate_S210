@@ -26,7 +26,7 @@ RUN chown -R developer:developer /smartgate
 USER developer
 
 # Clone the repo inside the container
-RUN git clone https://github.com/ChristopherLaff/SmartGate.git /smartgate
+# RUN git clone https://github.com/ChristopherLaff/SmartGate.git /smartgate
 
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
