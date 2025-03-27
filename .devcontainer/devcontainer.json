@@ -1,0 +1,20 @@
+{
+  "name": "SmartGate Web Dev Container",
+  "build": {
+    "dockerfile": "./src/web-app/Dockerfile",
+    "context": "./src/web-app"
+  },
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "extensions": [
+    "ms-python.python",
+    "ms-azuretools.vscode-docker",
+    "abusaidm.html-snippets",
+    "ecmel.vscode-html-css",
+    "Zignd.html-css-class-completion"
+
+  ],
+  "remoteUser": "developer"
+}
+
