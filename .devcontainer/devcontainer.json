@@ -1,8 +1,8 @@
 {
   "name": "SmartGate Web Dev Container",
   "build": {
-    "dockerfile": "./src/web-app/Dockerfile",
-    "context": "./src/web-app"
+    "dockerfile": "../src/web-app/Dockerfile",
+    "context": "../src/web-app"
   },
   "customizations": {
     "vscode": {
