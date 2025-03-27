@@ -2,7 +2,7 @@
 FROM alpine:latest
 
 # Set the working directory
-WORKDIR /smartgate
+# WORKDIR /smartgate
 
 # Enable the testing repository
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
@@ -26,15 +26,15 @@ RUN adduser developer wheel
 RUN echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Set proper permissions for the 'developer' user
-RUN chown -R developer:developer /smartgate
+# RUN chown -R developer:developer /smartgate
 
 # Switch to the 'developer' user
 USER developer
 
 # Create the /run/postgresql directory for running the database
-RUN mkdir -p /run/postgresql && \
-    chown developer:developer /run/postgresql && \
-    chmod 700 /run/postgresql
+RUN sudo mkdir -p /run/postgresql && \
+    sudo chown developer:developer /run/postgresql && \
+    sudo chmod 700 /run/postgresql
 
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
