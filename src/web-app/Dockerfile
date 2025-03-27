@@ -36,8 +36,6 @@ RUN sudo mkdir -p /run/postgresql && \
     sudo chown developer:developer /run/postgresql && \
     sudo chmod 700 /run/postgresql
 
-RUN sudo chmod 0750 /workspaces/SmartGate/src/web-app/data
-
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
 
