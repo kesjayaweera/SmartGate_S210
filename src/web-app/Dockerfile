@@ -14,7 +14,7 @@ RUN apk update && \
     rm -rf /var/cache/apk/*  # Clean up cache
 
 # Install necessary python packages
-RUN apk add py3-flask py3-authlib py3-requests py3-psycopg
+RUN apk add py3-flask py3-authlib py3-requests py3-psycopg py3-dotenv
 
 # Create a non-root user 'developer'
 RUN adduser -D developer
