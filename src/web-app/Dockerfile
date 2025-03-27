@@ -4,10 +4,13 @@ FROM alpine:latest
 # Set the working directory
 WORKDIR /smartgate
 
+# Enable the testing repository
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+
 # Install necessary packages
 RUN apk update && \
     apk upgrade && \
-    apk add bash git openssh sudo && \
+    apk add bash git openssh sudo neofetch && \
     rm -rf /var/cache/apk/*  # Clean up cache
 
 # Create a non-root user 'developer'
@@ -24,9 +27,6 @@ RUN chown -R developer:developer /smartgate
 
 # Switch to the 'developer' user
 USER developer
-
-# Clone the repo inside the container
-# RUN git clone https://github.com/ChristopherLaff/SmartGate.git /smartgate
 
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
