@@ -12,7 +12,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repos
 # Install necessary packages
 RUN apk update && \
     apk upgrade && \
-    apk add bash git openssh sudo neofetch python3 postgresql uvicorn mariadb mariadb-client  && \
+    apk add bash git openssh sudo neofetch python3 postgresql uvicorn mysql mysql-client && \
     rm -rf /var/cache/apk/*  # Clean up cache
 
 # Install necessary python packages
