@@ -2,7 +2,7 @@
 FROM alpine:latest
 
 # Set the working directory
-# WORKDIR /smartgate
+WORKDIR /smartgate
 
 # Enable the testing repository
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
@@ -26,7 +26,7 @@ RUN adduser developer wheel
 RUN echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # Set proper permissions for the 'developer' user
-# RUN chown -R developer:developer /smartgate
+RUN chown -R developer:developer /smartgate
 
 # Switch to the 'developer' user
 USER developer
