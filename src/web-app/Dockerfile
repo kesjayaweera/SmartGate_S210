@@ -10,8 +10,11 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
 # Install necessary packages
 RUN apk update && \
     apk upgrade && \
-    apk add bash git openssh sudo neofetch && \
+    apk add bash git openssh sudo neofetch python && \
     rm -rf /var/cache/apk/*  # Clean up cache
+
+# Install necessary python packages
+RUN apk add py3-flask py3-authlib py3-requests py3-psycopg
 
 # Create a non-root user 'developer'
 RUN adduser -D developer
