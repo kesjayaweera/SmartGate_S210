@@ -6,11 +6,8 @@ services:
       POSTGRES_PASSWORD: smartgate  # Define your database password
       POSTGRES_DB: smartgatedb  # Define your database name
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # Mount the volume to store the data
+      - ./data/postgresql:/var/lib/postgresql/data  # Bind mount the local folder to the container
     ports:
       - "5432:5432"  # Expose the port to your host machine
     network_mode: host
-
-volumes:
-  postgres_data:  # This is the Docker volume where data will be stored
 
