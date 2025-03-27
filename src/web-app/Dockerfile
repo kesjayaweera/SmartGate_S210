@@ -10,7 +10,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
 # Install necessary packages
 RUN apk update && \
     apk upgrade && \
-    apk add bash git openssh sudo neofetch python && \
+    apk add bash git openssh sudo neofetch python3 && \
     rm -rf /var/cache/apk/*  # Clean up cache
 
 # Install necessary python packages
