@@ -24,8 +24,5 @@ RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
 
-# Copy the entire project directory into the container
-COPY . /SmartGate/
-
 # Start the docker service and keep the container running
 CMD ["sh", "-c", "dockerd & sleep 3 && exec /bin/sh"]
