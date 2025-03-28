@@ -12,7 +12,7 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repos
 # Install necessary packages
 RUN apk update && \
     apk upgrade && \
-    apk add fuse-overlayfs bash git openssh sudo neofetch python3 postgresql uvicorn curl docker docker-cli-compose openrc && \
+    apk add bash git openssh sudo neofetch python3 postgresql uvicorn curl openrc fuse-overlayfs docker docker-cli-compose && \
     rm -rf /var/cache/apk/*  # Clean up cache
 
 # Install necessary python packages
@@ -24,5 +24,10 @@ RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
 
-# Start the docker service and keep the container running
-CMD ["sh", "-c", "dockerd --host=fd:// & sleep 3 && exec /bin/sh"]
+# Configure OpenRC and start Docker service
+RUN openrc && \
+    touch /run/openrc/softlevel && \
+    rc-update add docker default
+
+# Start Docker service and keep the container running
+CMD ["sh", "-c", "service docker start && tail -f /dev/null"]
