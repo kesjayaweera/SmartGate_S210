@@ -32,9 +32,22 @@ docker build -t smartgate-image .
 ```
 ### 4. Run the image as a docker container
 After the image is built, run it as a container in privileged mode using the following command:
+
+Linux:
 ```bash
 docker run -it --privileged --name smartgate-container -v /var/run/docker.sock:/var/run/docker.sock smartgate-image
 ```
+
+Windows:
+```bash
+docker run -it --privileged --name smartgate-container smartgate-image
+```
+
+MacOS:
+```bash
+docker run -it --privileged --name smartgate-container smartgate-image
+```
+
 This will start the container with Docker capabilities inside the container, allowing you to run Docker commands and access necessary services.
 
 This `README.md` will guide users through the steps needed to clone the repository, build the Docker image, and run it in privileged mode with the Docker socket mounted, enabling the container to communicate with the Docker daemon on the host machine.
