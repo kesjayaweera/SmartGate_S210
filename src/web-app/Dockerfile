@@ -25,9 +25,9 @@ RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
 EXPOSE 5000 5432
 
 # Configure OpenRC and start Docker service
-RUN openrc && \
-    touch /run/openrc/softlevel && \
-    rc-update add docker default
+RUN openrc boot && \
+    rc-update add docker default && \
+    service docker start
 
 # Start the Docker daemon
 CMD ["sh", "-c", "dockerd --host=fd:// & sleep 3 && exec /bin/sh"]
