@@ -24,10 +24,8 @@ RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
 
-# Configure OpenRC and start Docker service
-RUN openrc boot && \
-    rc-update add docker default && \
-    service docker start
+# Add Docker to the default runlevel and start the OpenRC service
+RUN openrc && touch /run/openrc/softlevel && rc-update add docker default
 
 # Start the Docker daemon
 CMD ["sh", "-c", "dockerd --host=fd:// & sleep 3 && exec /bin/sh"]
