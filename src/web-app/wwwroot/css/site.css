@@ -449,3 +449,39 @@ footer {
         margin: 10px 0;
     }
 }
+
+/* User Menu */
+.user-menu {
+    display: none;
+    position: absolute;
+    top: 60px; /* Position below the avatar */
+    right: 0;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+    text-align: center;
+    min-width: 200px;
+}
+
+.user-menu p {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Logout Button */
+.logout-btn {
+    color: #ffcc00;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid #ffcc00;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #ffcc00;
+    color: black;
+}
