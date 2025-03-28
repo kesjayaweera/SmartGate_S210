@@ -22,7 +22,7 @@ RUN apk add py3-flask py3-authlib py3-requests py3-psycopg py3-dotenv py3-fastap
 RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
 
 # Clone the repository from GitHub
-RUN git clone https://github.com/ChristopherLaff/SmartGate.git
+RUN git clone https://github.com/ChristopherLaff/SmartGate.git /SmartGate
 
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
