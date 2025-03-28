@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}{{title}}{% endblock %} - SmartGate</title>
+    <link rel="stylesheet" href="/static/css/site.css" />
+</head>
+<body>
+    <header>
+        <div class="logo">SMARTGATE</div>
+        <nav>
+            <ul>
+                <li><a href="/">DASHBOARD</a></li>
+                <li><a href="#">GATES</a><li/>
+                <li><a href="#">ABOUT US</a><li/>
+                <li class="dropdown">
+                    <a href="#">SETTINGS</a>
+                    <div class="dropdown-content">
+                        
+                        <label for="brightness-slider">Brightness:</label>
+                        <input type="range" id="brightness-slider" min="50" max="150" value="100">
+                    </div>
+                </li>
+                {# <!-- <li><a href="#">ALERTS</a></li>
+                <li><a href="#">STATS</a></li> --> #}
+            </ul>
+        </nav>
+        {% if user %}
+        <div class="user-info">
+            <div class="profile-avatar" onclick="toggleUserMenu()">
+                <img src="{{ user.avatar_url }}" alt="User Avatar" class="profile-pic">
+            </div>
+            <div class="user-menu" id="userMenu">
+                <p class="username">Username: {{ user.username }}</p>
+                <a href="#" class="logout-btn">Logout</a>
+            </div>
+        </div>        
+        {% else %}
+        <a href="#" class="login-btn">LOGIN</a>
+        {% endif %}
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <p>© 2025 SmartGate | Protecting Endangered Species</p>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Us</a>
+                <li><a href="#">ABOUT US</a><li/>
+
+            </div>
+
+        </div>
+        <p class="footer-bottom">&copy; 2025 SmartGate. Powered by Jetson Nano & TensorRT.</p>
+    </footer>
+    <script src="/static/js/site.js"></script>
+</body>
+</html>
