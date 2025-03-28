@@ -9,5 +9,6 @@ app.mount("/static", StaticFiles(directory="wwwroot"), name="static")
 app.include_router(root_router)
 
 if __name__ == "__main__":
+    # Running the uvicorn as a webserver
     import uvicorn
     uvicorn.run("app:app", host="0.0.0.0", port=5000, reload=True)
