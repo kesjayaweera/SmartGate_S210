@@ -2,7 +2,7 @@
 FROM alpine:latest
 
 # Set the working directory
-WORKDIR /smartgate
+WORKDIR /SmartGate
 
 # Enable the testing repository
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
@@ -18,28 +18,14 @@ RUN apk update && \
 # Install necessary python packages
 RUN apk add py3-flask py3-authlib py3-requests py3-psycopg py3-dotenv py3-fastapi 
 
-# Create a non-root user 'developer'
-RUN adduser -D developer
-
-# Add 'developer' user to the 'wheel' group to allow sudo privileges
-RUN adduser developer wheel
-
-# Give the 'developer' user sudo privileges without password
-RUN echo "developer ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
-# Set proper permissions for the 'developer' user
-RUN chown -R developer:developer /smartgate
-
-# Switch to the 'developer' user
-USER developer
-
-# Create the /run/postgresql directory for running the database
-RUN sudo mkdir -p /run/postgresql && \
-    sudo chown developer:developer /run/postgresql && \
-    sudo chmod 700 /run/postgresql
+# Allow root to use sudo without password
+RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
 
 # Expose both Flask (5000) & PostgreSQL (5432)
 EXPOSE 5000 5432
 
-# Keep the container running
-CMD ["/bin/bash"]
+# Copy the entire project directory into the container
+COPY . /SmartGate/
+
+# Start the docker service and keep the container running
+CMD ["sh", "-c", "dockerd & sleep 3 && exec /bin/sh"]
