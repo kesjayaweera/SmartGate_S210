@@ -29,5 +29,5 @@ RUN openrc && \
     touch /run/openrc/softlevel && \
     rc-update add docker default
 
-# Start Docker service and keep the container running
-CMD ["sh", "-c", "service docker start && tail -f /dev/null"]
+# Start the Docker daemon
+CMD ["sh", "-c", "dockerd --host=fd:// & sleep 3 && exec /bin/sh"]
