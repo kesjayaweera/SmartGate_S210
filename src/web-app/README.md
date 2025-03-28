@@ -5,6 +5,7 @@ This guide will walk you through the process of building the SmartGate Docker im
 ## Prerequisites
 
 - Docker installed on your machine. Follow the [official Docker installation guide](https://docs.docker.com/get-docker/) if you haven't already.
+- If you are using macOS or Windows, please install Docker Desktop. Follow the [Docker Desktop for Mac and Windows](https://www.docker.com/products/docker-desktop)
 - Access to a terminal (Linux/macOS) or a terminal emulator like Git Bash (Windows).
 - A GitHub repository to clone (in this case, the SmartGate repository).
 
