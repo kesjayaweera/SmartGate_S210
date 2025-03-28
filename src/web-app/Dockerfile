@@ -25,4 +25,4 @@ RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
 EXPOSE 5000 5432
 
 # Start the docker service and keep the container running
-CMD ["sh", "-c", "dockerd & sleep 3 && exec /bin/sh"]
+CMD ["sh", "-c", "dockerd --host=fd:// & sleep 3 && exec /bin/sh"]
