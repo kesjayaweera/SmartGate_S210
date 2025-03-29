@@ -17,6 +17,7 @@ oauth.register(
     access_token_url="https://github.com/login/oauth/access_token",
     access_token_params=None,
     refresh_token_url=None,
+    api_base_url="https://api.github.com",  # Add this line
     client_kwargs={"scope": "user:email"},
 )
 
@@ -39,7 +40,10 @@ async def login(request:Request):
 @root_router.get("/auth")
 async def auth(request: Request):
     token = await oauth.github.authorize_access_token(request)
-    user = await oauth.github.parse_id_token(request, token=token)
+    response = await oauth.github.get('user', token=token)
+    
+    # Parse the JSON response
+    user = response.json()
     
     # Store the user information in the request state for later use
     request.state.user = {
