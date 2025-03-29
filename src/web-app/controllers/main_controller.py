@@ -39,7 +39,7 @@ async def login(request:Request):
 @root_router.get("/auth")
 async def auth(request: Request):
     token = await oauth.github.authorize_access_token(request)
-    user = await oauth.github.parse_id_token(request, token)
+    user = await oauth.github.parse_id_token(request, token=token)
     
     # Store the user information in the request state for later use
     request.state.user = {
