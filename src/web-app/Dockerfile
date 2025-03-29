@@ -16,7 +16,7 @@ RUN apk update && \
     rm -rf /var/cache/apk/*  # Clean up cache
 
 # Install necessary python packages
-RUN apk add py3-flask py3-authlib py3-requests py3-psycopg py3-dotenv py3-fastapi py3-httpx
+RUN apk add py3-flask py3-authlib py3-requests py3-psycopg py3-dotenv py3-fastapi py3-httpx py3-starlette 
 
 # Allow root to use sudo without password
 RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
