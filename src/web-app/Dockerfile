@@ -24,8 +24,8 @@ RUN echo "root ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/root
 # Clone the repository from GitHub
 RUN git clone https://github.com/ChristopherLaff/SmartGate.git /SmartGate
 
-# Expose both Flask (5000) & PostgreSQL (5432)
-EXPOSE 5000 5432
+# Expose both Flask (8000) & PostgreSQL (5432)
+EXPOSE 8000 5432
 
 # Start the Docker daemon
 CMD ["sh", "-c", "exec /bin/sh"]
