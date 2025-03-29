@@ -1,0 +1,93 @@
+﻿{% extends "layout.html" %}
+
+{% block title %}Gates{% endblock %}
+
+{% block content %}
+<!-- Main Content Wrapper -->
+<div class="main-content">
+    <section class="hero">
+        <video autoplay muted loop id="backgroundVideo">
+            <source src="../static/NewFolder/bakground_video.mp4" type="video/mp4"> <!-- need to change new folder to video -->
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="overlay"></div>
+    </section>
+
+    <div class="about-container">
+        <h1>Gates Management</h1>
+    </div>
+
+    <!-- Camera Feeds -->
+    <div class="camera-feeds">
+        <div class="camera-feed">
+            <img src="/static/images/amur-leopard.jpg" alt="Camera Feed">
+            <div class="feed-info">
+                <span>Gate no:1 Camera feed</span>
+                <span class="status open">Status: Open</span>
+            </div>
+            <div class="feed-buttons">
+                <button class="btn open">OPEN</button>
+                <button class="btn close">CLOSE</button>
+            </div>
+        </div>
+        <div class="camera-feed">
+            <img src="/static/images/bongo-antelope.jpg" alt="Camera Feed">
+            <div class="feed-info">
+                <span>Gate no:2 Camera feed</span>
+                <span class="status closed">Status: Closed</span>
+            </div>
+            <div class="feed-buttons">
+                <button class="btn open">OPEN</button>
+                <button class="btn close">CLOSE</button>
+            </div>
+        </div>
+        <div class="camera-feed">
+            <img src="/static/images/elephant.jpeg" alt="Camera Feed">
+            <div class="feed-info">
+                <span>Gate no:3 Camera feed</span>
+                <span class="status closed">Status: Closed</span>
+            </div>
+            <div class="feed-buttons">
+                <button class="btn open">OPEN</button>
+                <button class="btn close">CLOSE</button>
+            </div>
+        </div>
+        <div class="camera-feed">
+            <img src="/static/images/forest-background.jpg" alt="Camera Feed">
+            <div class="feed-info">
+                <span>Gate no:4 Camera feed</span>
+                <span class="status open">Status: Open</span>
+            </div>
+            <div class="feed-buttons">
+                <button class="btn open">OPEN</button>
+                <button class="btn close">CLOSE</button>
+            </div>
+        </div>
+        <div class="camera-feed">
+            <img src="/static/images/oranguton.jpg" alt="Camera Feed">
+            <div class="feed-info">
+                <span>Gate no:5 Camera feed</span>
+                <span class="status closed">Status: Closed</span>
+            </div>
+            <div class="feed-buttons">
+                <button class="btn open">OPEN</button>
+                <button class="btn close">CLOSE</button>
+            </div>
+        </div>
+        <div class="camera-feed">
+            <img src="/static/images/panda.jpg" alt="Camera Feed">
+            <div class="feed-info">
+                <span>Gate no:6 Camera feed</span>
+                <span class="status closed">Status: Closed</span>
+            </div>
+            <div class="feed-buttons">
+                <button class="btn open">OPEN</button>
+                <button class="btn close">CLOSE</button>
+            </div>
+        </div>
+    </div>
+    <!-- Include JavaScript -->
+    <script src="/static/js/app.js"></script>
+</div>
+{% endblock %}

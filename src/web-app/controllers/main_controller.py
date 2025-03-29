@@ -30,6 +30,13 @@ async def dashboard(request: Request):
         "user": user  # Pass the user data to the template
     })
 
+@root_router.get("/gates", response_class=HTMLResponse)
+async def gates(request: Request):
+    return pages.TemplateResponse("gates.html", {
+        "request": request,
+        "title": "Gates"
+    })
+
 @root_router.get("/login")
 async def login(request:Request):
     redirect_uri = request.url_for("auth")
