@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
 
@@ -21,15 +21,41 @@ oauth.register(
 )
 
 @root_router.get("/", response_class=HTMLResponse)
-async def dashboard(request:Request):
+async def dashboard(request: Request):
+    # Access user data from request.state if logged in
+    user = getattr(request.state, 'user', None)
+
     return pages.TemplateResponse("Index.html", {
-        "request":request,
-        "title":"Dashboard"
+        "request": request,
+        "title": "Dashboard",
+        "user": user  # Pass the user data to the template
     })
 
 @root_router.get("/login")
 async def login(request:Request):
-    redirect_uri = request.url_for("auth").replace("localhost", "127.0.0.1")
+    redirect_uri = request.url_for("auth")
     return await oauth.github.authorize_redirect(request, redirect_uri)
+
+@root_router.get("/auth")
+async def auth(request: Request):
+    token = await oauth.github.authorize_access_token(request)
+    user = await oauth.github.parse_id_token(request, token)
+    
+    # Store the user information in the request state for later use
+    request.state.user = {
+        "username": user["login"],  # GitHub's username
+        "avatar_url": user["avatar_url"]  # GitHub's avatar URL
+    }
+
+    # Redirect to dashboard after successful login
+    return RedirectResponse(url="/")
+
+@root_router.get("/logout")
+async def logout(request: Request):
+    # Remove user info from the request state to log the user out
+    request.state.user = None
+
+    # Redirect to the homepage or login page
+    return RedirectResponse(url="/")
 
 

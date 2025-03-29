@@ -33,11 +33,11 @@
             </div>
             <div class="user-menu" id="userMenu">
                 <p class="username">Username: {{ user.username }}</p>
-                <a href="#" class="logout-btn">Logout</a>
+                <a href="/logout" class="logout-btn">Logout</a>
             </div>
         </div>        
         {% else %}
-        <a href="#" class="login-btn">LOGIN</a>
+        <a href="/login" class="login-btn">LOGIN</a>
         {% endif %}
     </header>
 
