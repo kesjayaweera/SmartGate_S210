@@ -23,9 +23,7 @@ oauth.register(
 
 @root_router.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    # Access user data from request.state if logged in
-    user = getattr(request.state, 'user', None)
-
+    user = request.session.get('user', None)
     return pages.TemplateResponse("Index.html", {
         "request": request,
         "title": "Dashboard",
@@ -44,9 +42,9 @@ async def auth(request: Request):
     
     # Parse the JSON response
     user = response.json()
-    
+    #print(user)
     # Store the user information in the request state for later use
-    request.state.user = {
+    request.session['user'] = {
         "username": user["login"],  # GitHub's username
         "avatar_url": user["avatar_url"]  # GitHub's avatar URL
     }
@@ -57,7 +55,7 @@ async def auth(request: Request):
 @root_router.get("/logout")
 async def logout(request: Request):
     # Remove user info from the request state to log the user out
-    request.state.user = None
+    request.session.clear()
 
     # Redirect to the homepage or login page
     return RedirectResponse(url="/")
