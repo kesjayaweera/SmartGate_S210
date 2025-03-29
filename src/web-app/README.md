@@ -46,7 +46,7 @@ docker run -it --privileged --name smartgate-container smartgate-image
 
 MacOS:
 ```bash
-docker run -it --privileged --name smartgate-container smartgate-image
+docker run -it --name smartgate-container -v /var/run/docker.sock:/var/run/docker.sock -p 8000:8000 -p 5432:5432 smartgate-image
 ```
 
 This will start the container with Docker capabilities inside the container, allowing you to run Docker commands and access necessary services.
