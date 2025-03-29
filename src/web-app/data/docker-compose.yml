@@ -10,7 +10,6 @@ services:
       - ./user_schema.sql:/docker-entrypoint-initdb.d/user_schema.sql  # Mount user_schema.sql to be executed at startup
     ports:
       - "5432:5432"  # Expose the port to your host machine
-    network_mode: host
 
 volumes:
   smartgate_data: {}
