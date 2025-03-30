@@ -19,5 +19,5 @@ RUN pip install --no-cache-dir -r /SmartGate/requirements.txt
 # Expose both Uvicorn (8000) & PostgreSQL (5432)
 EXPOSE 8000 5432
 
-# Start the bash
+# Start the sh
 CMD ["sh"]
