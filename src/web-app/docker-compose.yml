@@ -1,6 +1,6 @@
 services:
   sgcontainer:
-    image: sgimage  # Use the built image
+    image: sgweb  # Use the built image
     ports:
       - "8000:8000"
       - "5432:5432"
