@@ -9,7 +9,7 @@ COPY requirements.txt /SmartGate/
 # Update, upgrade and install system dependencies
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y libdbus-1-dev git neofetch && \
+    apt-get install -y libdbus-1-dev neofetch postgresql && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -20,4 +20,4 @@ RUN pip install --no-cache-dir -r /SmartGate/requirements.txt
 EXPOSE 8000 5432
 
 # Start the bash
-CMD ["bash"]
+CMD ["sh"]
