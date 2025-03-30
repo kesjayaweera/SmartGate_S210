@@ -9,6 +9,8 @@ services:
       - postgres
     stdin_open: true  # Keep STDIN open for interactive mode
     tty: true         # Allocate a pseudo-TTY
+    command: > 
+      sh -c "ssh -f -N -L 8000:localhost:8000 user@localhost"
     volumes:
       - .:/SmartGate
 
