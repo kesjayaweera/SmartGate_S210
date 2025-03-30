@@ -9,6 +9,7 @@ services:
       - postgres
     stdin_open: true  # Keep STDIN open for interactive mode
     tty: true         # Allocate a pseudo-TTY
+    command: ["sh", "-c", "service postgresql start"]  # Only start PostgreSQL, no Python app
 
   postgres:
     image: postgres:13
@@ -18,7 +19,7 @@ services:
       POSTGRES_DB: smartgatedb
     volumes:
       - smartgate-data:/var/lib/postgresql/data
-      - ./data/user_schema.sql:/docker-entrypoint-initdb.d/user_schema.sql 
+      - ./data/user_schema.sql:/docker-entrypoint-initdb.d/user_schema.sql
     network_mode: "host"
 
 volumes:
