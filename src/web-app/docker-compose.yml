@@ -28,7 +28,7 @@ services:
 
 networks:
   mynetwork:
-    driver: bridge
+    driver: host
 
 volumes:
   smartgate-data:
