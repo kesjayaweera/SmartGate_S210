@@ -1,0 +1,10 @@
+services:
+  sgcontainer:
+    image: sgimage  # Use the built image
+    ports:
+      - "8000:8000"
+      - "5432:5432"
+    stdin_open: true  # Keep STDIN open for interactive mode
+    tty: true         # Allocate a pseudo-TTY
+    volumes:
+      - .:/SmartGate  # Bind the current directory (web-app) to /SmartGate in the container

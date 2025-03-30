@@ -10,6 +10,7 @@ app.mount("/static", StaticFiles(directory="wwwroot"), name="static")
 # Add the SessionMiddleware to your FastAPI app
 app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
 
+# This includes the routes from the main_controller
 app.include_router(root_router)
 
 if __name__ == "__main__":

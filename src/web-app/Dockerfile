@@ -4,9 +4,6 @@ FROM python:3.9.21-bookworm
 # Set the working directory inside the container
 WORKDIR /SmartGate
 
-# Copy the contents of web-app to /SmartGate in the container
-COPY . /SmartGate
-
 # Update, upgrade and install system dependencies
 RUN apt-get update && \
     apt-get upgrade -y && \
