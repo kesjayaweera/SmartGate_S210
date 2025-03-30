@@ -9,6 +9,8 @@ services:
       - postgres
     stdin_open: true  # Keep STDIN open for interactive mode
     tty: true         # Allocate a pseudo-TTY
+    volumes:
+      - .:/SmartGate
 
   postgres:
     image: postgres:13
