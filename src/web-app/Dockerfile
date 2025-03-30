@@ -1,4 +1,4 @@
-# Use the official Alpine Linux Docker image
+# Use the official Python Docker image
 FROM python:3.9.21-bookworm
 
 # Set the working directory
