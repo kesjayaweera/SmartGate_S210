@@ -7,7 +7,7 @@ WORKDIR /SmartGate
 # Update, upgrade and install system dependencies
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y libdbus-1-dev && \
+    apt-get install -y libdbus-1-dev git neofetch && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -17,5 +17,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Expose both Uvicorn (8000) & PostgreSQL (5432)
 EXPOSE 8000 5432
 
-# Start the Docker daemon
-CMD ["sh"]
+# Start the bash
+CMD ["bash"]
