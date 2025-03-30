@@ -11,6 +11,8 @@ services:
     tty: true         # Allocate a pseudo-TTY
     volumes:
       - .:/SmartGate
+    networks:
+      - mynetwork
 
   postgres:
     image: postgres:13
@@ -21,6 +23,12 @@ services:
     volumes:
       - smartgate-data:/var/lib/postgresql/data
       - ./data/user_schema.sql:/docker-entrypoint-initdb.d/user_schema.sql
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
 
 volumes:
   smartgate-data:
