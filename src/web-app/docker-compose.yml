@@ -3,6 +3,23 @@ services:
     build: . 
     ports:
       - "8000:8000"
-      - "5432:5432"
+    environment:
+      - DATABASE_URL=postgres://admin:smartgate@postgres:5432/smartgatedb
+    depends_on:
+      - postgres
     stdin_open: true  # Keep STDIN open for interactive mode
     tty: true         # Allocate a pseudo-TTY
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: smartgate
+      POSTGRES_DB: smartgatedb
+    volumes:
+      - smartgate-data:/var/lib/postgresql/data
+      - ./data/user_schema.sql:/docker-entrypoint-initdb.d/user_schema.sql 
+    network_mode: "host"
+
+volumes:
+  smartgate-data:

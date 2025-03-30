@@ -4,6 +4,7 @@ FROM python:3.9.21-bookworm
 # Set the working directory inside the container
 WORKDIR /SmartGate
 
+# Copy the contents from the current directory to the container (/SmartGate)
 COPY . /SmartGate/
 
 # Update, upgrade and install system dependencies
@@ -19,5 +20,6 @@ RUN pip install --no-cache-dir -r /SmartGate/requirements.txt
 # Expose both Uvicorn (8000) & PostgreSQL (5432)
 EXPOSE 8000 5432
 
-# Start PostgreSQL and then start the shell
-CMD service postgresql start && sh
+# Start PostgreSQL and then start the shell (updated CMD syntax)
+CMD ["sh", "-c", "service postgresql start && exec sh"]
+
