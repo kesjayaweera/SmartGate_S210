@@ -10,7 +10,7 @@ services:
     stdin_open: true  # Keep STDIN open for interactive mode
     tty: true         # Allocate a pseudo-TTY
     command: > 
-      sh -c "ssh -f -N -L 8000:localhost:8000 user@localhost"
+      sh -c "echo hello"
     volumes:
       - .:/SmartGate
 
