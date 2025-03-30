@@ -4,7 +4,7 @@ FROM python:3.9.21-bookworm
 # Set the working directory inside the container
 WORKDIR /SmartGate
 
-COPY requirements.txt /SmartGate/
+COPY . /SmartGate/
 
 # Update, upgrade and install system dependencies
 RUN apt-get update && \
