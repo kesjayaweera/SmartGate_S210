@@ -1,8 +1,8 @@
 services:
-  sgcontainer:
+  sgwebimage:
     build: . 
     ports:
-      - "8000:8000"
+      - "8080:8000"
     environment:
       - DATABASE_URL=postgres://admin:smartgate@postgres:5432/smartgatedb
     depends_on:
