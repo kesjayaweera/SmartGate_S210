@@ -11,8 +11,7 @@ services:
     tty: true         # Allocate a pseudo-TTY
     volumes:
       - .:/SmartGate
-    networks:
-      - mynetwork
+    network_mode: host
 
   postgres:
     image: postgres:13
@@ -28,7 +27,7 @@ services:
 
 networks:
   mynetwork:
-    driver: host
+    driver: bridge
 
 volumes:
   smartgate-data:
