@@ -9,7 +9,7 @@ COPY requirements.txt /SmartGate/
 # Update, upgrade and install system dependencies
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y sudo vi libdbus-1-dev neofetch postgresql openssh-client openssh-server && \
+    apt-get install -y sudo nano libdbus-1-dev neofetch postgresql openssh-client openssh-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
