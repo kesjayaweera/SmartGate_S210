@@ -91,5 +91,5 @@ def check_permission(username: str, perm_name: str):
         conn.close()
 
 # Example usage:
-has_permission = check_permission('talha', 'open_gate')
-print(has_permission)
+# has_permission = check_permission('talha', 'open_gate')
+# print(has_permission)
