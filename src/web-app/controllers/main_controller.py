@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from authlib.integrations.starlette_client import OAuth
@@ -21,20 +21,24 @@ oauth.register(
     client_kwargs={"scope": "user:email"},
 )
 
+# Dependency function to fetch user from session
+async def get_user_from_session(request: Request):
+    return request.session.get('user', None)
+
 @root_router.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request):
-    user = request.session.get('user', None)
+async def dashboard(request: Request, user: dict = Depends(get_user_from_session)):
     return pages.TemplateResponse("Index.html", {
         "request": request,
         "title": "Dashboard",
-        "user": user  # Pass the user data to the template
+        "user": user 
     })
 
 @root_router.get("/gates", response_class=HTMLResponse)
-async def gates(request: Request):
+async def gates(request: Request, user: dict = Depends(get_user_from_session)):
     return pages.TemplateResponse("gates.html", {
         "request": request,
-        "title": "Gates"
+        "title": "Gates",
+        "user": user 
     })
 
 @root_router.get("/login")
