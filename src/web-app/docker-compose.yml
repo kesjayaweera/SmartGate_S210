@@ -2,7 +2,7 @@ services:
   sgwebimage:
     build: . 
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Expose web app on port 8000
     environment:
       - DATABASE_URL=postgres://admin:smartgate@postgres:5432/smartgatedb
     depends_on:
@@ -11,7 +11,8 @@ services:
     tty: true         # Allocate a pseudo-TTY
     volumes:
       - .:/SmartGate
-    network_mode: host
+    networks:
+      - mynetwork
 
   postgres:
     image: postgres:13
@@ -24,6 +25,8 @@ services:
       - ./data/user_schema.sql:/docker-entrypoint-initdb.d/user_schema.sql
     networks:
       - mynetwork
+    ports:
+      - "5432:5432"  # Expose PostgreSQL port 5432
 
 networks:
   mynetwork:

@@ -20,5 +20,5 @@ RUN pip install --no-cache-dir -r /SmartGate/requirements.txt
 EXPOSE 8000 5432
 
 # start the shell
-CMD ["sh"]
+CMD ["bash"]
 
