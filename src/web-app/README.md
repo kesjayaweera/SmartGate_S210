@@ -26,30 +26,19 @@ Once you're in the `SmartGate` directory, navigate to the `src/web-app` director
 cd src/web-app
 ```
 ### 3. Build the docker image 
-Now, build the Docker image using the `Dockerfile` in the current directory.
+Now, Build the images using docker-compose using the file in the current directory.
 
 ```bash
-docker build -t smartgate-image .
+docker-compose up --build
 ```
 ### 4. Run the image as a docker container
-After the image is built, run it as a container in privileged mode using the following command:
+After the image is built, you can enter the bash shell by doing
 
-Linux:
 ```bash
-docker run -it --privileged --name smartgate-container -v /var/run/docker.sock:/var/run/docker.sock smartgate-image
+docker-compose exec sgwebimage bash
 ```
 
-Windows:
-```bash
-docker run -it --privileged --name smartgate-container smartgate-image
-```
+This will start the containers allowing you to run Docker commands and access necessary services.
 
-MacOS:
-```bash
-docker run -it --name smartgate-container -v /var/run/docker.sock:/var/run/docker.sock -p 8000:8000 -p 5432:5432 smartgate-image
-```
-
-This will start the container with Docker capabilities inside the container, allowing you to run Docker commands and access necessary services.
-
-This `README.md` will guide users through the steps needed to clone the repository, build the Docker image, and run it in privileged mode with the Docker socket mounted, enabling the container to communicate with the Docker daemon on the host machine.
+This `README.md` will guide users through the steps needed to clone the repository, build the Docker Compose file, and run it locally, enabling the container to communicate with the containers on the host machine.
 
