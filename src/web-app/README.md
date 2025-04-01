@@ -32,7 +32,7 @@ Now, Build the images using docker-compose using the file in the current directo
 docker-compose up --build
 ```
 ### 4. Run the image as a docker container
-After the image is built, you can enter the bash shell by doing
+After the image is built make a new terminal and enter the container's bash shell by doing
 
 ```bash
 docker-compose exec sgwebimage bash
