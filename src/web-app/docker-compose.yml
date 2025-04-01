@@ -1,3 +1,7 @@
+networks:
+  sgnet:
+    driver: bridge
+
 services:
   sgwebimage:
     build: . 
@@ -12,7 +16,7 @@ services:
     volumes:
       - .:/SmartGate
     networks:
-      - mynetwork
+      - sgnet
 
   postgres:
     image: postgres:13
@@ -24,13 +28,9 @@ services:
       - smartgate-data:/var/lib/postgresql/data
       - ./data/user_schema.sql:/docker-entrypoint-initdb.d/user_schema.sql
     networks:
-      - mynetwork
+      - sgnet
     ports:
       - "5432:5432"  # Expose PostgreSQL port 5432
-
-networks:
-  mynetwork:
-    driver: bridge
 
 volumes:
   smartgate-data:
