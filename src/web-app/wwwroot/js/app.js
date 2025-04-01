@@ -27,6 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gateImage.src = gateImage.src.replace(/F44336|4CAF50/, 'F44336');
       }
     };
+    // all the gates closed by default
+
 
     // Event listener for the OPEN button
     openBtn.addEventListener('click', () => {
