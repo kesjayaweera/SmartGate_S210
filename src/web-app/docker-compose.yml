@@ -19,7 +19,7 @@ services:
       - sgnet
 
   postgres:
-    image: postgres:13 # Link to the image: https://hub.docker.com/layers/library/postgres/13/images/sha256-df11f015533a085223388922634136b7cd6671f65260fbd750420da26a4758be
+    image: postgres:13 
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: smartgate
