@@ -1,0 +1,215 @@
+﻿{% extends "layout.html" %}
+
+{% block title %}Alerts{% endblock %}
+
+{% block content %}
+
+    <!-- Main Content Wrapper -->
+    <div class="main-content">
+        <section class="background">
+            <video autoplay muted loop id="backgroundVideo">
+                <source src="../static/NewFolder/bakground_video.mp4" type="video/mp4"> <!-- need to change new folder to video -->
+                Your browser does not support the video tag.
+            </video>
+
+            <div class="overlay"></div>
+        </section>
+
+        <section class="alerts-container">
+            <div class="gates-status">
+                <h2>Gates Status</h2>
+                <div class="gates-list">
+                    <div class="gate-card">
+                        <p>Gate No. 1 detected "Species name" with confidence level of 30% at 5:30 PM</p>
+                        <button class="btn btn-check">Check camera feed and resolve</button>
+                        <button class="btn btn-open">OPEN</button>
+                        <button class="btn btn-close">CLOSE</button>
+                    </div>
+                    <div class="gate-card">
+                        <p>Gate No. 4 detected "Species name" with confidence level of 30% at 5:30 PM</p>
+                        <button class="btn btn-check">Check camera feed and resolve</button>
+                        <button class="btn btn-open">OPEN</button>
+                        <button class="btn btn-close">CLOSE</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alerts-section">
+                <h2>Manual Intervention Required</h2>
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <span class="alert-icon">⚠️</span>
+                        <h3>3 New Alerts</h3>
+                    </div>
+                    <p>You have received three new alerts. Please go to the alerts webpage to check them.</p>
+                    <div class="alert-actions">
+                        <button class="btn btn-open">OPEN</button>
+                        <button class="btn btn-close">CLOSE</button>
+                    </div>
+                </div>
+                <div class="placeholder-image">
+                    <!-- Placeholder for the image on the right -->
+                    <div class="image-placeholder"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <style>
+        .main-content {
+            min-height: 100vh;
+            background: #f5f6fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .alerts-container {
+            display: flex;
+            gap: 30px;
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .gates-status {
+            flex: 1;
+        }
+
+        .gates-status h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .gates-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .gate-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .gate-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .gate-card p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-right: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .btn-check {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-check:hover {
+            background: #2980b9;
+        }
+
+        .btn-open {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-open:hover {
+            background: #219653;
+        }
+
+        .btn-close {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-close:hover {
+            background: #c0392b;
+        }
+
+        .alerts-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .alerts-section h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .alert-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .alert-icon {
+            font-size: 1.5rem;
+        }
+
+        .alert-header h3 {
+            font-size: 1.2rem;
+            color: #e74c3c;
+        }
+
+        .alert-card p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .placeholder-image {
+            background: #e0e0e0;
+            height: 200px;
+            border-radius: 8px;
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 100%;
+
+        }
+
+        @media (max-width: 768px) {
+            .alerts-container {
+                flex-direction: column;
+                padding: 20px;
+            }
+
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+{% endblock %}

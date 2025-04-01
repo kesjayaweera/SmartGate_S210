@@ -40,6 +40,20 @@ async def gates(request: Request, user: dict = Depends(get_user_from_session)):
         "title": "Gates",
         "user": user 
     })
+@root_router.get("/about", response_class=HTMLResponse)
+async def about(request: Request, user: dict = Depends(get_user_from_session)):
+    return pages.TemplateResponse("about.html", {
+        "request": request,
+        "title": "About",
+        "user": user
+    })
+@root_router.get("/alerts", response_class=HTMLResponse)
+async def alerts(request: Request, user: dict = Depends(get_user_from_session)):
+    return pages.TemplateResponse("alerts.html", {
+        "request": request,
+        "title": "Alerts",
+        "user": user
+    })
 
 @root_router.get("/login")
 async def login(request:Request):
