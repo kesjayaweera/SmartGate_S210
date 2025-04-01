@@ -77,9 +77,9 @@ async def auth(request: Request):
 
     # Store the user information in database for web privileges 
     insert_user({
-        "id": user["id"],
-        "login": user["login"],
-        "role_id": 1,
+        "id": user["id"], # Getting user id from user = response.json()
+        "login": user["login"], # Getting user login from user = response.json()
+        "role_id": 1, # Setting user to user by default
     })
 
     # Redirect to dashboard after successful login
