@@ -25,7 +25,7 @@ Once you're in the `SmartGate` directory, navigate to the `src/web-app` director
 ```bash
 cd src/web-app
 ```
-### 3. Build the docker image 
+### 3. Build the docker images
 Now, Build the images using docker-compose using the file in the current directory.
 
 ```bash
