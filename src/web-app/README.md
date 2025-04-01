@@ -41,5 +41,5 @@ docker-compose exec sgwebimage bash
 
 This will start the containers allowing you to run Docker commands and access necessary services.
 
-This `README.md` will guide users through the steps needed to clone the repository, build the Docker Compose file, and run it locally, enabling the container to communicate with the containers on the host machine.
+This `README.md` will guide users through the steps needed to clone the repository, build the images Docker Compose file, and run it locally, enabling the container to communicate with the containers on the host machine.
 
