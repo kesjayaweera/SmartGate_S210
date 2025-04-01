@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Request, Depends
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
-from controllers.db_controller import insert_user
+from controllers.db_controller import insert_user, check_permission
 
 root_router = APIRouter()
 pages = Jinja2Templates(directory=Path("frontend"))
@@ -93,4 +93,14 @@ async def logout(request: Request):
     # Redirect to the homepage or login page
     return RedirectResponse(url="/")
 
+@root_router.get("/get-username")
+async def get_username(user: dict = Depends(get_user_from_session)):
+    print(user)  # Debugging: See the actual structure
+    if user and "username" in user:
+        return {"username": user["username"]}
+    return {"error": "Not logged in"}   
 
+@root_router.get("/check-permission")
+async def check_permission_api(username: str, perm_name: str):
+    has_permission = check_permission(username, perm_name)
+    return JSONResponse(content={"allowed": has_permission})

@@ -32,12 +32,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event listener for the OPEN button
     openBtn.addEventListener('click', () => {
-      updateGateStatus('open');
+      checkUserPermission('open_gate').then((allowed) => {
+        if (allowed === null) {
+          alert("You need to log in to open the gate.");
+        } else if (allowed) {
+          updateGateStatus('open');
+        } else {
+          alert("You don't have permission to open the gate.");
+        }
+      }).catch((error) => {
+        console.error("Error checking permission:", error);
+      });
     });
 
     // Event listener for the CLOSE button
     closeBtn.addEventListener('click', () => {
-      updateGateStatus('closed');
+      checkUserPermission('close_gate').then((allowed) => {
+        if (allowed === null) {
+          alert("You need to log in to close the gate.");
+        } else if (allowed) {
+          updateGateStatus('closed');
+        } else {
+          alert("You don't have permission to close the gate.");
+        }
+      }).catch((error) => {
+        console.error("Error checking permission:", error);
+      });
     });
+    
   });
 });
+
+async function checkUserPermission(permission) {
+  try {
+    const userResponse = await fetch('/get-username');
+    const userData = await userResponse.json();
+    if (userData.error) {
+      return false; // Not logged in
+    }
+
+    const username = userData.username;
+    const permissionResponse = await fetch(`/check-permission?username=${username}&perm_name=${permission}`);
+    const permissionData = await permissionResponse.json();
+
+    return permissionData.allowed;
+  } catch (error) {
+    console.error("Error checking permission:", error);
+    return false;
+  }
+}
