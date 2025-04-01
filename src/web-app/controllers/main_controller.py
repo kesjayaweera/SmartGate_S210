@@ -3,6 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
+from controllers.db_controller import insert_user
 
 root_router = APIRouter()
 pages = Jinja2Templates(directory=Path("frontend"))
@@ -73,6 +74,13 @@ async def auth(request: Request):
         "username": user["login"],  # GitHub's username
         "avatar_url": user["avatar_url"]  # GitHub's avatar URL
     }
+
+    # Store the user information in database for web privileges 
+    insert_user({
+        "id": user["id"],
+        "login": user["login"],
+        "role_id": 1,
+    })
 
     # Redirect to dashboard after successful login
     return RedirectResponse(url="/")
