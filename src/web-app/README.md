@@ -38,7 +38,7 @@ After the image is built make a new terminal and enter the container's bash shel
 ```bash
 docker-compose exec sgwebimage bash
 ```
-## Commands To Run For SmartGate Web App In Container's Shell
+## SmartGate Web App Commands
 
 Run Python Web App
 ```bash
