@@ -39,6 +39,18 @@ After the image is built make a new terminal and enter the container's bash shel
 ```bash
 docker-compose exec sgwebimage bash
 ```
+## Commands To Run For SmartGate Web App In Container's Shell
+
+Run Python Web App
+```bash
+python app.py
+```
+
+Access SmartGate Database
+```bash
+psql -h postgres -p 5432 -U admin -d smartgatedb
+```
+Password: smartgate
 
 This will start the containers allowing you to run Docker commands and access necessary services.
 
