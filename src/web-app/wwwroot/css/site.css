@@ -167,14 +167,14 @@ nav ul {
     z-index: 1;
 }
 
-    .hero p {
-        text-align: center;
-        font-size: 18px;
-        margin-top: 20px;
-        padding: 10px 20px;
-        color: goldenrod;
-        font-weight: bold;
-    }
+.hero p {
+    text-align: center;
+    font-size: 18px;
+    margin-top: 20px;
+    padding: 10px 20px;
+    color: goldenrod;
+    font-weight: bold;
+}
 
 /* About Us Section */
 .about-container {
