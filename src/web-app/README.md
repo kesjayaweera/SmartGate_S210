@@ -5,6 +5,7 @@ This guide walks you through building the Docker images required to run the Smar
 ## Prerequisites
 
 - Docker installed on your machine. Follow the [official Docker installation guide](https://docs.docker.com/get-docker/) if you haven't already.
+-  Docker Compose installed (usually included with Docker Desktop or available separately). Follow the [Docker Compose Install Guide](https://docs.docker.com/compose/install/) if you can't access docker-compose.
 - If you are using macOS or Windows, please install Docker Desktop. Follow the [Docker Desktop for Mac and Windows](https://www.docker.com/products/docker-desktop)
 - Access to a terminal (Linux/macOS) or a terminal emulator like Git Bash (Windows).
 -  Git installed. You can download it from [Git Install Guides](https://github.com/git-guides/install-git)
