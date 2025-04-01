@@ -9,6 +9,7 @@ This guide walks you through building the Docker images required to run the Smar
 - If you are using macOS or Windows, please install Docker Desktop. Follow the [Docker Desktop for Mac and Windows](https://www.docker.com/products/docker-desktop)
 - Access to a terminal (Linux/macOS) or a terminal emulator like Git Bash (Windows).
 -  Git installed. You can download it from [Git Install Guides](https://github.com/git-guides/install-git)
+-  Internet Access is required to download the Python and Postgres images from Docker Hub.
 
 ## Steps
 
