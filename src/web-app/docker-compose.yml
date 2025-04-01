@@ -19,7 +19,7 @@ services:
       - sgnet
 
   postgres:
-    image: postgres:13
+    image: postgres:13 # Link to the image: https://hub.docker.com/_/postgres/tags?name=13
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: smartgate
