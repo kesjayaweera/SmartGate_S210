@@ -91,5 +91,27 @@ def check_permission(username: str, perm_name: str):
         conn.close()
 
 # Example usage:
-# has_permission = check_permission('talha', 'open_gate')
+# has_permission = check_permission('john', 'open_gate')
 # print(has_permission)
+
+def change_role(username: str, role_id: int):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Update the user's role
+        cursor.execute("""
+            UPDATE users SET role_id = %s WHERE username = %s;
+        """, (role_id, username))
+
+        conn.commit()
+        print(f"Role updated successfully for {username}!")
+
+    except Exception as e:
+        print(f"Error changing role: {e}")
+    finally:
+        # Close the connection
+        cursor.close()
+        conn.close()
+
+# change_role("john", 2)
