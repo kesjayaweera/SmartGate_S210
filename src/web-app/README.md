@@ -71,7 +71,7 @@ This `README.md` will guide users through the steps needed to clone the reposito
 
 ## Important Notes for Developers
 
-- If you make changes to the `requirements.txt`, `Dockerfile`, or `docker-compose.yml`, make sure to rebuild the images using ``Step 3``
+- If you make changes to the `requirements.txt`, `Dockerfile`, or `docker-compose.yml`, make sure to rebuild the images using __Step 3__
 
 - If you make changes to the sql files be sure to remove the docker volumes related to the web-app by doing:
   ```bash
