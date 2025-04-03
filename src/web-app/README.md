@@ -32,6 +32,9 @@ Now, Build the images using the docker-compose file in the current directory.
 ```bash
 docker-compose up --build -d
 ```
+
+This will build and start the containers in detached mode, meaning they will run in the background.
+
 ### 4. Run the image as a docker container
 After the image is built and running in detached mode. You can enter the container's bash shell by doing:
 
@@ -62,5 +65,5 @@ Password: smartgate
 
 This will start the containers allowing you to run Docker commands and access necessary services.
 
-This `README.md` will guide users through the steps needed to clone the repository, build the images Docker Compose file, and run it locally, enabling the container to communicate with the containers on the host machine.
+This `README.md` will guide users through the steps needed to clone the repository, build the images in docker compose file, and run it locally, enabling the container to communicate with the containers on the host machine.
 
