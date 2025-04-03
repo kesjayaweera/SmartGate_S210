@@ -48,9 +48,9 @@ Alternatively, If the image is built and **not running** in detached mode. You c
 docker exec -it sgwebimage bash
 ```
 
-**Note:** When opening another terminal, make sure you're in `cd src/web-app`.
-
 This ensures you can interact with the container as needed.  
+
+**Note:** When opening another terminal, make sure you're in `cd src/web-app`.
 
 ## SmartGate Web App Commands
 
@@ -61,7 +61,7 @@ python app.py
 
 Access SmartGate Database
 ```bash
-psql -h postgres -p 5432 -U admin -d smartgatedb
+psql -h postgres -U admin -d smartgatedb
 ```
 Password: smartgate
 
