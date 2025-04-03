@@ -27,12 +27,12 @@ CREATE TABLE IF NOT EXISTS perms (
 -- Insert permissions into the perms table
 INSERT INTO perms (perm_name)
 VALUES
-    ('view_gate'),    -- perm_id 1
-    ('view_alerts'),  -- perm_id 2
-    ('view_stats'),   -- perm_id 3
-    ('open_gate'),    -- perm_id 4
-    ('close_gate'),   -- perm_id 5
-    ('db_control');   -- perm_id 6
+    ('view_gate'),    -- permission_id 1
+    ('view_alerts'),  -- permission_id 2
+    ('view_stats'),   -- permission_id 3
+    ('open_gate'),    -- permission_id 4
+    ('close_gate'),   -- permission_id 5
+    ('db_control');   -- permission_id 6
 
 -- Create a join table between roles and permissions
 CREATE TABLE IF NOT EXISTS role_permissions (
