@@ -73,15 +73,16 @@ This `README.md` will guide users through the steps needed to clone the reposito
 
 - If you make changes to the `requirements.txt`, `Dockerfile`, or `docker-compose.yml`, make sure to rebuild the images using __Step 3__
 
-- If you make **changes to the sql files** or **stop the docker-compose from running** be sure to remove the docker volumes related to the web-app by doing:
+- If you make **changes to the sql files** or **stop the docker-compose from running** be sure to remove the docker volumes and containers related to the web-app by doing:
+
+  Linux and Macos
   ```bash
-  docker volume rm web-app_smartgate-data
+  ./cleanup.sh
   ```
 
-- After you stop the docker-compose from running be sure to remove the container processes by doing:
-  ```bash
-  docker stop buildx_buildkit_dockerbuilder0
-  docker rm buildx_buildkit_dockerbuilder0 web-app-sgwebimage-1 web-app-postgres-1
+  Windows:
+  ```powershell
+  .\cleanup.ps1
   ```
 
 
