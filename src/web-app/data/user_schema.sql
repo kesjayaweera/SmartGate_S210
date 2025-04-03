@@ -68,10 +68,10 @@ BEGIN
         u.username,
         r.role_name,
         STRING_AGG(p.perm_name, ',') AS permissions
-    FROM users u
-    JOIN roles r ON u.role_id = r.role_id
-    JOIN role_permissions rp ON r.role_id = rp.role_id
-    JOIN perms p ON rp.permission_id = p.perm_id
+    FROM users u -- This gets the username from the users relation
+    JOIN roles r ON u.role_id = r.role_id -- This gets the role_name according to the user based on role_id
+    JOIN role_permissions rp ON r.role_id = rp.role_id -- This gets the permission_id that the role have 
+    JOIN perms p ON rp.permission_id = p.perm_id -- This join get the permision names of the role based on what permission the role has
     WHERE u.user_id = $1  -- Use the parameter directly here
     GROUP BY u.username, r.role_name
     ON CONFLICT (username, name_of_role) DO UPDATE 
