@@ -1,6 +1,6 @@
 # Building and Running the SmartGate Web App
 
-This guide walks you through building the Docker images required to run the SmartGate web app.
+This guide walks you through building the Docker images required to run the SmartGate web app using Docker Compose.
 
 ## Prerequisites
 
@@ -50,6 +50,8 @@ docker exec -it sgwebimage bash
 
 This ensures you can interact with the container as needed.  
 
+**Note:** When opening another terminal, make sure you're in `cd src/web-app`.
+
 ## SmartGate Web App Commands
 
 Run Python Web App
@@ -59,7 +61,7 @@ python app.py
 
 Access SmartGate Database
 ```bash
-psql -h postgres -p 5432 -U admin -d smartgatedb
+psql -h postgres -U admin -d smartgatedb
 ```
 Password: smartgate
 
@@ -67,3 +69,20 @@ This will start the containers allowing you to run Docker commands and access ne
 
 This `README.md` will guide users through the steps needed to clone the repository, build the images in docker compose file, and run it locally, enabling the container to communicate with the containers on the host machine.
 
+## Important Notes for Developers
+
+- If you make changes to the `requirements.txt`, `Dockerfile`, or `docker-compose.yml`, make sure to rebuild the images using __Step 3__
+
+- If you make **changes to the sql files** or **stop the docker-compose from running** be sure to remove the docker volumes related to the web-app by doing:
+  ```bash
+  docker volume rm web-app_smartgate-data
+  ```
+
+- After you stop the docker-compose from running be sure to remove the container processes by doing:
+  ```bash
+  docker stop buildx_buildkit_dockerbuilder0
+  docker rm buildx_buildkit_dockerbuilder0 web-app-sgwebimage-1 web-app-postgres-1
+  ```
+
+
+  
