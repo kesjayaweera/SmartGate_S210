@@ -81,8 +81,7 @@ This `README.md` will guide users through the steps needed to clone the reposito
 - After you stop the docker-compose build be sure to remove the container processes by doing:
   ```bash
   docker stop buildx_buildkit_dockerbuilder0
-  docker rm web-app-sgwebimage-1
-  docker rm web-app-postgres-1
+  docker rm buildx_buildkit_dockerbuilder0 web-app-sgwebimage-1 web-app-postgres-1
   ```
 
 
