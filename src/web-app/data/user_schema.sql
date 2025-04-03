@@ -37,7 +37,7 @@ VALUES
 CREATE TABLE IF NOT EXISTS role_permissions (
     role_id INTEGER NOT NULL REFERENCES roles(role_id),       -- Foreign key to the roles table
     permission_id INTEGER NOT NULL REFERENCES perms(perm_id), -- Foreign key to the permissions table
-    CONSTRAINT unique_role_permission UNIQUE (role_id, permission_id)  -- Ensure uniqueness of role-permission pairs
+    UNIQUE (role_id, permission_id)  -- Ensure uniqueness of role-permission pairs
 );
 
 -- Assign permissions to roles
