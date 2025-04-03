@@ -14,8 +14,7 @@ VALUES
 CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT PRIMARY KEY,      -- User ID as BIGINT
     username VARCHAR(255) NOT NULL,   -- Username
-    role_id INTEGER NOT NULL,         -- Foreign key to the roles table (added NOT NULL for integrity)
-    FOREIGN KEY (role_id) REFERENCES roles(role_id)  -- Link users to roles
+    role_id INTEGER NOT NULL REFERENCES roles(role_id) -- Foreign key to the roles table (added NOT NULL for integrity) Link users to roles
 );
 
 -- Create the perms table for permissions
@@ -32,26 +31,53 @@ VALUES
     ('view_stats'),   -- permission_id 3
     ('open_gate'),    -- permission_id 4
     ('close_gate'),   -- permission_id 5
-    ('db_control');   -- permission_id 6
+    ('data_control');   -- permission_id 6
 
 -- Create a join table between roles and permissions
 CREATE TABLE IF NOT EXISTS role_permissions (
-    role_id INTEGER NOT NULL,                 -- Foreign key to the roles table
-    permission_id INTEGER NOT NULL,           -- Foreign key to the permissions table
-    FOREIGN KEY (role_id) REFERENCES roles(role_id),
-    FOREIGN KEY (permission_id) REFERENCES perms(perm_id),
+    role_id INTEGER NOT NULL REFERENCES roles(role_id),       -- Foreign key to the roles table
+    permission_id INTEGER NOT NULL REFERENCES perms(perm_id), -- Foreign key to the permissions table
     CONSTRAINT unique_role_permission UNIQUE (role_id, permission_id)  -- Ensure uniqueness of role-permission pairs
 );
 
 -- Assign permissions to roles
 INSERT INTO role_permissions (role_id, permission_id)
 VALUES
-    (1, 1), -- user has view_gate
-    (2, 1), -- admin has view_gate
-    (1, 2), -- user has view_alerts
-    (2, 2), -- admin has view_alerts
-    (1, 3), -- user has view_stats
-    (2, 3), -- admin has view_stats
-    (2, 4), -- admin has open_gate
-    (2, 5), -- admin has close_gate
-    (2, 6); -- admin has db_control
+    (1, 1), (2, 1), -- user and admin has view_gate
+    (1, 2), (2, 2), -- user and admin has view_alerts
+    (1, 3), (2, 3), -- user and admin has view_stats
+    (2, 4), (2, 5), (2, 6); -- admin has open_gate, close_gate, data_control
+
+CREATE TABLE IF NOT EXISTS user_perms (
+    username VARCHAR(255) NOT NULL, 
+    name_of_role VARCHAR(255) NOT NULL,
+    permissions TEXT NOT NULL, 
+    PRIMARY KEY (username, name_of_role)
+);
+
+CREATE OR REPLACE FUNCTION refresh_user_perms(user_id BIGINT)
+RETURNS void AS $$
+BEGIN
+    -- Remove existing permissions for the user (if any)
+    DELETE FROM user_perms 
+    WHERE username = (SELECT username FROM users WHERE users.user_id = $1);
+
+    -- Insert or update the permissions based on the current role
+    INSERT INTO user_perms (username, name_of_role, permissions)
+    SELECT
+        u.username,
+        r.role_name,
+        STRING_AGG(p.perm_name, ',') AS permissions
+    FROM users u
+    JOIN roles r ON u.role_id = r.role_id
+    JOIN role_permissions rp ON r.role_id = rp.role_id
+    JOIN perms p ON rp.permission_id = p.perm_id
+    WHERE u.user_id = $1  -- Use the parameter directly here
+    GROUP BY u.username, r.role_name
+    ON CONFLICT (username, name_of_role) DO UPDATE 
+    SET permissions = EXCLUDED.permissions;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
