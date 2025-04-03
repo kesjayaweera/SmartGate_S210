@@ -75,7 +75,7 @@ This `README.md` will guide users through the steps needed to clone the reposito
 
 - If you make **changes to the sql files** or **stop the docker-compose from running** be sure to remove the docker volumes and containers related to the web-app by doing:
 
-  Linux and Macos
+  Linux and MacOS:
   ```bash
   ./cleanup.sh
   ```
