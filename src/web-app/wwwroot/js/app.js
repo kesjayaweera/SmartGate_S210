@@ -68,7 +68,7 @@ async function checkUserPermission(permission) {
     const userResponse = await fetch('/get-username');
     const userData = await userResponse.json();
     if (userData.error) {
-      return false; // Not logged in
+      return null; // Not logged in
     }
 
     const username = userData.username;
