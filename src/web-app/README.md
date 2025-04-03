@@ -69,3 +69,11 @@ This will start the containers allowing you to run Docker commands and access ne
 
 This `README.md` will guide users through the steps needed to clone the repository, build the images in docker compose file, and run it locally, enabling the container to communicate with the containers on the host machine.
 
+## Important Notes for Developers
+
+- If you make changes to the 'requirements.txt', 'Dockerfile', or 'docker-compose.yml', make sure to rebuild the images using "Step 3"
+
+- If you make changes to the sql files be sure to remove the docker volumes related to the web-app by doing:
+  ```bash
+  docker volume rm web-app_smartgate-data
+  ```
