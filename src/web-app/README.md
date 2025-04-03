@@ -30,14 +30,23 @@ cd src/web-app
 Now, Build the images using the docker-compose file in the current directory.
 
 ```bash
-docker-compose up --build
+docker-compose up --build -d
 ```
 ### 4. Run the image as a docker container
-After the image is built make a new terminal and enter the container's bash shell by doing:
+After the image is built and running in detached mode. You can enter the container's bash shell by doing:
 
 ```bash
-docker-compose exec sgwebimage bash
+docker-compose exec sgwebimage bash 
 ```
+
+Alternatively, If the image is built and **not running** in detached mode. You can enter the containers bash in a different terminal.
+
+```bash
+docker exec -it sgwebimage bash
+```
+
+This ensures you can interact with the container as needed.  
+
 ## SmartGate Web App Commands
 
 Run Python Web App
