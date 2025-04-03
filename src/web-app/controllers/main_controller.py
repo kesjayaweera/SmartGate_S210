@@ -95,7 +95,7 @@ async def logout(request: Request):
 
 @root_router.get("/get-username")
 async def get_username(user: dict = Depends(get_user_from_session)):
-    print(user)  # Debugging: See the actual structure
+    # print(user)  # Debugging: See the actual structure
     if user and "username" in user:
         return {"username": user["username"]}
     return {"error": "Not logged in"}   
