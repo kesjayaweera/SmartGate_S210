@@ -1,6 +1,6 @@
 # Building and Running the SmartGate Web App
 
-This guide walks you through building the Docker images required to run the SmartGate web app.
+This guide walks you through building the Docker images required to run the SmartGate web app using Docker Compose.
 
 ## Prerequisites
 
@@ -77,3 +77,13 @@ This `README.md` will guide users through the steps needed to clone the reposito
   ```bash
   docker volume rm web-app_smartgate-data
   ```
+
+- After you stop the docker-compose build be sure to remove the container processes by doing:
+  ```bash
+  docker stop buildx_buildkit_dockerbuilder0
+  docker rm web-app-sgwebimage-1
+  docker rm web-app-postgres-1
+  ```
+
+
+  
