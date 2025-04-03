@@ -48,6 +48,8 @@ Alternatively, If the image is built and **not running** in detached mode. You c
 docker exec -it sgwebimage bash
 ```
 
+**Note:** When opening another terminal, make sure you're in `cd src/web-app`.
+
 This ensures you can interact with the container as needed.  
 
 ## SmartGate Web App Commands
