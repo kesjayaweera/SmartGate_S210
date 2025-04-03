@@ -1,7 +1,7 @@
 -- Create the roles table (This should be created first so that roles exist before referencing them in users)
 CREATE TABLE IF NOT EXISTS roles (
     role_id SERIAL PRIMARY KEY,          -- Role ID with SERIAL for auto-increment, starts at 1 by default
-    role_name VARCHAR(255) NOT NULL       -- Role name (e.g., 'admin', 'user', etc.)
+    role_name VARCHAR(255) NOT NULL      -- Role name (e.g., 'admin', 'user', etc.)
 );
 
 -- Insert roles into the roles table with specific role_id values
