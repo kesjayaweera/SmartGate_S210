@@ -48,11 +48,11 @@ VALUES
     (1, 3), (2, 3), -- user and admin has view_stats
     (2, 4), (2, 5), (2, 6); -- admin has open_gate, close_gate, data_control
 
+-- This table is for managing user permissions
 CREATE TABLE IF NOT EXISTS user_perms (
     username VARCHAR(255) NOT NULL, 
-    name_of_role VARCHAR(255) NOT NULL,
     permissions TEXT NOT NULL, 
-    PRIMARY KEY (username, name_of_role)
+    PRIMARY KEY (username)
 );
 
 CREATE OR REPLACE FUNCTION refresh_user_perms(user_id BIGINT)
@@ -66,7 +66,6 @@ BEGIN
     INSERT INTO user_perms (username, name_of_role, permissions)
     SELECT
         u.username,
-        r.role_name,
         STRING_AGG(p.perm_name, ',') AS permissions
     FROM users u -- This gets the username from the users relation
     JOIN roles r ON u.role_id = r.role_id -- This gets the role_name according to the user based on role_id
