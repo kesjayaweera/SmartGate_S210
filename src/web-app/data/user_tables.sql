@@ -94,5 +94,10 @@ AFTER INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION on_user_update();
 
-
+-- Create a trigger that will call the on_user_update function after a user's role_id is updated
+CREATE TRIGGER trigger_refresh_user_perms_on_role_change
+AFTER UPDATE OF role_id ON users
+FOR EACH ROW
+WHEN (OLD.role_id IS DISTINCT FROM NEW.role_id)  -- Only trigger when the role_id actually changes
+EXECUTE FUNCTION on_user_update();
 
