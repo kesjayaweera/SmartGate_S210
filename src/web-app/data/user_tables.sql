@@ -79,7 +79,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Trigger function to refresh user permissions when a new user is added
-CREATE OR REPLACE FUNCTION on_user_insert()
+CREATE OR REPLACE FUNCTION on_user_update()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Call the refresh_user_perms function with the user_id of the newly inserted user
@@ -88,11 +88,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create a trigger that will call the on_user_insert function after a new user is inserted
+-- Create a trigger that will call the on_user_update function after a new user is inserted
 CREATE TRIGGER trigger_refresh_user_perms
 AFTER INSERT ON users
 FOR EACH ROW
-EXECUTE FUNCTION on_user_insert();
+EXECUTE FUNCTION on_user_update();
 
 
 
