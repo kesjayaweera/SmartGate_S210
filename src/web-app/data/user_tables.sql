@@ -51,7 +51,7 @@ VALUES
 -- This table is for managing user permissions
 CREATE TABLE IF NOT EXISTS user_perms (
     username VARCHAR(255) NOT NULL, 
-    permissions TEXT NOT NULL, 
+    permissions JSONB NOT NULL, 
     PRIMARY KEY (username)
 );
 
@@ -66,7 +66,7 @@ BEGIN
     INSERT INTO user_perms (username, permissions)
     SELECT
         u.username,
-        STRING_AGG(p.perm_name, ',') AS permissions
+        jsonb_agg(p.perm_name) AS permissions
     FROM users u -- This gets the username from the users relation
     JOIN roles r ON u.role_id = r.role_id -- This gets the role_name according to the user based on role_id
     JOIN role_permissions rp ON r.role_id = rp.role_id -- This gets the permission_id that the role have 
