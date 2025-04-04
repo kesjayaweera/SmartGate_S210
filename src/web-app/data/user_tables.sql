@@ -63,7 +63,7 @@ BEGIN
     WHERE username = (SELECT username FROM users WHERE users.user_id = $1);
 
     -- Insert or update the permissions based on the current role
-    INSERT INTO user_perms (username, name_of_role, permissions)
+    INSERT INTO user_perms (username, permissions)
     SELECT
         u.username,
         STRING_AGG(p.perm_name, ',') AS permissions
@@ -73,7 +73,7 @@ BEGIN
     JOIN perms p ON rp.permission_id = p.perm_id -- This join get the permision names of the role based on what permission the role has
     WHERE u.user_id = $1  -- Use the parameter directly here
     GROUP BY u.username, r.role_name
-    ON CONFLICT (username, name_of_role) DO UPDATE 
+    ON CONFLICT (username) DO UPDATE 
     SET permissions = EXCLUDED.permissions;
 END;
 $$ LANGUAGE plpgsql;
