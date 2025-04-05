@@ -97,6 +97,6 @@ This `README.md` will guide users through the steps needed to clone the reposito
   .\cleanup.ps1
   ```
 
-This will give you a fresh build of the images to be run as containers after you do __Step 3__
+  This will give you a fresh build of the images to be run as containers after you do __Step 3__
 
   
