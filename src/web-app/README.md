@@ -35,6 +35,12 @@ docker-compose up --build -d
 
 This will build and start the containers in detached mode, meaning they will run in the background.
 
+Alternatively, you can run the docker images without detached mode by doing:
+
+```bash
+docker-compose up --build 
+```
+
 ### 4. Run the image as a docker container
 After the image is built and running in detached mode. You can enter the container's bash shell by doing:
 
