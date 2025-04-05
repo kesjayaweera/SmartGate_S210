@@ -25,6 +25,7 @@ oauth.register(
 
 routes = [
     # (route, html file, title)
+    ("/", "Index.html", "Dashboard"),
     ("/gates", "gates.html", "Gates"),
     ("/about", "about.html", "About"),
     ("/alerts", "alerts.html", "Alerts"),
@@ -35,7 +36,7 @@ routes = [
 async def get_user_from_session(request: Request):
     return request.session.get('user', None)
 
-def render_template(template_name: str, title: str):
+def render_template_with_user(template_name: str, title: str):
     async def view(request: Request, user: dict = Depends(get_user_from_session)):
         return pages.TemplateResponse(template_name, {
             "request": request,
@@ -47,20 +48,9 @@ def render_template(template_name: str, title: str):
 for path, template, title in routes:
     root_router.add_api_route(
         path,
-        render_template(template, title),
+        render_template_with_user(template, title),
         response_class=HTMLResponse
     )
-
-# Root route
-@root_router.get("/")
-async def root(request: Request, user: dict = Depends(get_user_from_session)):
-    # Clear the session if it's the first visit
-    if not request.session.get("session_initialized"):
-        request.session.clear()
-        request.session["session_initialized"] = True
-    
-    # Render the dashboard page regardless of the login state
-    return await render_template("Index.html", "Dashboard")(request, user)
 
 @root_router.get("/login")
 async def login(request:Request):
