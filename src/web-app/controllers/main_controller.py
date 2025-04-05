@@ -22,39 +22,58 @@ oauth.register(
     client_kwargs={"scope": "user:email"},
 )
 
+routes = [
+    # (route, html file, title)
+    ("/", "Index.html", "Dashboard"),
+    ("/gates", "gates.html", "Gates"),
+    ("/about", "about.html", "About"),
+    ("/alerts", "alerts.html", "Alerts")
+]
+
 # Dependency function to fetch user from session
 async def get_user_from_session(request: Request):
     return request.session.get('user', None)
 
-@root_router.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request, user: dict = Depends(get_user_from_session)):
-    return pages.TemplateResponse("Index.html", {
-        "request": request,
-        "title": "Dashboard",
-        "user": user 
-    })
+for path, template, title in routes:
+    root_router.add_api_route(
+        path,
+        lambda request: pages.TemplateResponse(template, {
+            "request": request,
+            "title": title,
+            "user": Depends(get_user_from_session)
+        }),
+        response_class=HTMLResponse
+    )
 
-@root_router.get("/gates", response_class=HTMLResponse)
-async def gates(request: Request, user: dict = Depends(get_user_from_session)):
-    return pages.TemplateResponse("gates.html", {
-        "request": request,
-        "title": "Gates",
-        "user": user 
-    })
-@root_router.get("/about", response_class=HTMLResponse)
-async def about(request: Request, user: dict = Depends(get_user_from_session)):
-    return pages.TemplateResponse("about.html", {
-        "request": request,
-        "title": "About",
-        "user": user
-    })
-@root_router.get("/alerts", response_class=HTMLResponse)
-async def alerts(request: Request, user: dict = Depends(get_user_from_session)):
-    return pages.TemplateResponse("alerts.html", {
-        "request": request,
-        "title": "Alerts",
-        "user": user
-    })
+# @root_router.get("/", response_class=HTMLResponse)
+# async def dashboard(request: Request, user: dict = Depends(get_user_from_session)):
+#     return pages.TemplateResponse("Index.html", {
+#         "request": request,
+#         "title": "Dashboard",
+#         "user": user 
+#     })
+
+# @root_router.get("/gates", response_class=HTMLResponse)
+# async def gates(request: Request, user: dict = Depends(get_user_from_session)):
+#     return pages.TemplateResponse("gates.html", {
+#         "request": request,
+#         "title": "Gates",
+#         "user": user 
+#     })
+# @root_router.get("/about", response_class=HTMLResponse)
+# async def about(request: Request, user: dict = Depends(get_user_from_session)):
+#     return pages.TemplateResponse("about.html", {
+#         "request": request,
+#         "title": "About",
+#         "user": user
+#     })
+# @root_router.get("/alerts", response_class=HTMLResponse)
+# async def alerts(request: Request, user: dict = Depends(get_user_from_session)):
+#     return pages.TemplateResponse("alerts.html", {
+#         "request": request,
+#         "title": "Alerts",
+#         "user": user
+#     })
 
 @root_router.get("/login")
 async def login(request:Request):
