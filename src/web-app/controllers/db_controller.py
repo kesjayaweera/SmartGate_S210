@@ -155,4 +155,4 @@ def add_permission(username: str, perm_name: str):
 # change_role("john", 2)
 # print(check_permission('john', "open_gate"))
 # remove_permission("john", "view_gate")
-add_permission("john", "view_gate")
+# add_permission("john", "view_gate")
