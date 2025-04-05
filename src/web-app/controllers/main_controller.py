@@ -32,12 +32,20 @@ routes = [
     ("/data", "data.html", "Data")
 ]
 
+# Global variable to track if session has been cleared
+session_initialized = False
+
 # Dependency function to fetch user from session
 async def get_user_from_session(request: Request):
     return request.session.get('user', None)
 
 def render_template_with_user(template_name: str, title: str):
     async def view(request: Request, user: dict = Depends(get_user_from_session)):
+        global session_initialized
+        # Clear the session if it's the first visit
+        if not session_initialized:
+            request.session.clear()
+            session_initialized = True
         return pages.TemplateResponse(template_name, {
             "request": request,
             "title": title,
