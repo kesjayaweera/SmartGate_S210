@@ -40,17 +40,17 @@ def insert_user(user: dict):
         conn.close()
 
 # Mock user information (id, login, and role)
-user_info1 = {
-    "id": 123,  # Example user ID
-    "login": "talha",  # Example GitHub username (or whatever username you want)
-    "role_id": 1  # Hardcoded role ID
-}
+# user_info1 = {
+#     "id": 123,  # Example user ID
+#     "login": "talha",  # Example GitHub username (or whatever username you want)
+#     "role_id": 1  # Hardcoded role ID
+# }
 
-user_info2 = {
-    "id": 124,  # Example user ID
-    "login": "john",  # Example GitHub username (or whatever username you want)
-    "role_id": 2  # Hardcoded role ID
-}
+# user_info2 = {
+#     "id": 124,  # Example user ID
+#     "login": "john",  # Example GitHub username (or whatever username you want)
+#     "role_id": 2  # Hardcoded role ID
+# }
 
 # Insert the user into the database
 # insert_user(user_info1)
@@ -65,26 +65,24 @@ def check_permission(username: str, perm_name: str):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute("""
-            SELECT u.username, p.perm_name
-            FROM users u
-            JOIN roles r ON u.role_id = r.role_id
-            JOIN role_permissions rp ON r.role_id = rp.role_id
-            JOIN perms p ON rp.permission_id = p.perm_id
-            WHERE u.username = %s AND p.perm_name = %s;
-        """, (username, perm_name))
+        query = """
+            SELECT 1 
+            FROM user_perms 
+            WHERE username = %s 
+            AND permissions @> %s::jsonb 
+            LIMIT 1;
+        """
+        cursor.execute(query, (username, f'["{perm_name}"]'))
 
         # Fetch the result
         result = cursor.fetchone()
 
         # Check if the user has the permission
-        if result:
-            return True
-        else:
-            return False
+        return result is not None
 
     except Exception as e:
         print(f"Error checking permission: {e}")
+        return False
     finally:
         # Close the connection
         cursor.close()
@@ -114,4 +112,47 @@ def change_role(username: str, role_id: int):
         cursor.close()
         conn.close()
 
+def remove_permission(username: str, perm_name: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE user_perms
+            SET permissions = permissions - %s
+            WHERE username = %s;
+        """, (perm_name, username))
+
+        conn.commit()
+        print(f"Successfully removed '{perm_name}' from '{username}'.")
+
+    except Exception as e:
+        print(f"Error removing permission: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+def add_permission(username: str, perm_name: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE user_perms
+            SET permissions = permissions || %s::jsonb
+            WHERE username = %s;
+        """, (f'["{perm_name}"]', username))
+
+        conn.commit()
+        print(f"Successfully added '{perm_name}' to '{username}'.")
+
+    except Exception as e:
+        print(f"Error adding permission: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
 # change_role("john", 2)
+# print(check_permission('john', "open_gate"))
+# remove_permission("john", "view_gate")
+add_permission("john", "view_gate")
