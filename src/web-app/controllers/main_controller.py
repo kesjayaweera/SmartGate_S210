@@ -27,7 +27,8 @@ routes = [
     ("/", "Index.html", "Dashboard"),
     ("/gates", "gates.html", "Gates"),
     ("/about", "about.html", "About"),
-    ("/alerts", "alerts.html", "Alerts")
+    ("/alerts", "alerts.html", "Alerts"),
+    ("/data", "data.html", "Data")
 ]
 
 # Dependency function to fetch user from session
