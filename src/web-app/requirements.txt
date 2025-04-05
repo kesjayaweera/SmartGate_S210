@@ -10,3 +10,4 @@ psycopg
 requests
 starlette
 uvicorn
+websocket-client
