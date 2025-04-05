@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, WebSocket, WebSocketDisconnect
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
 from controllers.db_controller import insert_user, check_permission
+import json
 
 root_router = APIRouter()
 pages = Jinja2Templates(directory=Path("frontend"))
@@ -37,10 +38,6 @@ async def get_user_from_session(request: Request):
 
 def render_template_with_user(template_name: str, title: str):
     async def view(request: Request, user: dict = Depends(get_user_from_session)):
-        if request.url.path == "/" and not request.session.get("session_initialized"):
-            request.session.clear();
-            request.session["session_initialized"] = True
-
         return pages.TemplateResponse(template_name, {
             "request": request,
             "title": title,
