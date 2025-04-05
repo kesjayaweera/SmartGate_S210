@@ -69,13 +69,13 @@ Access SmartGate Database Inside Docker Container
 ```bash
 psql -h postgres -U admin -d smartgatedb
 ```
-Password: smartgate
 
 Access SmartGate Database Outside Docker Container
 ```bash
 psql -h localhost -U admin -d smartgatedb
 ```
-Password: smartgate
+
+Database Password: smartgate (see `docker-compose.yml`)
 
 This will start the containers allowing you to run Docker commands and access necessary services.
 
