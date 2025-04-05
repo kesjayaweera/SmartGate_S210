@@ -32,25 +32,28 @@ routes = [
     ("/data", "data.html", "Data")
 ]
 
-for path, template, title in routes:
-    root_router.add_api_route(
-        path,
-        render_template_with_user(template, title),
-        response_class=HTMLResponse
-    )
-
 # Dependency function to fetch user from session
 async def get_user_from_session(request: Request):
     return request.session.get('user', None)
 
 def render_template_with_user(template_name: str, title: str):
     async def view(request: Request, user: dict = Depends(get_user_from_session)):
+        if not request.session.get("session_initialized"):
+            request.session.clear()  # Clear the session on the first visit
+            request.session["session_initialized"] = True  # Avoid clearing the session again
         return pages.TemplateResponse(template_name, {
             "request": request,
             "title": title,
             "user": user
         })
     return view
+
+for path, template, title in routes:
+    root_router.add_api_route(
+        path,
+        render_template_with_user(template, title),
+        response_class=HTMLResponse
+    )
 
 @root_router.get("/login")
 async def login(request:Request):
