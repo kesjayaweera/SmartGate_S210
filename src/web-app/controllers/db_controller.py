@@ -44,14 +44,13 @@ def check_permission(username: str, perm_name: str):
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        query = """
+        cursor.execute("""
             SELECT 1 
             FROM user_perms 
             WHERE username = %s 
             AND permissions @> %s::jsonb 
             LIMIT 1;
-        """
-        cursor.execute(query, (username, f'["{perm_name}"]'))
+        """, (username, f'["{perm_name}"]'))
 
         # Fetch the result
         result = cursor.fetchone()
@@ -123,6 +122,26 @@ def add_permission(username: str, perm_name: str):
 
     except Exception as e:
         print(f"Error adding permission: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+def get_user_overview():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT 
+                u.username,
+                r.role_name
+            FROM users u
+            JOIN roles r ON u.role_id = r.role_id;
+        """)
+
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error fetching user overview: {e}")
     finally:
         cursor.close()
         conn.close()
