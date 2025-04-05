@@ -1,4 +1,4 @@
-# Building and Running the SmartGate Web App
+# SmartGate Web App
 
 This guide walks you through building the Docker images required to run the SmartGate web app using Docker Compose.
 
