@@ -42,7 +42,7 @@ async def get_user_from_session(request: Request):
 def render_template_with_user(template_name: str, title: str):
     async def view(request: Request, user: dict = Depends(get_user_from_session)):
         global session_initialized
-        # Clear the session if it's the first visit
+        # Clear the session only after the app initialized
         if not session_initialized:
             request.session.clear()
             session_initialized = True
