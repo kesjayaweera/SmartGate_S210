@@ -30,6 +30,15 @@ routes = [
     ("/alerts", "alerts.html", "Alerts")
 ]
 
+def render_template_with_user(template_name: str, title: str):
+    async def view(request: Request, user: dict = Depends(get_user_from_session)):
+        return pages.TemplateResponse(template_name, {
+            "request": request,
+            "title": title,
+            "user": user
+        })
+    return view
+
 # Dependency function to fetch user from session
 async def get_user_from_session(request: Request):
     return request.session.get('user', None)
@@ -37,11 +46,7 @@ async def get_user_from_session(request: Request):
 for path, template, title in routes:
     root_router.add_api_route(
         path,
-        lambda request: pages.TemplateResponse(template, {
-            "request": request,
-            "title": title,
-            "user": Depends(get_user_from_session)
-        }),
+        render_template_with_user(template, title),
         response_class=HTMLResponse
     )
 
