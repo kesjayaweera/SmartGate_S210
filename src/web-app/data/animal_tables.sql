@@ -3,7 +3,6 @@ CREATE TABLE IF NOT EXISTS animals (
     animal_id SERIAL PRIMARY KEY,
     animal_type VARCHAR(255) NOT NULL,
     species_name VARCHAR(255) NOT NULL,
-    has_detected BOOLEAN DEFAULT FALSE,
     is_endangered BOOLEAN NOT NULL,
     is_threat BOOLEAN NOT NULL
 );

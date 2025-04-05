@@ -29,8 +29,7 @@ routes = [
     ("/", "Index.html", "Dashboard"),
     ("/gates", "gates.html", "Gates"),
     ("/about", "about.html", "About"),
-    ("/alerts", "alerts.html", "Alerts"),
-    ("/data", "data.html", "Data")
+    ("/alerts", "alerts.html", "Alerts")
 ]
 
 # Dependency function to fetch user from session
@@ -52,6 +51,18 @@ for path, template, title in routes:
         render_template_with_user(template, title),
         response_class=HTMLResponse
     )
+
+# New /data route
+@root_router.get("/data")
+async def data(request: Request, user: dict = Depends(get_user_from_session)):
+    data = get_user_overview()  # Fetch user data from the database
+    user_data = [{"username": row[0], "role_name": row[1]} for row in data]  # Format the data
+    return pages.TemplateResponse("data.html", {
+        "request": request, 
+        "user_data": user_data, 
+        "user": user, 
+        "title": "Data"
+    })
 
 @root_router.get("/login")
 async def login(request:Request):
@@ -122,4 +133,9 @@ async def websocket_user_overview(websocket: WebSocket):
             await asyncio.sleep(0.5)
     except WebSocketDisconnect:
         print("Client disconnected")
+    except asyncio.CancelledError:
+        print("WebSocket task cancelled")
+        # Handle any cleanup if necessary
+    finally:
+        await websocket.close()
 
