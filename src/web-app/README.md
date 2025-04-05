@@ -65,9 +65,15 @@ Run Python Web App
 python app.py
 ```
 
-Access SmartGate Database
+Access SmartGate Database Inside Docker Container
 ```bash
 psql -h postgres -U admin -d smartgatedb
+```
+Password: smartgate
+
+Access SmartGate Database Outside Docker Container
+```bash
+psql -h localhost -U admin -d smartgatedb
 ```
 Password: smartgate
 
