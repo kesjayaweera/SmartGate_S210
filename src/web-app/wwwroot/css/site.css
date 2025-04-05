@@ -48,23 +48,23 @@ nav ul {
     gap: 20px;
 }
 
-    nav ul li {
-        position: relative;
-    }
+nav ul li {
+    position: relative;
+}
 
-        nav ul li a {
-            text-decoration: none;
-            color: white;
-            font-size: 14px;
-            padding: 8px 12px;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    padding: 8px 12px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
 
-            nav ul li a:hover {
-                background-color: rgba(255, 255, 255, 0.2);
-                border-radius: 5px;
-                color: #ffcc00;
-            }
+nav ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    color: #ffcc00;
+}
 
 /* Dropdown */
 .dropdown {
@@ -84,10 +84,10 @@ nav ul {
     left: 0;
 }
 
-    .dropdown-content label {
-        color: #333; /* Readable text */
-        font-size: 14px;
-    }
+.dropdown-content label {
+    color: #333; /* Readable text */
+    font-size: 14px;
+}
 
 #brightness-slider {
     width: 100%;
@@ -105,10 +105,10 @@ nav ul {
     transition: background 0.3s ease, color 0.3s ease;
 }
 
-    .login-btn:hover {
-        background-color: #ffd633;
-        color: black;
-    }
+.login-btn:hover {
+    background-color: #ffd633;
+    color: black;
+}
 
 /* Responsive Header */
 @media (max-width: 768px) {
@@ -232,30 +232,30 @@ nav ul {
     backdrop-filter: blur(5px);
 }
 
-    /* Team Member Image */
-    .team-member img {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 3px solid #ffcc00;
-        margin-bottom: 15px;
-    }
+/* Team Member Image */
+.team-member img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #ffcc00;
+    margin-bottom: 15px;
+}
 
-    /* Member Name */
-    .team-member h3 {
-        font-size: 20px;
-        color: #ffcc00;
-        margin-bottom: 5px;
-    }
+/* Member Name */
+.team-member h3 {
+    font-size: 20px;
+    color: #ffcc00;
+    margin-bottom: 5px;
+}
 
-    /* Member Info */
-    .team-member p {
-        font-size: 14px;
-        color: white;
-        margin: 5px 0;
-        text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.7);
-    }
+/* Member Info */
+.team-member p {
+    font-size: 14px;
+    color: white;
+    margin: 5px 0;
+    text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.7);
+}
 
 /* Responsive Layout */
 @media (max-width: 768px) {
@@ -296,14 +296,14 @@ nav ul {
     gap: 20px;
 }
 
-    /* Image Styling */
-    .image-slider img {
-        width: 300px;
-        height: 250px;
-        object-fit: cover;
-        border-radius: 8px;
-        transition: opacity 0.5s ease-in-out; /* Smooth transition */
-    }
+/* Image Styling */
+.image-slider img {
+    width: 300px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: opacity 0.5s ease-in-out; /* Smooth transition */
+}
 
 /* Fade-Out Effect */
 .fade-out {
