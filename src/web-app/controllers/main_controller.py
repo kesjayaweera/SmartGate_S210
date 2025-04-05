@@ -37,6 +37,10 @@ async def get_user_from_session(request: Request):
 
 def render_template_with_user(template_name: str, title: str):
     async def view(request: Request, user: dict = Depends(get_user_from_session)):
+        if request.url.path == "/" and not request.session.get("session_initialized"):
+            request.session.clear();
+            request.session["session_initialized"] = True
+
         return pages.TemplateResponse(template_name, {
             "request": request,
             "title": title,
