@@ -3,8 +3,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
-from controllers.db_controller import insert_user, check_permission
+from controllers.db_controller import insert_user, check_permission, get_user_overview
 import json
+import asyncio
 
 root_router = APIRouter()
 pages = Jinja2Templates(directory=Path("frontend"))
@@ -32,20 +33,12 @@ routes = [
     ("/data", "data.html", "Data")
 ]
 
-# Global variable to track if session has been cleared
-session_initialized = False
-
 # Dependency function to fetch user from session
 async def get_user_from_session(request: Request):
     return request.session.get('user', None)
 
 def render_template_with_user(template_name: str, title: str):
     async def view(request: Request, user: dict = Depends(get_user_from_session)):
-        global session_initialized
-        # Clear the session only after the app initialized
-        if not session_initialized:
-            request.session.clear()
-            session_initialized = True
         return pages.TemplateResponse(template_name, {
             "request": request,
             "title": title,
@@ -93,7 +86,6 @@ async def auth(request: Request):
 async def logout(request: Request):
     # Remove user info from the request state to log the user out
     request.session.clear()
-
     # Redirect to the homepage or login page
     return RedirectResponse(url="/")
 
@@ -108,3 +100,26 @@ async def get_username(user: dict = Depends(get_user_from_session)):
 async def check_permission_api(username: str, perm_name: str):
     has_permission = check_permission(username, perm_name)
     return JSONResponse(content={"allowed": has_permission})
+
+@root_router.websocket("/ws/user-overview")
+async def websocket_user_overview(websocket: WebSocket):
+    await websocket.accept()
+    previous_data = None
+
+    try:
+        while True:
+            data = get_user_overview()  # Get from DB
+            user_data = [{"username": row[0], "role_name": row[1]} for row in data]
+
+            # Convert to JSON string for easy comparison
+            current_data_json = json.dumps(user_data, sort_keys=True)
+
+            if current_data_json != previous_data:
+                print("Sending data to client:", user_data)  # Log the data being sent
+                await websocket.send_json(user_data)
+                previous_data = current_data_json
+
+            await asyncio.sleep(0.5)
+    except WebSocketDisconnect:
+        print("Client disconnected")
+

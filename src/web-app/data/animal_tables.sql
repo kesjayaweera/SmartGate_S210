@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS animals (
     animal_type VARCHAR(255) NOT NULL,
     species_name VARCHAR(255) NOT NULL,
     has_detected BOOLEAN DEFAULT FALSE,
-    has_entered BOOLEAN DEFAULT FALSE,
     is_endangered BOOLEAN NOT NULL,
     is_threat BOOLEAN NOT NULL
 );

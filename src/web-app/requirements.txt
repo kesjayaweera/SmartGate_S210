@@ -11,3 +11,5 @@ requests
 starlette
 uvicorn
 websocket-client
+websockets
+
