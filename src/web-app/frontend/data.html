@@ -3,56 +3,209 @@
 {% block title %}Data{% endblock %}
 
 {% block content %}
-    <div class="main-content">
-        <section class="hero">
-            <video autoplay muted loop id="backgroundVideo">
-                <source src="/static/NewFolder/bakground_video.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            <div class="overlay"></div>
-        </section>
+<div class="main-content">
+    <section class="hero">
+        <video autoplay muted loop id="backgroundVideo">
+            <source src="/static/NewFolder/bakground_video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="overlay"></div>
+    </section>
 
-        <div class="content">
-            <h1 class="title">👤 User Overview</h1>
+    <div class="content">
+        <h1 class="title">👤 User Overview</h1>
 
-            <table id="userTable">
-                <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Status</th>
-                    <th>Action</th>
+        <table id="userTable">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in user_data %}
+                <tr id="user-{{ user.username }}">
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.role_name }}</td>
+                    <td class="status {{ 'logged-in' if user.status == 'Logged In' else 'logged-out' }}">{{ user.status }}</td>
+                    <td><button onclick="removeUser('{{ user.username }}')">Remove</button></td>
                 </tr>
-                </thead>
-                <tbody>
-                {% for user in user_data %}
-                    <tr id="user-{{ user.username }}">
-                        <td>{{ user.username }}</td>
-                        <td>{{ user.role_name }}</td>
-                        <td class="status {{ 'logged-in' if user.status == 'Logged In' else 'logged-out' }}">{{ user.status }}</td>
-                        <td><button onclick="removeUser('{{ user.username }}')">Remove</button></td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+            {% endfor %}
+            </tbody>
+        </table>
 
+        <!-- Role Change Modal -->
+        <div id="roleModal" class="modal">
+            <div class="modal-content">
+                <span id="closeModal">&times;</span>
+                <h2>Change User Role</h2>
+                <p id="modalUsername"></p>
+                <select id="roleSelect">
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+                <br><br>
+                <button id="saveRole">Save</button>
+            </div>
+        </div>
     </div>
 </div>
+
 <script src="/static/js/data-websocket.js"></script>
 <style>
+    /* Background video */
+    #backgroundVideo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        min-width: 100%;
+        min-height: 100%;
+        z-index: -2;
+        object-fit: cover;
+        pointer-events: none;
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: rgba(0, 0, 0, 0.2);
+        z-index: -1;
+    }
+
+    .main-content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 40px;
+    }
+
     .content {
-        background-color: white;
-        height: 500px;
-        width: auto;
-        margin: 50px;
+        background-color: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 50px 60px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         z-index: 2;
+        max-width: 1000px;
+        width: 100%;
         position: relative;
     }
-    .hero {
-        z-index: 1;
+
+    .title {
+        text-align: center;
+        font-size: 3rem;
+        margin-bottom: 30px;
+        color: #333;
+        font-weight: 700;
+    }
+
+    #userTable {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 18px;
+    }
+
+    #userTable th, #userTable td {
+        padding: 18px;
+        border-bottom: 1px solid #ddd;
+        text-align: left;
+    }
+
+    #userTable thead {
+        background-color: #f4f4f4;
+    }
+
+    #userTable tbody tr:hover {
+        background-color: #f9f9f9;
+        cursor: pointer;
+    }
+
+    #userTable button {
+        padding: 6px 12px;
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s ease;
+    }
+
+    #userTable button:hover {
+        background-color: #c0392b;
+    }
+
+    .status.logged-in {
+        color: green;
+        font-weight: bold;
+    }
+
+    .status.logged-out {
+        color: red;
+        font-weight: bold;
+    }
+
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 999;
+        padding-top: 100px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: auto;
+        padding: 30px;
+        border: 1px solid #888;
+        width: 400px;
+        border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        text-align: center;
         position: relative;
-        height: 0px;
-        padding: 10px 10px;
+    }
+
+    #roleSelect {
+        width: 80%;
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    #saveRole {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    #saveRole:hover {
+        background-color: #2980b9;
+    }
+
+    #closeModal {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        cursor: pointer;
     }
 </style>
+
+
 {% endblock %}
