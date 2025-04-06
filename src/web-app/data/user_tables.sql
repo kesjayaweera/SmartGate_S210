@@ -1,3 +1,5 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
 -- Create the roles table (This should be created first so that roles exist before referencing them in users)
 CREATE TABLE IF NOT EXISTS roles (
     role_id SERIAL PRIMARY KEY,          -- Role ID with SERIAL for auto-increment, starts at 1 by default
