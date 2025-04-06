@@ -24,6 +24,9 @@ oauth.register(
     client_kwargs={"scope": "user:email"},
 )
 
+connected_users = set()
+websocket_connections = set()
+
 routes = [
     # (route, html file, title)
     ("/", "Index.html", "Dashboard"),
@@ -139,3 +142,7 @@ async def websocket_user_overview(websocket: WebSocket):
     finally:
         await websocket.close()
 
+# Use get_username to check if the user is logged in
+@root_router.websocket("/ws/user-status")
+async def websocket_user_status(websocket: WebSocket):
+    pass
