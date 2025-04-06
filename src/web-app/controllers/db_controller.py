@@ -146,3 +146,21 @@ def get_user_overview():
         cursor.close()
         conn.close()
 
+def remove_user(username: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            DELETE FROM users WHERE username = %s;
+        """, (username))
+
+        conn.commit()
+        print(f"Successfully removed '{username}'.")
+    except Exception as e:
+        print(f"Error removing username: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+
