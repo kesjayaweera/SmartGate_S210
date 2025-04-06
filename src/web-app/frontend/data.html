@@ -29,17 +29,34 @@
                     <tr id="user-{{ user.username }}">
                         <td>{{ user.username }}</td>
                         <td>{{ user.role_name }}</td>
-                        <td class="status">{{ user.status }}</td>
+                        <td class="status {{ 'logged-in' if user.status == 'Logged In' else 'logged-out' }}">{{ user.status }}</td>
                         <td><button onclick="removeUser('{{ user.username }}')">Remove</button></td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
+
+            <!-- Role Change Modal -->
+            <div id="roleModal" class="modal">
+                <div class="modal-content">
+                    <span id="closeModal">&times;</span>
+                    <h2>Change User Role</h2>
+                    <p id="modalUsername"></p>
+                    <select id="roleSelect">
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                        <option value="viewer">Viewer</option>
+                    </select>
+                    <br><br>
+                    <button id="saveRole">Save</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const socket = new WebSocket('ws://' + window.location.host + '/ws/user-overview');
+        let selectedUsername = '';
 
         socket.onmessage = function (event) {
             const data = JSON.parse(event.data);
@@ -68,7 +85,7 @@
                     row.cells[2].innerText = user.status;
                 }
 
-                // Update status class
+                // Update status style
                 const statusCell = document.getElementById(rowId).querySelector('.status');
                 if (statusCell) {
                     statusCell.classList.remove('logged-in', 'logged-out');
@@ -87,34 +104,62 @@
 
         function removeUser(username) {
             if (confirm(`Are you sure you want to remove ${username}?`)) {
-                console.log(`Removing user: ${username}`);
                 socket.send(JSON.stringify({ action: "remove_user", username }));
             }
         }
+
+        // Open role modal on row click
+        document.getElementById("userTable").addEventListener("click", function (e) {
+            const row = e.target.closest("tr");
+            if (!row || e.target.tagName === "BUTTON") return;
+
+            selectedUsername = row.cells[0].innerText;
+            document.getElementById("modalUsername").innerText = `Username: ${selectedUsername}`;
+            document.getElementById("roleModal").style.display = "block";
+        });
+
+        // Close modal
+        document.getElementById("closeModal").onclick = function () {
+            document.getElementById("roleModal").style.display = "none";
+        };
+
+        window.onclick = function (event) {
+            if (event.target === document.getElementById("roleModal")) {
+                document.getElementById("roleModal").style.display = "none";
+            }
+        };
+
+        document.getElementById("saveRole").addEventListener("click", function () {
+            const newRole = document.getElementById("roleSelect").value;
+            socket.send(JSON.stringify({
+                action: "change_role",
+                username: selectedUsername,
+                new_role: newRole
+            }));
+            document.getElementById("roleModal").style.display = "none";
+        });
     </script>
 
     <style>
-            /* Background video setup */
+        /* Background video */
         #backgroundVideo {
             position: fixed;
             top: 0;
             left: 0;
             min-width: 100%;
             min-height: 100%;
-            width: auto;
-            height: auto;
             z-index: -2;
             object-fit: cover;
-            pointer-events: none; /* Optional: ignore mouse clicks */
+            pointer-events: none;
         }
 
         .overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.2); /* slight dark overlay */
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
             z-index: -1;
         }
 
@@ -191,6 +236,59 @@
             color: red;
             font-weight: bold;
         }
-    </style>
 
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 999;
+            padding-top: 100px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+        }
+
+        #roleSelect {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #saveRole {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #saveRole:hover {
+            background-color: #2980b9;
+        }
+
+        #closeModal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+    </style>
 {% endblock %}
