@@ -3,34 +3,38 @@
 {% block title %}Data{% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <section class="hero">
-        <video autoplay muted loop id="backgroundVideo">
-            <source src="/static/NewFolder/bakground_video.mp4" type="video/mp4"> <!-- need to change new folder to video -->
-            Your browser does not support the video tag.
-        </video>
-        <div class="overlay"></div>
-    </section>
-    <div class="content">
-        <h1>User Data</h1>
+    <div class="main-content">
+        <section class="hero">
+            <video autoplay muted loop id="backgroundVideo">
+                <source src="/static/NewFolder/bakground_video.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="overlay"></div>
+        </section>
 
-        <!-- Table to display user data -->
-        <table id="userTable">
-            <thead>
+        <div class="content">
+            <h1 class="title">👤 User Overview</h1>
+
+            <table id="userTable">
+                <thead>
                 <tr>
                     <th>Username</th>
                     <th>Role</th>
+                    <th>Status</th>
+                    <th>Action</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 {% for user in user_data %}
-                <tr id="user-{{ user.username }}">
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.role_name }}</td>
-                </tr>
+                    <tr id="user-{{ user.username }}">
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.role_name }}</td>
+                        <td class="status {{ 'logged-in' if user.status == 'Logged In' else 'logged-out' }}">{{ user.status }}</td>
+                        <td><button onclick="removeUser('{{ user.username }}')">Remove</button></td>
+                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
 
     </div>
 </div>
