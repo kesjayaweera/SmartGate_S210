@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
 from controllers.db_controller import insert_user, check_permission, get_user_overview
+from starlette.websockets import WebSocketState
 import json
 import asyncio
 
@@ -192,4 +193,13 @@ async def websocket_live_data(websocket: WebSocket):
         # Clean up state when the connection closes
         if websocket in websocket_state:
             del websocket_state[websocket]
-        await websocket.close()
+        try:
+            # Check if the WebSocket is still connected before attempting to close
+            if websocket.client_state == WebSocketState.CONNECTED:
+                await websocket.close()  # Close the connection once
+        except RuntimeError:
+            # Ignore the error if WebSocket is already closed due to Ctrl+C
+            print("WebSocket already closed.")
+        except WebSocketDisconnect:
+            # If the disconnect happens during shutdown, handle it gracefully
+            print("WebSocket was disconnected during shutdown.")
