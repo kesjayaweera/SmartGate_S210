@@ -112,12 +112,17 @@ nav ul li a:hover {
 
 .dummy-login-btn {
     background-color: #be4815;
-    padding: 8px 2px;
+    margin-right: -250px;
+    padding: 8px 15px;
     text-decoration: none;
     color: white;
     font-weight: bold;
     border-radius: 5px;
     transition: background 0.3s ease, color 0.3s ease;
+}
+
+.dummy-login-btn:hover {
+    background-color: #ff0000;
 }
 
 /* Responsive Header */
