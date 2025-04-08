@@ -96,11 +96,36 @@ async def auth(request: Request):
     # Redirect to dashboard after successful login
     return RedirectResponse(url="/")
 
+# add dummy user authentication
+@root_router.get("/dummy-login")
+async def dummy_login(request: Request):
+    dummy_user = {
+        "username": "Dummy",
+        "avatar_url": "https://cdn-icons-png.flaticon.com/512/1674/1674295.png"
+    }
+
+    request.session['user'] = dummy_user
+
+    # Store the user information in database for web privileges 
+    insert_user({
+        "id": 9999, 
+        "login": dummy_user["username"], 
+        "role_id": 1, 
+    })
+
+    return RedirectResponse(url="/")
+
 @root_router.get("/logout")
 async def logout(request: Request):
     # Remove user info from the request state to log the user out
     request.session.clear()
     # Redirect to the homepage or login page
+    return RedirectResponse(url="/")
+
+@root_router.get("/dummy-logout")
+async def dummy_logout(request: Request):
+    # Clear the session to log out the dummy user
+    request.session.clear()
     return RedirectResponse(url="/")
 
 @root_router.get("/get-username")
