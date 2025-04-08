@@ -2,8 +2,18 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from controllers.main_controller import root_router
 from starlette.middleware.sessions import SessionMiddleware
+from contextlib import asynccontextmanager
+import asyncio
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app):
+    try:
+        yield
+    except asyncio.CancelledError:
+        # Prevent ugly traceback on Ctrl+C
+        pass
+
+app = FastAPI(lifespan=lifespan)
 
 app.mount("/static", StaticFiles(directory="wwwroot"), name="static")
 

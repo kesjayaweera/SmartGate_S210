@@ -161,10 +161,8 @@ async def websocket_user_overview(websocket: WebSocket):
             await asyncio.sleep(0.5)
     except WebSocketDisconnect:
         print("Client disconnected")
-    except asyncio.exceptions.CancelledError:
+    except asyncio.CancelledError:
         pass
-    except KeyboardInterrupt:
-        print("Server interrupted by user.")
     finally:
         await websocket.close()
 
