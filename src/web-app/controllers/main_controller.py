@@ -122,12 +122,6 @@ async def logout(request: Request):
     # Redirect to the homepage or login page
     return RedirectResponse(url="/")
 
-@root_router.get("/dummy-logout")
-async def dummy_logout(request: Request):
-    # Clear the session to log out the dummy user
-    request.session.clear()
-    return RedirectResponse(url="/")
-
 @root_router.get("/get-username")
 async def get_username(user: dict = Depends(get_user_from_session)):
     # print(user)  # Debugging: See the actual structure
