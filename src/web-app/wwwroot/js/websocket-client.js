@@ -20,10 +20,3 @@ if (!window.socket) {
 } else {
     console.log("WebSocket connection already exists.");
 }
-
-window.addEventListener('beforeunload', function() {
-    if (window.socket) {
-        window.socket.close();
-        console.log('WebSocket connection closed on page unload');
-    }
-});
