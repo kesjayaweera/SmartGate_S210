@@ -155,16 +155,16 @@ async def websocket_user_overview(websocket: WebSocket):
             current_data_json = json.dumps(user_data, sort_keys=True)
 
             if current_data_json != previous_data:
-                print("Sending data to client:", user_data)  # Log the data being sent
                 await websocket.send_json(user_data)
                 previous_data = current_data_json
 
             await asyncio.sleep(0.5)
     except WebSocketDisconnect:
         print("Client disconnected")
-    except asyncio.CancelledError:
-        print("WebSocket task cancelled")
-        # Handle any cleanup if necessary
+    except asyncio.exceptions.CancelledError:
+        pass
+    except KeyboardInterrupt:
+        print("Server interrupted by user.")
     finally:
         await websocket.close()
 
