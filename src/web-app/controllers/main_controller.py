@@ -141,22 +141,47 @@ async def check_permission_api(username: str, perm_name: str):
     has_permission = check_permission(username, perm_name)
     return JSONResponse(content={"allowed": has_permission})
 
-@root_router.websocket("/ws/user-overview")
-async def websocket_user_overview(websocket: WebSocket):
+websocket_state = {}
+
+async def send_user_overview(websocket: WebSocket):
+    # Retrieve user data from DB
+    data = get_user_overview()
+    user_data = [{"username": row[0], "role_name": row[1]} for row in data]
+
+    # Convert to JSON string for easy comparison
+    current_data_json = json.dumps(user_data, sort_keys=True)
+
+    # Get previous data for this specific WebSocket connection
+    previous_data = websocket_state.get(websocket, None)
+
+    # If the data has changed, send the new data and update the stored state
+    if current_data_json != previous_data:
+        await websocket.send_json(user_data)
+        websocket_state[websocket] = current_data_json
+
+# A default handler for unknown events
+async def handle_unknown_event(websocket: WebSocket, event: str):
+    print(f"Unknown event: {event}")
+
+# Event handlers map
+event_handler = {
+    "user_overview": send_user_overview,
+}
+
+@root_router.websocket("/ws/live-data")
+async def websocket_live_data(websocket: WebSocket):
     await websocket.accept()
-    previous_data = None
 
     try:
         while True:
-            data = get_user_overview()  # Get from DB
-            user_data = [{"username": row[0], "role_name": row[1]} for row in data]
+            message = await websocket.receive_json()
+            event = message.get('event')
 
-            # Convert to JSON string for easy comparison
-            current_data_json = json.dumps(user_data, sort_keys=True)
+            # Dynamically call the appropriate handler based on the event
+            handler = event_handler.get(event, handle_unknown_event)
 
-            if current_data_json != previous_data:
-                await websocket.send_json(user_data)
-                previous_data = current_data_json
+            # Just call the handler 
+            await handler(websocket)
 
             await asyncio.sleep(0.5)
     except WebSocketDisconnect:
@@ -164,9 +189,7 @@ async def websocket_user_overview(websocket: WebSocket):
     except asyncio.CancelledError:
         pass
     finally:
+        # Clean up state when the connection closes
+        if websocket in websocket_state:
+            del websocket_state[websocket]
         await websocket.close()
-
-# Use get_username to check if the user is logged in
-@root_router.websocket("/ws/user-status")
-async def websocket_user_status(websocket: WebSocket):
-    pass
