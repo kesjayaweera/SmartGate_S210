@@ -9,6 +9,7 @@ services:
       - "8000:8000"  # Expose web app on port 8000
     environment:
       - DATABASE_URL=postgres://admin:smartgate@postgres:5432/smartgatedb
+      - ENV=development
     depends_on:
       - postgres
     stdin_open: true  # Keep STDIN open for interactive mode
