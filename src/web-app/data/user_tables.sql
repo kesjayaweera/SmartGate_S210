@@ -103,3 +103,16 @@ FOR EACH ROW
 WHEN (OLD.role_id IS DISTINCT FROM NEW.role_id)  -- Only trigger when the role_id actually changes
 EXECUTE FUNCTION on_user_update();
 
+CREATE OR REPLACE FUNCTION on_user_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    DELETE FROM user_perms WHERE username = OLD.username;
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger will call the on_user_update function after a user is removed
+CREATE TRIGGER trigger_refresh_user_perms_removal
+AFTER DELETE ON users
+FOR EACH ROW
+EXECUTE FUNCTION on_user_delete();
