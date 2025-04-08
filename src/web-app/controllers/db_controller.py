@@ -153,7 +153,7 @@ def remove_user(username: str):
 
         cursor.execute("""
             DELETE FROM users WHERE username = %s;
-        """, (username))
+        """, (username,))
 
         conn.commit()
         print(f"Successfully removed '{username}'.")
