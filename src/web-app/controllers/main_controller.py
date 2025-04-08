@@ -27,45 +27,52 @@ oauth.register(
 connected_users = set()
 websocket_connections = set()
 
-routes = [
-    # (route, html file, title)
-    ("/", "Index.html", "Dashboard"),
-    ("/gates", "gates.html", "Gates"),
-    ("/about", "about.html", "About"),
-    ("/alerts", "alerts.html", "Alerts")
-]
-
 # Dependency function to fetch user from session
 async def get_user_from_session(request: Request):
     return request.session.get('user', None)
 
-def render_template_with_user(template_name: str, title: str):
-    async def view(request: Request, user: dict = Depends(get_user_from_session)):
-        return pages.TemplateResponse(template_name, {
-            "request": request,
-            "title": title,
-            "user": user
-        })
-    return view
+# Function to handle rendering templates with common context
+async def render_page(template_name: str, title: str, request: Request, extra_context: dict = None):
+    user = await get_user_from_session(request)
+    context = {
+        "request": request,
+        "user": user,
+        "title": title,
+    }
+    if extra_context:
+        context.update(extra_context)
+    return pages.TemplateResponse(template_name, context)
 
-for path, template, title in routes:
-    root_router.add_api_route(
-        path,
-        render_template_with_user(template, title),
-        response_class=HTMLResponse
-    )
+# Session initialization flag
+session_initialised = False
+
+# New / route for clearing user when / root is opened
+@root_router.get("/")
+async def dashboard(request: Request):
+    global session_initialised
+    if not session_initialised:
+        request.session.clear()
+        session_initialised = True
+    return await render_page("Index.html", "Dashboard", request)
+
+@root_router.get("/gates")
+async def gates(request: Request):
+    return await render_page("gates.html", "Gates", request)
+
+@root_router.get("/about")
+async def about(request: Request):
+    return await render_page("about.html", "About", request)
+
+@root_router.get("/alerts")
+async def alerts(request: Request):
+    return await render_page("alerts.html", "Alerts", request)
 
 # New /data route
 @root_router.get("/data")
-async def data(request: Request, user: dict = Depends(get_user_from_session)):
+async def data(request: Request):
     data = get_user_overview()  # Fetch user data from the database
     user_data = [{"username": row[0], "role_name": row[1]} for row in data]  # Format the data
-    return pages.TemplateResponse("data.html", {
-        "request": request, 
-        "user_data": user_data, 
-        "user": user, 
-        "title": "Data"
-    })
+    return await render_page("data.html", "Data", request, {"user_data": user_data})
 
 @root_router.get("/login")
 async def login(request:Request):
