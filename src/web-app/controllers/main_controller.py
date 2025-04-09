@@ -147,7 +147,7 @@ async def check_permission_api(username: str, perm_name: str):
 # that is sent to the websocket connection
 websocket_state = {}
 
-async def send_user_overview(websocket: WebSocket):
+async def send_user_overview(websocket: WebSocket, event: str):
     # Retrieve user data from DB
     data = get_user_overview()
     user_data = [{"username": row[0], "role_name": row[1]} for row in data]
@@ -160,8 +160,13 @@ async def send_user_overview(websocket: WebSocket):
 
     # If the data has changed, send the new data and update the stored state
     if current_data_json != previous_data:
-        await websocket.send_json(user_data)
         websocket_state[websocket] = current_data_json
+        return {
+            "event": event,
+            "data": user_data
+        }
+    
+    return None
 
 # I want to use get_user_from_session function to check if the user is logged in or not
 # Status: Logged in or Status: Logged out
@@ -174,7 +179,6 @@ async def user_status(websocket: WebSocket):
 async def handle_unknown_event(websocket: WebSocket, event: str):
     print(f"Unknown event: {event}")
 
-# Event handlers map
 event_handler = {
     "user_overview": send_user_overview,
     "user_status": user_status
@@ -193,7 +197,10 @@ async def websocket_live_data(websocket: WebSocket):
             handler = event_handler.get(event, handle_unknown_event)
 
             # Just call the handler 
-            await handler(websocket)
+            result = await handler(websocket, event)
+
+            if result:
+                await websocket.send_json(result)
 
             await asyncio.sleep(0.5)
     except WebSocketDisconnect:

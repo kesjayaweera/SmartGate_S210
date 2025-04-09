@@ -56,12 +56,6 @@
 <script src="/static/js/websocket-client.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-
-        if (!window.socket) {
-            console.error("WebSocket is not initialized yet.");
-            return;
-        }
-
         const socket = window.socket;
 
         socket.onopen = function () {
@@ -126,7 +120,6 @@
             if (!row || e.target.tagName === "BUTTON") return;
 
             const selectedUsername = row.getAttribute('data-username'); // Retrieve username from data-attribute
-            console.log("Selected Username:", selectedUsername); // Add this line for debugging
 
             document.getElementById("modalUsername").innerText = `Username: ${selectedUsername}`;
             document.getElementById("roleModal").style.display = "block";
