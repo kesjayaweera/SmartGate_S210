@@ -4,7 +4,8 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
 from controllers.db_controller import insert_user, check_permission, get_user_overview
-from starlette.websockets import WebSocketState
+from starlette.websockets import WebSocketState, WebSocket
+from starlette.requests import Request
 import json
 import asyncio
 
@@ -162,6 +163,13 @@ async def send_user_overview(websocket: WebSocket):
         await websocket.send_json(user_data)
         websocket_state[websocket] = current_data_json
 
+# I want to use get_user_from_session function to check if the user is logged in or not
+# Status: Logged in or Status: Logged out
+# If the user logged then the get_user_from_session will return the username logged in
+# Otherwise its an error, that error will be logged out
+async def user_status(websocket: WebSocket):
+    pass
+
 # A default handler for unknown events
 async def handle_unknown_event(websocket: WebSocket, event: str):
     print(f"Unknown event: {event}")
@@ -169,6 +177,7 @@ async def handle_unknown_event(websocket: WebSocket, event: str):
 # Event handlers map
 event_handler = {
     "user_overview": send_user_overview,
+    "user_status": user_status
 }
 
 @root_router.websocket("/ws/live-data")

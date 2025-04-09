@@ -1,6 +1,7 @@
 // Check if there's already an existing WebSocket connection
 if (!window.socket) {
     // Create a WebSocket connection to the server's live-data route
+    /** @type {WebSocket} */    
     window.socket = new WebSocket('ws://' + window.location.host + '/ws/live-data');
     
     // Event handler for when the WebSocket connection is opened
