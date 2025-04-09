@@ -142,6 +142,8 @@ async def check_permission_api(username: str, perm_name: str):
     has_permission = check_permission(username, perm_name)
     return JSONResponse(content={"allowed": has_permission})
 
+# This is used to track the current state of data 
+# that is sent to the websocket connection
 websocket_state = {}
 
 async def send_user_overview(websocket: WebSocket):
