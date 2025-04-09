@@ -168,8 +168,16 @@ async def send_user_overview(websocket: WebSocket, event: str):
     
     return None
 
-async def user_status(websocket: WebSocket):
-    pass
+async def user_status(websocket: WebSocket, event: str):
+    user = websocket.state.get('user', None)
+
+    # Set the status based on whether the user is logged in or not
+    status = "logged in" if user and "username" in user else "logged out"
+    
+    return {
+        "event": event,
+        "data": {"status": status}
+    }
 
 # A default handler for unknown events
 async def handle_unknown_event(websocket: WebSocket, event: str):
@@ -181,10 +189,17 @@ event_handler = {
 }
 
 @root_router.websocket("/ws/live-data")
-async def websocket_live_data(websocket: WebSocket):
+async def websocket_live_data(websocket: WebSocket, request: Request):
     await websocket.accept()
 
     try:
+        # Fetch user info from the session (assuming the session is tied to the request)
+        user = await get_user_from_session(request)
+
+        if user:
+            # Store user info in WebSocket's state
+            websocket.state['user'] = user
+
         while True:
             message = await websocket.receive_json()
             event = message.get('event')
