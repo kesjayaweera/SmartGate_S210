@@ -1,75 +1,75 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
     // Dropdown Functionality for SETTINGS
-    const dropdown = document.querySelector('.dropdown');
-    const dropdownLink = dropdown.querySelector('a'); // The "SETTINGS" link
-    const dropdownContent = document.querySelector('.dropdown-content');
-    const brightnessSlider = document.querySelector('#brightness-slider');
-    const themeToggle = document.querySelector('#theme-toggle');
-    const volumeSlider = document.querySelector('#volume-slider');
-    const fontSizeSlider = document.querySelector('#font-size-slider');
-    const blurSlider = document.querySelector('#blur-slider');
-    const autoLogoutInput = document.querySelector('#auto-logout');
-    const applySettingsBtn = document.querySelector('#apply-settings');
-    const body = document.body;
+    // const dropdown = document.querySelector('.dropdown');
+    // const dropdownLink = dropdown.querySelector('a'); // The "SETTINGS" link
+    // const dropdownContent = document.querySelector('.dropdown-content');
+    // const brightnessSlider = document.querySelector('#brightness-slider');
+    // const themeToggle = document.querySelector('#theme-toggle');
+    // const volumeSlider = document.querySelector('#volume-slider');
+    // const fontSizeSlider = document.querySelector('#font-size-slider');
+    // const blurSlider = document.querySelector('#blur-slider');
+    // const autoLogoutInput = document.querySelector('#auto-logout');
+    // const applySettingsBtn = document.querySelector('#apply-settings');
+    // const body = document.body;
 
-    dropdownLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropdownContent.style.display =
-            dropdownContent.style.display === 'block' ? 'none' : 'block';
-    });
+    // dropdownLink.addEventListener('click', (e) => {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+    //     dropdownContent.style.display =
+    //         dropdownContent.style.display === 'block' ? 'none' : 'block';
+    // });
 
-    document.addEventListener('click', (e) => {
-        if (!dropdown.contains(e.target)) {
-            dropdownContent.style.display = 'none';
-        }
-    });
+    // document.addEventListener('click', (e) => {
+    //     if (!dropdown.contains(e.target)) {
+    //         dropdownContent.style.display = 'none';
+    //     }
+    // });
 
-    dropdownContent.addEventListener('click', (e) => {
-        e.stopPropagation();
-    });
+    // dropdownContent.addEventListener('click', (e) => {
+    //     e.stopPropagation();
+    // });
 
-    // ✅ Brightness Control
-    brightnessSlider.addEventListener('input', () => {
-        const brightnessValue = brightnessSlider.value / 100;
-        body.style.filter = `brightness(${brightnessValue})`;
-    });
+    // // ✅ Brightness Control
+    // brightnessSlider.addEventListener('input', () => {
+    //     const brightnessValue = brightnessSlider.value / 100;
+    //     body.style.filter = `brightness(${brightnessValue})`;
+    // });
 
-    // ✅ Theme Toggle (Dark Mode)
-    themeToggle.addEventListener('change', () => {
-        if (themeToggle.checked) {
-            body.classList.add('dark-mode');
-        } else {
-            body.classList.remove('dark-mode');
-        }
-    });
+    // // ✅ Theme Toggle (Dark Mode)
+    // themeToggle.addEventListener('change', () => {
+    //     if (themeToggle.checked) {
+    //         body.classList.add('dark-mode');
+    //     } else {
+    //         body.classList.remove('dark-mode');
+    //     }
+    // });
 
-    // ✅ Volume Control (Simulated)
-    volumeSlider.addEventListener('input', () => {
-        console.log(`Volume set to: ${volumeSlider.value}%`);
-    });
+    // // ✅ Volume Control (Simulated)
+    // volumeSlider.addEventListener('input', () => {
+    //     console.log(`Volume set to: ${volumeSlider.value}%`);
+    // });
 
-    // ✅ Font Size Adjustment
-    fontSizeSlider.addEventListener('input', () => {
-        document.documentElement.style.fontSize = `${fontSizeSlider.value}px`;
-    });
+    // // ✅ Font Size Adjustment
+    // fontSizeSlider.addEventListener('input', () => {
+    //     document.documentElement.style.fontSize = `${fontSizeSlider.value}px`;
+    // });
 
-    // ✅ Background Blur Effect
-    blurSlider.addEventListener('input', () => {
-        document.querySelector('.overlay').style.backdropFilter = `blur(${blurSlider.value}px)`;
-    });
+    // // ✅ Background Blur Effect
+    // blurSlider.addEventListener('input', () => {
+    //     document.querySelector('.overlay').style.backdropFilter = `blur(${blurSlider.value}px)`;
+    // });
 
-    // ✅ Auto Logout Timer
-    applySettingsBtn.addEventListener('click', () => {
-        const autoLogoutMinutes = parseInt(autoLogoutInput.value, 10);
-        if (autoLogoutMinutes > 0) {
-            console.log(`Auto Logout set to ${autoLogoutMinutes} minutes.`);
-            setTimeout(() => {
-                alert("You have been logged out due to inactivity.");
-                window.location.href = "/logout"; // Redirect to logout page
-            }, autoLogoutMinutes * 60000);
-        }
-    });
+    // // ✅ Auto Logout Timer
+    // applySettingsBtn.addEventListener('click', () => {
+    //     const autoLogoutMinutes = parseInt(autoLogoutInput.value, 10);
+    //     if (autoLogoutMinutes > 0) {
+    //         console.log(`Auto Logout set to ${autoLogoutMinutes} minutes.`);
+    //         setTimeout(() => {
+    //             alert("You have been logged out due to inactivity.");
+    //             window.location.href = "/logout"; // Redirect to logout page
+    //         }, autoLogoutMinutes * 60000);
+    //     }
+    // });
 
     // ✅ Gate Toggle Functionality
     const toggleButtons = document.querySelectorAll(".toggle-gate");
