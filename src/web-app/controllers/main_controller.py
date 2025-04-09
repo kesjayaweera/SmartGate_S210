@@ -168,10 +168,6 @@ async def send_user_overview(websocket: WebSocket, event: str):
     
     return None
 
-# I want to use get_user_from_session function to check if the user is logged in or not
-# Status: Logged in or Status: Logged out
-# If the user logged then the get_user_from_session will return the username logged in
-# Otherwise its an error, that error will be logged out
 async def user_status(websocket: WebSocket):
     pass
 
