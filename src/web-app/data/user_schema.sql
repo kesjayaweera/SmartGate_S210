@@ -116,3 +116,8 @@ CREATE TRIGGER trigger_refresh_user_perms_removal
 AFTER DELETE ON users
 FOR EACH ROW
 EXECUTE FUNCTION on_user_delete();
+
+CREATE TABLE IF NOT EXISTS user_logged_in_set (
+    username TEXT PRIMARY KEY,
+    logged_in_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
