@@ -37,13 +37,15 @@
         </div>        
         {% else %}
         {# <!-- This is temporary login button for testing and development --> #}
-        <a href="/dummy-login" class="dummy-login-btn">DUMMY LOGIN</a>
-        <a href="/login" class="login-btn">LOGIN</a>
-        <style>
-            nav {
-                margin-left: 155px;
-            }
-        </style>
+        <div class="login-btns">
+            <a href="/dummy-login" class="dummy-login-btn">DUMMY LOGIN</a>
+            <a href="/login" class="login-btn">LOGIN</a>
+            <style>
+                nav {
+                    margin-left: 125px;
+                }
+            </style>
+        </div>
         {% endif %}
     </header>
 

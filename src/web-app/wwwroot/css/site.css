@@ -125,6 +125,12 @@ nav ul li a:hover {
     background-color: #ff0000;
 }
 
+/* Login Buttons (Left-aligned) */
+.login-btns {
+    display: flex;
+    gap: 240px;
+}
+
 /* Responsive Header */
 @media (max-width: 768px) {
     header {
