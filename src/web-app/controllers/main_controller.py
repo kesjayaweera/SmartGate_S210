@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
-from controllers.db_controller import insert_user, check_permission, get_user_overview
+from controllers.db_controller import *
 from starlette.websockets import WebSocketState, WebSocket
 from starlette.requests import Request
 import json
