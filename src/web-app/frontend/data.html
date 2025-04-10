@@ -102,14 +102,14 @@
 
                     cellUsername.innerText = user.username;
                     cellRole.innerText = user.role_name;
-                    cellStatus.className = 'status';
+                    cellStatus.className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
                     cellStatus.innerText = user.status;
                     cellAction.innerHTML = `<button onclick="removeUser('${user.username}')">Remove</button>`;
                 } else {
                     row.cells[1].innerText = user.role_name;
                     row.cells[2].innerText = user.status;
-                    // Set a data-username attribute for each row
                     row.setAttribute('data-username', user.username);
+                    row.cells[2].className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
                 }
             });
         }
@@ -303,6 +303,5 @@
         cursor: pointer;
     }
 </style>
-
 
 {% endblock %}

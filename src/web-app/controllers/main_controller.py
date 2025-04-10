@@ -95,6 +95,9 @@ async def auth(request: Request):
         "avatar_url": user["avatar_url"]  # GitHub's avatar URL
     }
 
+    # Mark user as logged in
+    mark_user_logged_in(user["login"])
+
     # Store the user information in database for web privileges 
     insert_user({
         "id": user["id"], # Getting user id from user = response.json()
@@ -128,6 +131,8 @@ async def dummy_login(request: Request):
 async def logout(request: Request):
     # Remove user info from the request state to log the user out
     request.session.clear()
+    if user and "username" in user:
+        mark_user_logged_out(user["username"])
     # Redirect to the homepage or login page
     return RedirectResponse(url="/")
 
@@ -150,7 +155,7 @@ websocket_state = {}
 async def send_user_overview(websocket: WebSocket, event: str):
     # Retrieve user data from DB
     data = get_user_overview()
-    user_data = [{"username": row[0], "role_name": row[1]} for row in data]
+    user_data = [{"username": row[0], "role_name": row[1], "status": row[2]} for row in data]
 
     # Convert to JSON string for easy comparison
     current_data_json = json.dumps(user_data, sort_keys=True)

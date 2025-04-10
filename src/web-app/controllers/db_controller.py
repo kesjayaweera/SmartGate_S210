@@ -126,26 +126,6 @@ def add_permission(username: str, perm_name: str):
         cursor.close()
         conn.close()
 
-def get_user_overview():
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT 
-                u.username,
-                r.role_name
-            FROM users u
-            JOIN roles r ON u.role_id = r.role_id;
-        """)
-
-        return cursor.fetchall()
-    except Exception as e:
-        print(f"Error fetching user overview: {e}")
-    finally:
-        cursor.close()
-        conn.close()
-
 def remove_user(username: str):
     try:
         conn = get_db_connection()
@@ -202,4 +182,29 @@ def mark_user_logged_out(username: str):
             cursor.close()
         if conn:
             conn.close()
+
+def get_user_overview():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT 
+                u.username,
+                r.role_name,
+                CASE
+                    WHEN us.username IS NOT NULL THEN 'Logged In'
+                    ELSE 'Logged Out'
+                END AS status
+            FROM users u
+            JOIN roles r ON u.role_id = r.role_id
+            LEFT JOIN user_logged_in_set us ON u.username = us.username;
+        """)
+
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error fetching user overview: {e}")
+    finally:
+        cursor.close()
+        conn.close()
 
