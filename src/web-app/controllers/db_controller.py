@@ -164,3 +164,42 @@ def remove_user(username: str):
         conn.close()
 
 
+def mark_user_logged_in(username: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            INSERT INTO user_logged_in_set (username, logged_in_at)
+            VALUES (%s, NOW())
+            ON CONFLICT(username) DO UPDATE
+            SET logged_in_at = NOW();
+        """, (username,))
+        
+        conn.commit()
+        print(f"{username} is Logged in!")
+    except Exception as e:
+        print(f"Error marking user as logged in: {e}")
+    finally:
+        cursor.close()
+        conn.close()
+
+def mark_user_logged_out(username: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            DELETE FROM user_logged_in_set WHERE username = %s
+        """, (username,))
+        
+        conn.commit()
+        print(f"{username} is Logged out!")
+    except Exception as e:
+        print(f"Error marking user as logged out: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
