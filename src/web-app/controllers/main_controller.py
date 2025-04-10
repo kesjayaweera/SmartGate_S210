@@ -73,7 +73,7 @@ async def alerts(request: Request):
 @root_router.get("/data")
 async def data(request: Request):
     data = get_user_overview()  # Fetch user data from the database
-    user_data = [{"username": row[0], "role_name": row[1]} for row in data]  # Format the data
+    user_data = [{"username": row[0], "role_name": row[1], "status": row[2]} for row in data]  # Format the data
     return await render_page("data.html", "Data", request, {"user_data": user_data})
 
 @root_router.get("/login")
