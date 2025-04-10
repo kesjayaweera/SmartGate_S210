@@ -179,7 +179,6 @@ async def handle_unknown_event(websocket: WebSocket, event: str):
 
 event_handler = {
     "user_overview": send_user_overview,
-    "user_status": user_status
 }
 
 @root_router.websocket("/ws/live-data")
