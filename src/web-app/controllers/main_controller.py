@@ -168,15 +168,6 @@ async def send_user_overview(websocket: WebSocket, event: str):
     
     return None
 
-# async def user_status(websocket: WebSocket, event: str):
-#     # Set the status based on whether the user is logged in or not
-#     status = "logged in" if user and "username" in user else "logged out"
-    
-#     return {
-#         "event": event,
-#         "data": {"status": status}
-#     }
-
 # A default handler for unknown events
 async def handle_unknown_event(websocket: WebSocket, event: str):
     print(f"Unknown event: {event}")
