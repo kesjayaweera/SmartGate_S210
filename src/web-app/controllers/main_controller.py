@@ -118,6 +118,8 @@ async def dummy_login(request: Request):
 
     request.session['user'] = dummy_user
 
+    mark_user_logged_in(dummy_user["username"])
+
     # Store the user information in database for web privileges 
     insert_user({
         "id": 9999, 
