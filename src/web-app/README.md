@@ -49,9 +49,7 @@ docker-compose exec sgwebimage bash
 ```
 You can use `docker-compose exec sgwebimage` whether the container is running in **attached** or **detached** mode.
 
-In attached mode be sure to type in that command in a different terminal. This ensures you can interact with the container as needed.  
-
-**Note:** When opening another terminal, make sure you're in `cd src/web-app`.
+In attached mode, be sure to type in that command in a different terminal to interact with the container as needed. **Note**: When opening another terminal, make sure you're in `cd src/web-app`.
 
 ## SmartGate Web App Commands
 
