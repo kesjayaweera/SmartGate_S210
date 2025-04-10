@@ -47,14 +47,9 @@ After the image is built and running in detached mode. You can enter the contain
 ```bash
 docker-compose exec sgwebimage bash 
 ```
+You can use `docker-compose exec sgwebimage` whether the container is running in **attached** or **detached** mode.
 
-Alternatively, If the image is built and **not running** in detached mode. You can enter the containers bash in a different terminal.
-
-```bash
-docker exec -it sgwebimage bash
-```
-
-This ensures you can interact with the container as needed.  
+In attached mode be sure to type in that command in a different terminal. This ensures you can interact with the container as needed.  
 
 **Note:** When opening another terminal, make sure you're in `cd src/web-app`.
 
