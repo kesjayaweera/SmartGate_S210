@@ -83,7 +83,20 @@ This `README.md` will guide users through the steps needed to clone the reposito
 
 ## Important Notes for Developers
 
-- If you make changes to the `requirements.txt`, `Dockerfile`, or `docker-compose.yml`, make sure to rebuild the images using __Step 3__
+- Before running the `docker-compose.yml` file, make sure to **remove any existing containers and volumes** to avoid conflicts. You can do this using the command line or Docker Desktop:
+
+    **Using the command line:**
+    ```bash
+    # List and remove all containers
+    docker ps -a
+    docker rm <container_id>
+
+    # List and remove all volumes
+    docker volume ls
+    docker volume rm <volume_name>
+    ```
+
+- If you make changes to the `requirements.txt`, `Dockerfile`, or `docker-compose.yml`, make sure stop the docker composition from running and rebuild the images using __Step 3__
 
 - If you make **changes to the sql files** or **stop the docker-compose from running** be sure to remove the docker volumes and containers related to the web-app by doing:
 
