@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Request, Depends, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
@@ -180,6 +180,13 @@ async def send_user_overview(websocket: WebSocket, event: str):
         }
     
     return None
+
+@root_router.post("/remove-user")
+async def remove_selected_user(request: Request):
+    data = await request.json()
+    username = data.get("username")
+    remove_user(username)
+    return JSONResponse({"message":f"User {username} removed!"})
 
 # A default handler for unknown events
 async def handle_unknown_event(websocket: WebSocket, event: str):
