@@ -69,11 +69,14 @@ async def about(request: Request):
 async def alerts(request: Request):
     return await render_page("alerts.html", "Alerts", request)
 
+def get_user_data():
+    data = get_user_overview()
+    return [{"username": row[0], "role_name": row[1], "status": row[2]} for row in data]
+
 # New /data route
 @root_router.get("/data")
 async def data(request: Request):
-    data = get_user_overview()  # Fetch user data from the database
-    user_data = [{"username": row[0], "role_name": row[1], "status": row[2]} for row in data]  # Format the data
+    data = get_user_data()
     return await render_page("data.html", "Data", request, {"user_data": user_data})
 
 @root_router.get("/login")
@@ -162,8 +165,7 @@ websocket_state = {}
 
 async def send_user_overview(websocket: WebSocket, event: str):
     # Retrieve user data from DB
-    data = get_user_overview()
-    user_data = [{"username": row[0], "role_name": row[1], "status": row[2]} for row in data]
+    data = get_user_data()
 
     # Convert to JSON string for easy comparison
     current_data_json = json.dumps(user_data, sort_keys=True)
