@@ -182,7 +182,7 @@ event_handler = {
 }
 
 @root_router.websocket("/ws/live-data")
-async def websocket_live_data(websocket: WebSocket, request: Request):
+async def websocket_live_data(websocket: WebSocket):
     await websocket.accept()
 
     try:
