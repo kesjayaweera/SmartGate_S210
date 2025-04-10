@@ -131,11 +131,17 @@ async def dummy_login(request: Request):
 
 @root_router.get("/logout")
 async def logout(request: Request):
-    # Remove user info from the request state to log the user out
-    request.session.clear()
-    if user and "username" in user:
+    # Await the async function to get the user from the session
+    user = await get_user_from_session(request)
+    
+    # If the user has a "username", mark them as logged out
+    if "username" in user:
         mark_user_logged_out(user["username"])
-    # Redirect to the homepage or login page
+    
+    # Clear the session
+    request.session.clear()
+
+    # Redirect to homepage or login page
     return RedirectResponse(url="/")
 
 @root_router.get("/get-username")
