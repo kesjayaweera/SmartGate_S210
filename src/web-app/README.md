@@ -35,15 +35,14 @@ docker-compose up --build
 
 This will build and start the containers in attached mode, meaning they will run in the foreground.
 
-Alternatively, you can run the docker images without attached mode by doing:
+### 4. Open New Terminal & Navigate to web-app folder
 
+Once its finished building, enter into a new terminal and navigate to web-app.
 ```bash
-docker-compose up --build -d
+cd src/web-app
 ```
 
-This will build and start the containers in background.
-
-### 4. Run the image as a docker container
+### 5. Run the image as a docker container
 After the image is built and running in detached mode. You can enter the container's bash shell by doing:
 
 ```bash
