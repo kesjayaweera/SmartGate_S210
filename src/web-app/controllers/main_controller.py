@@ -50,8 +50,9 @@ session_initialised = False
 async def dashboard(request: Request):
     global session_initialised
     if not session_initialised:
+        # This makes sure user is logged out when the session is new
         request.session.clear()
-        # This makes sure that the logged in set is cleared
+        # This makes sure users are cleared
         clear_all_users()
         session_initialised = True
     return await render_page("Index.html", "Dashboard", request)
