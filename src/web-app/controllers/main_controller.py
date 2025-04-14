@@ -26,9 +26,6 @@ oauth.register(
     client_kwargs={"scope": "user:email"},
 )
 
-connected_users = set()
-websocket_connections = set()
-
 # Dependency function to fetch user from session
 async def get_user_from_session(request: Request):
     return request.session.get('user', None)
@@ -76,7 +73,7 @@ def get_user_data():
 # New /data route
 @root_router.get("/data")
 async def data(request: Request):
-    data = get_user_data()
+    user_data = get_user_data()
     return await render_page("data.html", "Data", request, {"user_data": user_data})
 
 @root_router.get("/login")
@@ -165,7 +162,7 @@ websocket_state = {}
 
 async def send_user_overview(websocket: WebSocket, event: str):
     # Retrieve user data from DB
-    data = get_user_data()
+    user_data = get_user_data()
 
     # Convert to JSON string for easy comparison
     current_data_json = json.dumps(user_data, sort_keys=True)
