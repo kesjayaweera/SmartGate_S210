@@ -51,6 +51,8 @@ async def dashboard(request: Request):
     global session_initialised
     if not session_initialised:
         request.session.clear()
+        # This makes sure that the logged in set is cleared
+        clear_user_logged_in_set()
         session_initialised = True
     return await render_page("Index.html", "Dashboard", request)
 
