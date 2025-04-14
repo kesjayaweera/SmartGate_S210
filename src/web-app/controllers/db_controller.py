@@ -208,3 +208,20 @@ def get_user_overview():
         cursor.close()
         conn.close()
 
+# Function to clear the user_logged_in_set table for all users
+def clear_user_logged_in_set():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            DELETE FROM user_logged_in_set;
+        """)
+        
+        conn.commit()
+        print("user_logged_in_set table cleared successfully.")
+    except Exception as e:
+        print(f"Error clearing user_logged_in_set: {e}")
+    finally:
+        cursor.close()
+        conn.close()
