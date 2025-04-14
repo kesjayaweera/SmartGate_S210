@@ -121,3 +121,19 @@ CREATE TABLE IF NOT EXISTS user_logged_in_set (
     username TEXT PRIMARY KEY,
     logged_in_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Function that will be called when the users table is updated
+-- Since the all the users will be deleted, I want it to remove the all usersname(s) in user_logged_in_set
+CREATE OR REPLACE FUNCTION update_user_logged_in_set()
+RETURNS TRIGGER AS $$
+BEGIN
+    DELETE FROM user_logged_in_set;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create a trigger that will update the user_logged_in_set after all the users are cleared
+CREATE TRIGGER update_user_logged_in_set
+AFTER DELETE ON users
+FOR EACH ROW
+EXECUTE PROCEDURE update_user_logged_in_set();
