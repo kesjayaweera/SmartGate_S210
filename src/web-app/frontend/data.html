@@ -73,6 +73,11 @@
             if (data.event === "user_overview") {
                 updateUserOverviewTable(data.data);
             }
+
+            // If the event is redirect, url is /logout
+            if (data.event === "redirect") {
+                window.location.href = data.url;
+            }
         };
 
         function updateUserOverviewTable(data) {
