@@ -191,7 +191,7 @@ async def remove_selected_user(request: Request):
     return JSONResponse({"message":f"User {username} removed!"})
 
 # A default handler for unknown events
-async def handle_unknown_event(websocket: WebSocket, event: str):
+async def handle_unknown_event(event: str):
     print(f"Unknown event: {event}")
 
 event_handler = {
