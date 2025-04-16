@@ -204,6 +204,13 @@ event_handler = {
 async def websocket_live_data(websocket: WebSocket):
     await websocket.accept()
 
+    session = websocket.session
+    username = session.get("user", {}).get("username")
+
+    websocket_state[websocket] = {
+        "username": username
+    }
+
     try:
         while True:
             message = await websocket.receive_json()
