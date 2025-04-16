@@ -26,7 +26,7 @@
             </thead>
             <tbody>
             {% for user in user_data %}
-                <tr id="user-{{ user.username }}">
+                <tr id="user-{{ user.username }}" data-username="{{ user.username }}">
                     <td>{{ user.username }}</td>
                     <td>{{ user.role_name }}</td>
                     <td class="status {{ 'logged-in' if user.status == 'Logged In' else 'logged-out' }}">{{ user.status }}</td>
@@ -174,6 +174,13 @@
         .then(response => response.json())
         .then(data => {
             console.log(data);
+
+            // Remove the user from the table after successful deletion
+            const row = document.getElementById('user-' + username);
+            if (row) {
+                row.remove();
+            }
+
             socket.send(JSON.stringify({ event: "user_overview" }));
         })
         .catch(error => {
