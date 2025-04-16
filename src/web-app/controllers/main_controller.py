@@ -129,7 +129,7 @@ async def check_permission_api(username: str, perm_name: str):
 
 websocket_state = {}
 
-async def send_user_overview(websocket: WebSocket, event: str):
+async def send_user_overview(websocket: WebSocket, event: str, data: dict):
     user_data = get_user_data()
     current_data_json = json.dumps(user_data, sort_keys=True)
     previous_data = websocket_state.get(websocket, {}).get("data")
