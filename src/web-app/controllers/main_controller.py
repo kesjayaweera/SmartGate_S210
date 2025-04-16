@@ -116,7 +116,7 @@ async def get_username(user: dict = Depends(get_user_from_session)):
     return {"error": "Not logged in"}
 
 @root_router.get("/get-session-username")
-async def get_session_username(request: Request):
+async def get_session_username():
     username = get_user_from_session()
     return {"username": username}
 
