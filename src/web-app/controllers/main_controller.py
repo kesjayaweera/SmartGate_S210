@@ -115,6 +115,11 @@ async def get_username(user: dict = Depends(get_user_from_session)):
         return {"username": user["username"]}
     return {"error": "Not logged in"}
 
+@root_router.get("/get-session-username")
+async def get_session_username(request: Request):
+    username = get_user_from_session()
+    return {"username": username}
+
 @root_router.get("/check-permission")
 async def check_permission_api(username: str, perm_name: str):
     allowed = check_permission(username, perm_name)
@@ -169,12 +174,6 @@ event_handler = {
 @root_router.websocket("/ws/live-data")
 async def websocket_live_data(websocket: WebSocket):
     await websocket.accept()
-
-    # Assign username to WebSocket connection
-    user = websocket.scope.get("user", {})
-    username = user.get("username")
-    
-    websocket_state[websocket] = {"username": username, "data": None}
 
     try:
         while True:
