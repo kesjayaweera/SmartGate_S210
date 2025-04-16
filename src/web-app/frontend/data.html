@@ -96,7 +96,19 @@
             }
 
             if (data.event === "redirect") {
-                window.location.href = data.url;
+                // Compare the removed user's username from the server with the session username
+                fetch("/get-session-username")
+                    .then(res => res.json())
+                    .then(sessionData => {
+                        // Check if the session username matches the removed user's username
+                        if (sessionData.username === data.username) {
+                            console.log('Redirecting to:', data.url);
+                            window.location.href = data.url;  // Redirect the specific window for the removed user
+                        }
+                    })
+                    .catch(() => {
+                        console.error('Failed to check session username for redirection.');
+                    });
             }
         };
 

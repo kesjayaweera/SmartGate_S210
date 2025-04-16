@@ -156,7 +156,8 @@ async def kick_user(username: str):
     for ws, state in list(websocket_state.items()):
         if state.get("username") == username:
             try:
-                await ws.send_json({"event": "redirect", "url": "/logout"})
+                # Send a redirect event only to the WebSocket corresponding to the user
+                await ws.send_json({"event": "redirect", "username": username, "url": "/logout"})
                 await ws.close()
                 del websocket_state[ws]
                 print(f"User {username} has been kicked out and connection closed.")
