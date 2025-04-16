@@ -55,87 +55,55 @@
 </div>
 <script src="/static/js/websocket-client.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const socket = window.socket;
+    const socket = window.socket || null;
 
+    if (!socket) {
+        console.error("WebSocket is not initialized.");
+    } else {
+        setupWebSocketHandlers(socket);
+    }
+
+    function setupWebSocketHandlers(socket) {
         socket.onopen = function () {
             console.log('WebSocket connection opened');
-
-            // Send an event to request "user_overview" data
             socket.send(JSON.stringify({ event: "user_overview" }));
         };
 
-        // Listen for incoming messages from the WebSocket
         socket.onmessage = function (event) {
             const data = JSON.parse(event.data);
-            
-            // If the event is user_overview, handle the data
+
             if (data.event === "user_overview") {
                 updateUserOverviewTable(data.data);
             }
 
-            // If the event is redirect, url is /logout
             if (data.event === "redirect") {
                 window.location.href = data.url;
             }
         };
 
-        function updateUserOverviewTable(data) {
-            const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
-            
-            // Loop through the user data and update the table
-            data.forEach(user => {
-                if (!user.username) {
-                    console.error('Invalid user data:', user); // Log invalid data
-                    return; // Skip users without a valid username
-                }
+        socket.onclose = function () {
+            console.log('WebSocket connection closed');
+        };
 
-                const rowId = 'user-' + user.username;
-                let row = document.getElementById(rowId);
+        socket.onerror = function (error) {
+            console.error('WebSocket error:', error);
+        };
+    }
 
-                if (!row) {
-                    row = userTable.insertRow();
-                    row.id = rowId;
-
-                    // Set a data-username attribute for each row
-                    row.setAttribute('data-username', user.username);
-
-                    const cellUsername = row.insertCell(0);
-                    const cellRole = row.insertCell(1);
-                    const cellStatus = row.insertCell(2);
-                    const cellAction = row.insertCell(3);
-
-                    cellUsername.innerText = user.username;
-                    cellRole.innerText = user.role_name;
-                    cellStatus.className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
-                    cellStatus.innerText = user.status;
-                    cellAction.innerHTML = `<button onclick="removeUser('${user.username}')">Remove</button>`;
-                } else {
-                    row.cells[1].innerText = user.role_name;
-                    row.cells[2].innerText = user.status;
-                    row.setAttribute('data-username', user.username);
-                    row.cells[2].className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
-                }
-            });
-        }
-
-        // Open role modal on row click
+    document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("userTable").addEventListener("click", function (e) {
             const row = e.target.closest("tr");
             if (!row || e.target.tagName === "BUTTON") return;
 
-            const selectedUsername = row.getAttribute('data-username'); // Retrieve username from data-attribute
-
+            const selectedUsername = row.getAttribute('data-username');
             document.getElementById("modalUsername").innerText = `Username: ${selectedUsername}`;
             document.getElementById("roleModal").style.display = "block";
         });
 
-        // Close modal
         document.getElementById("closeModal").onclick = function () {
             document.getElementById("roleModal").style.display = "none";
         };
 
-        // Close modal if clicking outside the modal
         window.onclick = function (event) {
             if (event.target === document.getElementById("roleModal")) {
                 document.getElementById("roleModal").style.display = "none";
@@ -143,44 +111,78 @@
         };
 
         document.getElementById("saveRole").addEventListener("click", function () {
-            // Example of handling saving the role (e.g., after editing)
-            let something = undefined; // or let something = null;
-            // You can call an API or WebSocket to save the role changes here
+            const usernameText = document.getElementById("modalUsername").innerText;
+            const username = usernameText.split(": ")[1];
+            const newRole = document.getElementById("roleSelect").value;
+
+            if (!username || !newRole) return;
+
+            console.log(`Changing role of ${username} to ${newRole}`);
+            socket.send(JSON.stringify({
+                event: "change_role",
+                data: { username, role: newRole }
+            }));
+
+            document.getElementById("roleModal").style.display = "none";
         });
-
-        socket.onclose = function () {
-            console.log('WebSocket connection closed');
-        };
-
-        socket.onerror = function (error) {
-            console.log('WebSocket error: ' + error);
-        };
-
-        function removeUser(username) {
-            // Example of handling removing a user (e.g., after clicking the "Remove" button)
-            // You can call an API or WebSocket to remove the user here
-            console.log(`Removing user: ${username}`);
-            fetch("/remove-user", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ username: username })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);  // Handle the response from the server
-                    // Update the user table after removing the user
-                    socket.send(JSON.stringify({ event: "user_overview" }));
-                })
-                .catch(error => {
-                    console.error("Error removing user:", error);
-                })
-                .finally(() => {
-                    document.getElementById("roleModal").style.display = "none";
-                });
-        }
     });
+
+    function updateUserOverviewTable(data) {
+        const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+
+        data.forEach(user => {
+            if (!user.username) {
+                console.error('Invalid user data:', user);
+                return;
+            }
+
+            const rowId = 'user-' + user.username;
+            let row = document.getElementById(rowId);
+
+            if (!row) {
+                row = userTable.insertRow();
+                row.id = rowId;
+                row.setAttribute('data-username', user.username);
+
+                const cellUsername = row.insertCell(0);
+                const cellRole = row.insertCell(1);
+                const cellStatus = row.insertCell(2);
+                const cellAction = row.insertCell(3);
+
+                cellUsername.innerText = user.username;
+                cellRole.innerText = user.role_name;
+                cellStatus.className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
+                cellStatus.innerText = user.status;
+                cellAction.innerHTML = `<button onclick="removeUser('${user.username}')">Remove</button>`;
+            } else {
+                row.cells[1].innerText = user.role_name;
+                row.cells[2].innerText = user.status;
+                row.setAttribute('data-username', user.username);
+                row.cells[2].className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
+            }
+        });
+    }
+
+    function removeUser(username) {
+        if (!confirm(`Are you sure you want to remove the user: ${username}?`)) return;
+
+        fetch("/remove-user", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            socket.send(JSON.stringify({ event: "user_overview" }));
+        })
+        .catch(error => {
+            console.error("Error removing user:", error);
+        })
+        .finally(() => {
+            document.getElementById("roleModal").style.display = "none";
+        });
+    }
 </script>
 <style>
     /* Background video */

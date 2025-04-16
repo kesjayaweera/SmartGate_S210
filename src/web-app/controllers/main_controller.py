@@ -183,14 +183,45 @@ async def send_user_overview(websocket: WebSocket, event: str):
     
     return None
 
+async def kick_user(username: str):
+    # Iterate over all WebSocket connections
+    for ws, state in list(websocket_state.items()):
+        # Check if the username matches the WebSocket connection
+        if state.get("username") == username:
+            try:
+                # Notify the client to log out by redirecting to /logout
+                await ws.send_json({"event": "redirect", "url": "/logout"})
+                await ws.close()  # Close the WebSocket connection
+                del websocket_state[ws]  # Remove WebSocket state from the tracking dictionary
+
+                # Log the action for debugging purposes
+                print(f"User {username} has been kicked out and connection closed.")
+            except Exception as e:
+                print(f"Error kicking user {username}: {e}")
+
 @root_router.post("/remove-user")
-async def remove_selected_user(websocket:WebSocket, request: Request):
-    data = await request.json()
-    username = data.get("username")
-    remove_user(username)
-    # Send a message to the removed user's client-side code to redirect them to /logout page
-    await websocket.send_json({"event": "redirect", "url": "/logout"})
-    return JSONResponse({"message":f"User {username} removed!"})
+async def remove_selected_user(request: Request):
+    try:
+        # Get the username from the request body
+        data = await request.json()
+        username = data.get("username")
+        
+        # Remove user from the database
+        remove_user(username)
+
+        # Log user removal
+        print(f"User {username} removed from database.")
+
+        # Call the function to kick the user out of the system
+        await kick_user(username)
+
+        # Return a success response
+        return JSONResponse({"message": f"User {username} removed and kicked out!"})
+
+    except Exception as e:
+        # Handle errors and return an error response if something goes wrong
+        print(f"Error removing user: {e}")
+        return JSONResponse({"error": "An error occurred while removing the user."}, status_code=500)
 
 # A default handler for unknown events
 async def handle_unknown_event(event: str):
