@@ -150,6 +150,20 @@
         socket.onerror = function (error) {
             console.log('WebSocket error: ' + error);
         };
+
+        function removeUser(username) {
+            // Example of handling removing a user (e.g., after clicking the "Remove" button)
+            // You can call an API or WebSocket to remove the user here
+            console.log(`Removing user: ${username}`);
+            fetch("/remove-user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username: username })
+            })
+
+        }
     });
 </script>
 <style>

@@ -137,3 +137,20 @@ CREATE TRIGGER update_user_logged_in_set
 AFTER DELETE ON users
 FOR EACH ROW
 EXECUTE PROCEDURE update_user_logged_in_set();
+
+-- Function that will be called when a user is removed from the users table
+CREATE OR REPLACE FUNCTION remove_user_from_user_logged_in_set()    
+RETURNS TRIGGER AS $$    
+BEGIN    
+    DELETE FROM user_logged_in_set WHERE username = OLD.username;    
+    RETURN OLD;    
+END;    
+$$ LANGUAGE plpgsql;
+
+-- When the user is removed from the users table, it will be removed from the user_logged_in_set
+CREATE TRIGGER remove_user_from_user_logged_in_set
+AFTER DELETE ON users
+FOR EACH ROW
+EXECUTE PROCEDURE remove_user_from_user_logged_in_set();
+
+
