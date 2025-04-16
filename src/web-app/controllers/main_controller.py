@@ -4,8 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
 from controllers.db_controller import *
-from starlette.websockets import WebSocketState, WebSocket
-from starlette.requests import Request
+from starlette.websockets import WebSocketState
 import json
 import asyncio
 
@@ -22,37 +21,27 @@ oauth.register(
     access_token_url="https://github.com/login/oauth/access_token",
     access_token_params=None,
     refresh_token_url=None,
-    api_base_url="https://api.github.com",  # Add this line
+    api_base_url="https://api.github.com",
     client_kwargs={"scope": "user:email"},
 )
 
-# Dependency function to fetch user from session
 async def get_user_from_session(request: Request):
-    return request.session.get('user', None)
+    return request.session.get('user')
 
-# Function to handle rendering templates with common context
 async def render_page(template_name: str, title: str, request: Request, extra_context: dict = None):
     user = await get_user_from_session(request)
-    context = {
-        "request": request,
-        "user": user,
-        "title": title,
-    }
+    context = {"request": request, "user": user, "title": title}
     if extra_context:
         context.update(extra_context)
     return pages.TemplateResponse(template_name, context)
 
-# Session initialization flag
 session_initialised = False
 
-# New / route for clearing user when / root is opened
 @root_router.get("/")
 async def dashboard(request: Request):
     global session_initialised
     if not session_initialised:
-        # This makes sure user is logged out when the session is new
         request.session.clear()
-        # This makes sure users are cleared
         clear_all_users()
         session_initialised = True
     return await render_page("Index.html", "Dashboard", request)
@@ -73,14 +62,13 @@ def get_user_data():
     data = get_user_overview()
     return [{"username": row[0], "role_name": row[1], "status": row[2]} for row in data]
 
-# New /data route
 @root_router.get("/data")
 async def data(request: Request):
     user_data = get_user_data()
     return await render_page("data.html", "Data", request, {"user_data": user_data})
 
 @root_router.get("/login")
-async def login(request:Request):
+async def login(request: Request):
     redirect_uri = request.url_for("auth")
     return await oauth.github.authorize_redirect(request, redirect_uri)
 
@@ -88,30 +76,18 @@ async def login(request:Request):
 async def auth(request: Request):
     token = await oauth.github.authorize_access_token(request)
     response = await oauth.github.get('user', token=token)
-    
-    # Parse the JSON response
     user = response.json()
-    #print(user)
-    # Store the user information in the request state for later use
+
     request.session['user'] = {
-        "username": user["login"],  # GitHub's username
-        "avatar_url": user["avatar_url"]  # GitHub's avatar URL
+        "username": user["login"],
+        "avatar_url": user["avatar_url"]
     }
 
-    # Mark user as logged in
     mark_user_logged_in(user["login"])
+    insert_user({"id": user["id"], "login": user["login"], "role_id": 1})
 
-    # Store the user information in database for web privileges 
-    insert_user({
-        "id": user["id"], # Getting user id from user = response.json()
-        "login": user["login"], # Getting user login from user = response.json()
-        "role_id": 1, # Setting user to user by default
-    })
-
-    # Redirect to dashboard after successful login
     return RedirectResponse(url="/")
 
-# add dummy user authentication
 @root_router.get("/dummy-login")
 async def dummy_login(request: Request):
     dummy_user = {
@@ -120,81 +96,50 @@ async def dummy_login(request: Request):
     }
 
     request.session['user'] = dummy_user
-
     mark_user_logged_in(dummy_user["username"])
-
-    # Store the user information in database for web privileges 
-    insert_user({
-        "id": 9999, 
-        "login": dummy_user["username"], 
-        "role_id": 1, 
-    })
+    insert_user({"id": 9999, "login": dummy_user["username"], "role_id": 1})
 
     return RedirectResponse(url="/")
 
 @root_router.get("/logout")
 async def logout(request: Request):
-    # Await the async function to get the user from the session
     user = await get_user_from_session(request)
-    
-    # If the user has a "username", mark them as logged out
-    if "username" in user:
+    if user and "username" in user:
         mark_user_logged_out(user["username"])
-    
-    # Clear the session
     request.session.clear()
-
-    # Redirect to homepage or login page
     return RedirectResponse(url="/")
 
 @root_router.get("/get-username")
 async def get_username(user: dict = Depends(get_user_from_session)):
-    # print(user)  # Debugging: See the actual structure
     if user and "username" in user:
         return {"username": user["username"]}
-    return {"error": "Not logged in"}   
+    return {"error": "Not logged in"}
 
 @root_router.get("/check-permission")
 async def check_permission_api(username: str, perm_name: str):
-    has_permission = check_permission(username, perm_name)
-    return JSONResponse(content={"allowed": has_permission})
+    allowed = check_permission(username, perm_name)
+    return JSONResponse(content={"allowed": allowed})
 
-# This is used to track the current state of data 
-# that is sent to the websocket connection
 websocket_state = {}
 
 async def send_user_overview(websocket: WebSocket, event: str):
-    # Retrieve user data from DB
     user_data = get_user_data()
-
-    # Convert to JSON string for easy comparison
     current_data_json = json.dumps(user_data, sort_keys=True)
+    previous_data = websocket_state.get(websocket, {}).get("data")
 
-    # Get previous data for this specific WebSocket connection
-    previous_data = websocket_state.get(websocket, None)
-
-    # If the data has changed, send the new data and update the stored state
     if current_data_json != previous_data:
-        websocket_state[websocket] = current_data_json
-        return {
-            "event": event,
-            "data": user_data
-        }
+        websocket_state[websocket]["data"] = current_data_json
+        return {"event": event, "data": user_data}
     
     return None
 
 async def kick_user(username: str):
-    # Iterate over all WebSocket connections
     for ws, state in list(websocket_state.items()):
-        # Check if the username matches the WebSocket connection
         if state.get("username") == username:
             try:
-                # Notify the client to log out by redirecting to /logout
                 await ws.send_json({"event": "redirect", "url": "/logout"})
-                await ws.close()  # Close the WebSocket connection
-                del websocket_state[ws]  # Remove WebSocket state from the tracking dictionary
-
-                # Log the action for debugging purposes
+                await ws.close()
+                del websocket_state[ws]
                 print(f"User {username} has been kicked out and connection closed.")
             except Exception as e:
                 print(f"Error kicking user {username}: {e}")
@@ -202,30 +147,20 @@ async def kick_user(username: str):
 @root_router.post("/remove-user")
 async def remove_selected_user(request: Request):
     try:
-        # Get the username from the request body
         data = await request.json()
         username = data.get("username")
-        
-        # Remove user from the database
+
         remove_user(username)
-
-        # Log user removal
         print(f"User {username} removed from database.")
-
-        # Call the function to kick the user out of the system
         await kick_user(username)
 
-        # Return a success response
         return JSONResponse({"message": f"User {username} removed and kicked out!"})
-
     except Exception as e:
-        # Handle errors and return an error response if something goes wrong
         print(f"Error removing user: {e}")
         return JSONResponse({"error": "An error occurred while removing the user."}, status_code=500)
 
-# A default handler for unknown events
-async def handle_unknown_event(event: str):
-    print(f"Unknown event: {event}")
+async def handle_unknown_event(*args, **kwargs):
+    print("Unknown event received.")
 
 event_handler = {
     "user_overview": send_user_overview,
@@ -235,22 +170,17 @@ event_handler = {
 async def websocket_live_data(websocket: WebSocket):
     await websocket.accept()
 
-    session = websocket.session
+    session = websocket.scope.get("session", {})
     username = session.get("user", {}).get("username")
 
-    websocket_state[websocket] = {
-        "username": username
-    }
+    websocket_state[websocket] = {"username": username, "data": None}
 
     try:
         while True:
             message = await websocket.receive_json()
-            event = message.get('event')
+            event = message.get("event")
 
-            # Dynamically call the appropriate handler based on the event
             handler = event_handler.get(event, handle_unknown_event)
-
-            # Just call the handler 
             result = await handler(websocket, event)
 
             if result:
@@ -262,16 +192,11 @@ async def websocket_live_data(websocket: WebSocket):
     except asyncio.CancelledError:
         pass
     finally:
-        # Clean up state when the connection closes
-        if websocket in websocket_state:
-            del websocket_state[websocket]
+        websocket_state.pop(websocket, None)
         try:
-            # Check if the WebSocket is still connected before attempting to close
             if websocket.client_state == WebSocketState.CONNECTED:
-                await websocket.close()  # Close the connection once
+                await websocket.close()
         except RuntimeError:
-            # Ignore the error if WebSocket is already closed due to Ctrl+C
             print("WebSocket already closed.")
         except WebSocketDisconnect:
-            # If the disconnect happens during shutdown, handle it gracefully
             print("WebSocket was disconnected during shutdown.")
