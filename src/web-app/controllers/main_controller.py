@@ -184,10 +184,12 @@ async def send_user_overview(websocket: WebSocket, event: str):
     return None
 
 @root_router.post("/remove-user")
-async def remove_selected_user(request: Request):
+async def remove_selected_user(websocket:WebSocket, request: Request):
     data = await request.json()
     username = data.get("username")
     remove_user(username)
+    # Send a message to the removed user's client-side code to redirect them to /logout page
+    await websocket.send_json({"event": "redirect", "url": "/logout"})
     return JSONResponse({"message":f"User {username} removed!"})
 
 # A default handler for unknown events

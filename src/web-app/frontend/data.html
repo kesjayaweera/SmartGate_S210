@@ -162,7 +162,18 @@
                 },
                 body: JSON.stringify({ username: username })
             })
-
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);  // Handle the response from the server
+                    // Update the user table after removing the user
+                    socket.send(JSON.stringify({ event: "user_overview" }));
+                })
+                .catch(error => {
+                    console.error("Error removing user:", error);
+                })
+                .finally(() => {
+                    document.getElementById("roleModal").style.display = "none";
+                });
         }
     });
 </script>
