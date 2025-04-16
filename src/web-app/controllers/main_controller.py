@@ -117,8 +117,10 @@ async def get_username(user: dict = Depends(get_user_from_session)):
 
 @root_router.get("/get-session-username")
 async def get_session_username(request: Request):
-    username = get_user_from_session(request)
-    return {"username": username}
+    user = await get_user_from_session(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not logged in")
+    return {"username": user["username"]}
 
 @root_router.get("/check-permission")
 async def check_permission_api(username: str, perm_name: str):
@@ -137,6 +139,18 @@ async def send_user_overview(websocket: WebSocket, event: str):
         return {"event": event, "data": user_data}
     
     return None
+
+async def handle_event(websocket: WebSocket, event: str, data: dict):
+    if event == "init":
+        username = data.get("username")
+        if username:
+            websocket_state[websocket] = {"username": username, "data": None}
+        return None
+
+    elif event == "user_overview":
+        return await send_user_overview(websocket)
+
+    return {"event": "error", "message": f"Unknown event: {event}"}
 
 async def kick_user(username: str):
     for ws, state in list(websocket_state.items()):
@@ -164,11 +178,12 @@ async def remove_selected_user(request: Request):
         print(f"Error removing user: {e}")
         return JSONResponse({"error": "An error occurred while removing the user."}, status_code=500)
 
-async def handle_unknown_event(*args, **kwargs):
-    print("Unknown event received.")
+async def handle_unknown_event(event: str):
+    print(f"Unknown event received {event}.")
 
 event_handler = {
     "user_overview": send_user_overview,
+    "init": handle_event
 }
 
 @root_router.websocket("/ws/live-data")
@@ -179,9 +194,10 @@ async def websocket_live_data(websocket: WebSocket):
         while True:
             message = await websocket.receive_json()
             event = message.get("event")
+            data = message.get("data", {})
 
             handler = event_handler.get(event, handle_unknown_event)
-            result = await handler(websocket, event)
+            result = await handler(websocket, event, data)
 
             if result:
                 await websocket.send_json(result)
