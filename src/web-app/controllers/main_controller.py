@@ -25,6 +25,8 @@ oauth.register(
     client_kwargs={"scope": "user:email"},
 )
 
+session_initialised = False
+
 async def get_user_from_session(request: Request):
     return request.session.get('user')
 
@@ -34,8 +36,6 @@ async def render_page(template_name: str, title: str, request: Request, extra_co
     if extra_context:
         context.update(extra_context)
     return pages.TemplateResponse(template_name, context)
-
-session_initialised = False
 
 @root_router.get("/")
 async def dashboard(request: Request):
@@ -170,9 +170,10 @@ event_handler = {
 async def websocket_live_data(websocket: WebSocket):
     await websocket.accept()
 
-    session = websocket.scope.get("session", {})
-    username = session.get("user", {}).get("username")
-
+    # Assign username to WebSocket connection
+    user = websocket.scope.get("user", {})
+    username = user.get("username")
+    
     websocket_state[websocket] = {"username": username, "data": None}
 
     try:
