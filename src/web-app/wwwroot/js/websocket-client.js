@@ -27,14 +27,11 @@ function setupWebSocketHandlers(socket) {
 
                     // Ask for the user overview
                     socket.send(JSON.stringify({ event: "user_overview" }));
-                } else {
-                    // Redirect if the username is not found
-                    window.location.href = "/logout";
                 }
             })
             .catch(() => {
                 // In case fetch fails, handle redirection
-                window.location.href = "/logout";
+                console.warn("Could not fetch session username. Skipping init.");
             });
     };
 
