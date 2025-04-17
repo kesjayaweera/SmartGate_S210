@@ -105,7 +105,9 @@ async def dummy_login(request: Request):
 async def logout(request: Request):
     user = await get_user_from_session(request)
     if user and "username" in user:
-        mark_user_logged_out(user["username"])
+        username = user["username"]
+        if is_user_logged_in(username):
+            mark_user_logged_out(username)
     request.session.clear()
     return RedirectResponse(url="/")
 
