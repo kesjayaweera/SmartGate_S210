@@ -225,3 +225,24 @@ def clear_all_users():
     finally:
         cursor.close()
         conn.close()
+
+# check if user is in logged in set
+def is_user_logged_in(username: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Check if the user is in the logged-in set
+        cursor.execute("""
+            SELECT 1
+            FROM user_logged_in_set
+            WHERE username = %s
+            LIMIT 1
+        """, (username,))
+        result = cursor.fetchone()
+        return result is not None
+    except Exception as e:
+        print(f"Error checking if user is logged in: {e}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()
