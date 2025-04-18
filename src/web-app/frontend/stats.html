@@ -15,5 +15,18 @@
 
     {# <!-- This is where the content goes --> #}
 
+    <div class="container py-5">
+            <h2 class="mb-4 text-white">Most Frequently Detected Species (Table)</h2>
+            <div class="mb-5 bg-light p-3 rounded">
+                {{ table|safe }}
+            </div>
+    
+            <h2 class="mb-3 text-white">Bar Chart</h2>
+            <img src="{{ url_for('static', filename='bar_chart.png') }}" class="img-fluid mb-5">
+    
+            <h2 class="mb-3 text-white">Line Chart (Gate Activity)</h2>
+            <img src="{{ url_for('static', filename='line_chart.png') }}" class="img-fluid">
+    </div>
+
 </div>
 {% endblock %}
