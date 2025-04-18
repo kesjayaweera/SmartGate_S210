@@ -1,1 +1,19 @@
+{% extends "layout.html" %}
 
+{% block title %}Data{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <section class="background">
+        <video autoplay muted loop id="backgroundVideo">
+            <source src="../static/NewFolder/bakground_video.mp4" type="video/mp4"> <!-- need to change new folder to video -->
+            Your browser does not support the video tag.
+        </video>
+
+        <div class="overlay"></div>
+    </section>
+
+    {# <!-- This is where the content goes --> #}
+
+</div>
+{% endblock %}

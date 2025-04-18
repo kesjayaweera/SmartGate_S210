@@ -12,4 +12,4 @@ starlette
 uvicorn
 websocket-client
 websockets
-
+pandas
