@@ -236,13 +236,29 @@ def is_user_logged_in(username: str):
             SELECT 1
             FROM user_logged_in_set
             WHERE username = %s
-            LIMIT 1
+            LIMIT 1;
         """, (username,))
         result = cursor.fetchone()
         return result is not None
     except Exception as e:
         print(f"Error checking if user is logged in: {e}")
         return False
+    finally:
+        cursor.close()
+        conn.close()
+
+# Get all roles from database
+def get_all_roles():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            select role_name from roles;
+        """)
+        roles = cursor.fetchall()
+        return [role[0] for role in roles] 
+    except Exception as e:
+        print("Error On Getting All Roles From DB!")
     finally:
         cursor.close()
         conn.close()

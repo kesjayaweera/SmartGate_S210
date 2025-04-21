@@ -136,14 +136,24 @@ async def check_permission_api(username: str, perm_name: str):
 
 websocket_state = {}
 
-async def send_user_overview(websocket: WebSocket, event: str, data: dict):
+async def send_user_overview(websocket: WebSocket, event: str = "user_overview", data: dict = {}):
     user_data = get_user_data()
+    roles = get_all_roles()
+    
+    combined_data = {
+        "users": user_data,
+        "roles": roles
+    }
+    
     current_data_json = json.dumps(user_data, sort_keys=True)
     previous_data = websocket_state.get(websocket, {}).get("data")
 
     if current_data_json != previous_data:
         websocket_state[websocket]["data"] = current_data_json
-        return {"event": event, "data": user_data}
+        return {
+            "event": event, 
+            "data": combined_data
+        }
     
     return None
 

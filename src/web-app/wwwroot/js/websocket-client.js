@@ -39,7 +39,9 @@ function setupWebSocketHandlers(socket) {
         const data = JSON.parse(event.data);
 
         if (data.event === "user_overview") {
-            updateUserOverviewTable(data.data);
+            const {users, roles} = data.data;
+            updateUserOverviewTable(users);
+            updateRoleSelectDropdown(roles)
         }
 
         if (data.event === "redirect") {
