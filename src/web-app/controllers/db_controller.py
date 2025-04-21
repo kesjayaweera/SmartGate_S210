@@ -66,12 +66,24 @@ def check_permission(username: str, perm_name: str):
         cursor.close()
         conn.close()
 
-def change_role(username: str, role_id: int):
+def change_role(username: str, role_name: str):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # Update the user's role
+        # Fetch the role_id for the given role_name
+        cursor.execute("""
+            SELECT id FROM roles WHERE name = %s;
+        """, (role_name,))
+        role_id = cursor.fetchone()
+
+        if not role_id:
+            print(f"Error: Role '{role_name}' not found.")
+            return
+
+        role_id = role_id[0]  # Get the first column value which is the role_id
+
+        # Update the user's role with the fetched role_id
         cursor.execute("""
             UPDATE users SET role_id = %s WHERE username = %s;
         """, (role_id, username))
@@ -258,7 +270,7 @@ def get_all_roles():
         roles = cursor.fetchall()
         return [role[0] for role in roles] 
     except Exception as e:
-        print("Error On Getting All Roles From DB!")
+        print(f"Failed to get all roles from db: {e}!")
     finally:
         cursor.close()
         conn.close()
