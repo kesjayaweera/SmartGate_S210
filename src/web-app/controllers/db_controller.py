@@ -73,7 +73,7 @@ def change_role(username: str, role_name: str):
 
         # Fetch the role_id for the given role_name
         cursor.execute("""
-            SELECT id FROM roles WHERE name = %s;
+            select role_id from roles where role_name = %s;
         """, (role_name,))
         role_id = cursor.fetchone()
 
@@ -86,7 +86,7 @@ def change_role(username: str, role_name: str):
         # Update the user's role with the fetched role_id
         cursor.execute("""
             UPDATE users SET role_id = %s WHERE username = %s;
-        """, (role_id, username))
+        """, (role_id, username,))
 
         conn.commit()
         print(f"Role updated successfully for {username}!")
