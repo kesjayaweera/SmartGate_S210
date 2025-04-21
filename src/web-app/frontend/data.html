@@ -62,7 +62,7 @@
             document.getElementById("modalUsername").innerText = `Username: ${selectedUsername}`;
 
             // Example roles list — replace this with a dynamic list if you fetch it from backend or WS
-            updateRoleSelectDropdown(availableRoles, currentRole);
+            updateRoleSelectDropdown(window.availableRoles, currentRole);
 
             document.getElementById("roleModal").style.display = "block";
         });
@@ -96,8 +96,8 @@
 
     function updateUserOverviewTable(data) {
         const userTable = document.getElementById('userTable').getElementsByTagName('tbody')[0];
-
-        data.forEach(user => {
+        const users = data.users;
+        users.forEach(user => {
             if (!user.username) {
                 console.error('Invalid user data:', user);
                 return;

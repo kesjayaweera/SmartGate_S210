@@ -1,4 +1,4 @@
-let availableRoles = [];
+window.availableRoles = []
 
 // Check if there's already an existing WebSocket connection
 if (!window.socket) {
@@ -42,9 +42,7 @@ function setupWebSocketHandlers(socket) {
 
         if (data.event === "user_overview") {
             const {users, roles} = data.data;
-
-            availableRoles = roles;
-
+            window.availableRoles = roles;
             updateUserOverviewTable(users);
             updateRoleSelectDropdown(roles)
         }

@@ -139,7 +139,7 @@ websocket_state = {}
 async def send_user_overview(websocket: WebSocket, event: str = "user_overview", data: dict = {}):
     user_data = get_user_data()
     roles = get_all_roles()
-    
+
     combined_data = {
         "users": user_data,
         "roles": roles
