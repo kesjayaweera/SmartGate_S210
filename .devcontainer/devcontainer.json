@@ -7,7 +7,7 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "terminal.integrated.defaultProfile.linux": "sh"
+        "terminal.integrated.defaultProfile.linux": "bash"
       },
       "customizations/vscode/extensions": [
         "ms-python.python",
