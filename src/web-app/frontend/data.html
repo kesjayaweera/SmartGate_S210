@@ -26,7 +26,7 @@
             </thead>
             <tbody>
             {% for user in user_data %}
-                <tr id="user-{{ user.username }}" data-username="{{ user.username }}">
+                <tr id="user-{{ user.username }}" data-username="{{ user.username }}" data-role="{{ user.role_name }}">
                     <td>{{ user.username }}</td>
                     <td>{{ user.role_name }}</td>
                     <td class="status {{ 'logged-in' if user.status == 'Logged In' else 'logged-out' }}">{{ user.status }}</td>
@@ -42,10 +42,7 @@
                 <span id="closeModal">&times;</span>
                 <h2>Change User Role</h2><br>
                 <p id="modalUsername"></p><br>
-                <select id="roleSelect">
-                    <option value="user">user</option>
-                    <option value="admin">admin</option>
-                </select>
+                <select id="roleSelect"></select>
                 <br><br>
                 <button id="saveRole">Save</button>
             </div>
@@ -60,7 +57,13 @@
             if (!row || e.target.tagName === "BUTTON") return;
 
             const selectedUsername = row.getAttribute('data-username');
+            const currentRole = row.getAttribute('data-role')
+
             document.getElementById("modalUsername").innerText = `Username: ${selectedUsername}`;
+
+            // Example roles list — replace this with a dynamic list if you fetch it from backend or WS
+            updateRoleSelectDropdown(availableRoles, currentRole);
+
             document.getElementById("roleModal").style.display = "block";
         });
 
@@ -124,6 +127,22 @@
                 row.setAttribute('data-username', user.username);
                 row.cells[2].className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
             }
+        });
+    }
+
+    function updateRoleSelectDropdown(roles, selectedRole = null) {
+        const roleSelect = document.getElementById("roleSelect");
+        
+        roleSelect.innerHTML = '';
+
+        roles.forEach(role => {
+            const option = document.createElement('option');
+            option.value = role;
+            option.textContent = role;  // No capitalization
+            if (selectedRole && role === selectedRole) {
+                option.selected = true;
+            }
+            roleSelect.appendChild(option);
         });
     }
 

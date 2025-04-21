@@ -1,3 +1,5 @@
+let availableRoles = [];
+
 // Check if there's already an existing WebSocket connection
 if (!window.socket) {
     // Create a WebSocket connection to the server's live-data route
@@ -40,6 +42,9 @@ function setupWebSocketHandlers(socket) {
 
         if (data.event === "user_overview") {
             const {users, roles} = data.data;
+
+            availableRoles = roles;
+
             updateUserOverviewTable(users);
             updateRoleSelectDropdown(roles)
         }
