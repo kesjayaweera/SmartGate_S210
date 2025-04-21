@@ -108,6 +108,11 @@ async def logout(request: Request):
         username = user["username"]
         if is_user_logged_in(username):
             mark_user_logged_out(username)
+        request.session.clear()
+    return RedirectResponse(url="/")
+
+@root_router.get("/removed")
+async def user_has_been_removed(request: Request):
     request.session.clear()
     return RedirectResponse(url="/")
 
@@ -154,12 +159,16 @@ async def handle_event(websocket: WebSocket, event: str, data: dict):
 
     return {"event": "error", "message": f"Unknown event: {event}"}
 
-async def kick_user(username: str):
+async def kick_user(username: str, current_user: str):
+    if username == current_user:
+        print(f"Skipping User: {current_user}")
+        return
+    
     for ws, state in list(websocket_state.items()):
         if state.get("username") == username:
             try:
                 # Send a redirect event only to the WebSocket corresponding to the user
-                await ws.send_json({"event": "redirect", "username": username, "url": "/logout"})
+                await ws.send_json({"event": "redirect", "username": username, "url": "/removed"})
                 await ws.close()
                 del websocket_state[ws]
                 print(f"User {username} has been kicked out and connection closed.")
@@ -169,19 +178,32 @@ async def kick_user(username: str):
 @root_router.post("/remove-user")
 async def remove_selected_user(request: Request):
     try:
+        # Get the current logged-in user
+        current_user = await get_user_from_session(request)
+        current_username = current_user["username"]
+
+        # Get the username of the user to be removed
         data = await request.json()
-        username = data.get("username")
+        username_to_remove = data.get("username")
 
-        remove_user(username)
-        print(f"User {username} removed from database.")
-        await kick_user(username)
+        # Check if the current user is trying to remove themselves
+        if username_to_remove == current_username:
+            return JSONResponse(
+                {"alert": "You cannot remove yourself."},
+                status_code=400
+            )
+        
+        remove_user(username_to_remove)
+        print(f"User {username_to_remove} removed from database.")
 
-        return JSONResponse({"message": f"User {username} removed and kicked out!"})
+        await kick_user(username_to_remove, current_user)
+
+        return JSONResponse({"message": f"User {username_to_remove} removed and kicked out!"})
     except Exception as e:
         print(f"Error removing user: {e}")
         return JSONResponse({"error": "An error occurred while removing the user."}, status_code=500)
-
-async def handle_unknown_event(event: str):
+        
+async def handle_unknown_event(websocket: WebSocket, event: str, data: dict):
     print(f"Unknown event received {event}.")
 
 event_handler = {
