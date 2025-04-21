@@ -169,6 +169,12 @@ async def handle_event(websocket: WebSocket, event: str, data: dict):
 
     return {"event": "error", "message": f"Unknown event: {event}"}
 
+async def handle_change_role_event(websocket: WebSocket, event: str = "change_role", data: dict = {}):
+    if event == "change_role":
+        username = data.get("username")
+        new_role = data.get("role")
+        change_role(username, new_role)
+
 async def kick_user(username: str, current_user: str):
     if username == current_user:
         print(f"Skipping User: {current_user}")
@@ -218,7 +224,8 @@ async def handle_unknown_event(websocket: WebSocket, event: str, data: dict):
 
 event_handler = {
     "user_overview": send_user_overview,
-    "init": handle_event
+    "init": handle_event,
+    "change_role": handle_change_role_event
 }
 
 @root_router.websocket("/ws/live-data")
