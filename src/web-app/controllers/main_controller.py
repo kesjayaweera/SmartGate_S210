@@ -83,8 +83,8 @@ async def auth(request: Request):
         "avatar_url": user["avatar_url"]
     }
 
-    mark_user_logged_in(user["login"])
     insert_user({"id": user["id"], "login": user["login"], "role_id": 1})
+    mark_user_logged_in(user["login"])
 
     await broadcast_user_overview()
     return RedirectResponse(url="/")
@@ -97,9 +97,9 @@ async def dummy_login(request: Request):
     }
 
     request.session['user'] = dummy_user
-    mark_user_logged_in(dummy_user["username"])
     insert_user({"id": 9999, "login": dummy_user["username"], "role_id": 1})
-
+    mark_user_logged_in(dummy_user["username"])
+    
     await broadcast_user_overview()
     return RedirectResponse(url="/")
 

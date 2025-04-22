@@ -29,7 +29,7 @@
                 <tr id="user-{{ user.username }}" data-username="{{ user.username }}" data-role="{{ user.role_name }}">
                     <td>{{ user.username }}</td>
                     <td>{{ user.role_name }}</td>
-                    <td class="status {{ 'logged-in' if user.status == 'Logged In' else 'logged-out' }}">{{ user.status }}</td>
+                    <td class="status {{ 'logged-in' if user.status == 'Logged in' else 'logged-out' }}">{{ user.status }}</td>
                     <td><button onclick="removeUser('{{ user.username }}')">Remove</button></td>
                 </tr>
             {% endfor %}
@@ -117,14 +117,14 @@
 
                 cellUsername.innerText = user.username;
                 cellRole.innerText = user.role_name;
-                cellStatus.className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
+                cellStatus.className = 'status ' + (user.status === 'Logged in' ? 'logged-in' : 'logged-out');
                 cellStatus.innerText = user.status;
                 cellAction.innerHTML = `<button onclick="removeUser('${user.username}')">Remove</button>`;
             } else {
                 row.cells[1].innerText = user.role_name;
                 row.cells[2].innerText = user.status;
                 row.setAttribute('data-username', user.username);
-                row.cells[2].className = 'status ' + (user.status === 'Logged In' ? 'logged-in' : 'logged-out');
+                row.cells[2].className = 'status ' + (user.status === 'Logged in' ? 'logged-in' : 'logged-out');
             }
         });
     }
