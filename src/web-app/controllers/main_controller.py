@@ -86,6 +86,7 @@ async def auth(request: Request):
     mark_user_logged_in(user["login"])
     insert_user({"id": user["id"], "login": user["login"], "role_id": 1})
 
+    await broadcast_user_overview()
     return RedirectResponse(url="/")
 
 @root_router.get("/dummy-login")
@@ -99,6 +100,7 @@ async def dummy_login(request: Request):
     mark_user_logged_in(dummy_user["username"])
     insert_user({"id": 9999, "login": dummy_user["username"], "role_id": 1})
 
+    await broadcast_user_overview()
     return RedirectResponse(url="/")
 
 @root_router.get("/logout")
@@ -109,11 +111,13 @@ async def logout(request: Request):
         if is_user_logged_in(username):
             mark_user_logged_out(username)
         request.session.clear()
+    await broadcast_user_overview()
     return RedirectResponse(url="/")
 
 @root_router.get("/removed")
 async def user_has_been_removed(request: Request):
     request.session.clear()
+    await broadcast_user_overview()
     return RedirectResponse(url="/")
 
 @root_router.get("/get-username")
@@ -136,29 +140,50 @@ async def check_permission_api(username: str, perm_name: str):
 
 websocket_state = {}
 
-async def send_user_overview(websocket: WebSocket, event: str = "user_overview", data: dict = {}):
-    user_data = get_user_data()
-    roles = get_all_roles()
+async def broadcast_data(event: str, data: dict):
+    disconnected_clients = []
 
-    combined_data = {
-        "users": user_data,
-        "roles": roles
-    }
-    
-    current_data_json = json.dumps(user_data, sort_keys=True)
-    previous_data = websocket_state.get(websocket, {}).get("data")
+    for ws in list(websocket_state.keys()):
+        try:
+            if ws.application_state == WebSocketState.CONNECTED:
+                await ws.send_json({"event": event, "data": data})
+            else:
+                disconnected_clients.append(ws)
+        except Exception as e:
+            print(f"Failed to send to a client: {e}")
+            disconnected_clients.append(ws)
+
+    # Clean up dead connections
+    for ws in disconnected_clients:
+        websocket_state.pop(ws, None)
+
+async def send_data_if_changed(websocket: WebSocket, data_key: str, fetch_data_fn: callable, event: str, wrap_data_fn: callable = None):
+    raw_data = fetch_data_fn()
+    payload = wrap_data_fn(raw_data) if wrap_data_fn else raw_data
+
+    current_data_json = json.dumps(payload, sort_keys=True)
+    previous_data = websocket_state.get(websocket, {}).get(data_key)
 
     if current_data_json != previous_data:
-        websocket_state[websocket]["data"] = current_data_json
+        websocket_state[websocket][data_key] = current_data_json
         return {
-            "event": event, 
-            "data": combined_data
+            "event": event,
+            "data": payload
         }
     
     return None
 
+def fetch_user_data():
+        return {
+            "user_data": get_user_data(),
+            "roles": get_all_roles()
+        }
+
+async def send_user_overview(websocket: WebSocket, event: str = "user_overview", data: dict = {}):
+    return await send_data_if_changed(websocket, "data", fetch_user_data, event)
+
 async def send_alert_data(websocket: WebSocket, event: str = "alert_data", data: dict = {}):
-    pass
+    return await send_data_if_changed(websocket, "alert_data", get_all_alerts, event)
 
 async def handle_event(websocket: WebSocket, event: str, data: dict):
     if event == "init":
@@ -177,6 +202,7 @@ async def handle_change_role_event(websocket: WebSocket, event: str = "change_ro
         username = data.get("username")
         new_role = data.get("role")
         change_role(username, new_role)
+    await broadcast_user_overview()
 
 async def kick_user(username: str, current_user: str):
     if username == current_user:
@@ -224,6 +250,10 @@ async def remove_selected_user(request: Request):
         
 async def handle_unknown_event(websocket: WebSocket, event: str, data: dict):
     print(f"Unknown event received {event}.")
+
+async def broadcast_user_overview():
+    user_data = fetch_user_data()
+    await broadcast_data("user_overview", user_data)
 
 event_handler = {
     "user_overview": send_user_overview,
