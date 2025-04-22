@@ -52,7 +52,33 @@
                     <div class="image-placeholder"></div>
                 </div>
             </div> --> #}
-
+            {# <!-- Make a table showing alert no, alert description, alert level, data and time --> #}
+            <table class="alerts-table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Alert No</th>
+                        <th>Description</th>
+                        <th>Level</th>
+                        <th>Date & Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alert in alerts %}
+                    <tr>
+                        <td>
+                            <form action="/alerts/select/{{ alert.alert_no }}" method="post">
+                                <button class="btn btn-check">Select</button>
+                            </form>
+                        </td>
+                        <td>{{ alert.alert_no }}</td>
+                        <td>{{ alert.alert_desc }}</td>
+                        <td>{{ alert.alert_level }}</td>
+                        <td>{{ alert.date_and_time }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>            
         </section>
     </div>
 
@@ -72,7 +98,11 @@
             margin: 0 auto;
         }
 
-        .gates-status {
+        .alerts-table {
+            color: black
+        }
+
+        /* .gates-status {
             flex: 1;
         }
 
@@ -212,6 +242,6 @@
                 padding: 6px 12px;
                 font-size: 0.8rem;
             }
-        }
+        } */
     </style>
 {% endblock %}
