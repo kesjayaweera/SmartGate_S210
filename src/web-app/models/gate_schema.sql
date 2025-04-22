@@ -88,7 +88,7 @@ VALUES
     ('Mammal', 'Snow Leopard', TRUE, TRUE);
 
 -- Creating some predictable data for alerts
-CREATE TYPE alert_level_enum AS ENUM ('info', 'warning', 'critical')
+CREATE TYPE alert_level_enum AS ENUM ('info', 'warning', 'critical');
 
 -- Add table for alerts 
 CREATE TABLE IF NOT EXISTS alerts (
@@ -99,12 +99,12 @@ CREATE TABLE IF NOT EXISTS alerts (
 );
 
 -- Creating some predictable data for gates
-CREATE TYPE gate_status_enum AS ENUM ('opened', 'closed')
-CREATE TYPE gate_condition_enum AS ENUM ('unavailable', 'available')
+CREATE TYPE gate_status_enum AS ENUM ('opened', 'closed');
+CREATE TYPE gate_condition_enum AS ENUM ('unavailable', 'available');
 
 -- Add table for gates
 CREATE TABLE IF NOT EXISTS gates (
     gate_no SERIAL PRIMARY KEY,
     gate_status gate_status_enum, -- opened or closed
     gate_condition gate_condition_enum
-)
+);
