@@ -117,40 +117,65 @@ AFTER DELETE ON users
 FOR EACH ROW
 EXECUTE FUNCTION on_user_delete();
 
-CREATE TABLE IF NOT EXISTS user_logged_in_set (
-    username TEXT PRIMARY KEY,
-    logged_in_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TYPE user_status_enum AS ENUM ('Logged in', 'Logged out');
+
+-- Create a table called user_overview
+CREATE TABLE IF NOT EXISTS user_overview (
+    username VARCHAR(255) NOT NULL,
+    role_name VARCHAR(255) NOT NULL,
+    user_status user_status_enum
 );
 
--- Function that will be called when the users table is updated
--- Since the all the users will be deleted, I want it to remove the all usersname(s) in user_logged_in_set
-CREATE OR REPLACE FUNCTION update_user_logged_in_set()
+CREATE OR REPLACE FUNCTION refresh_user_overview_on_insert()
 RETURNS TRIGGER AS $$
 BEGIN
-    DELETE FROM user_logged_in_set;
-    RETURN NULL;
+    INSERT INTO user_overview (username, role_name, user_status)
+    SELECT
+        u.username,
+        r.role_name,
+        'Logged in'::user_status_enum
+    FROM users u
+    JOIN roles r ON u.role_id = r.role_id
+    WHERE u.user_id = NEW.user_id;
+
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Create a trigger that will update the user_logged_in_set after all the users are cleared
-CREATE TRIGGER update_user_logged_in_set
-AFTER DELETE ON users
+CREATE TRIGGER trigger_add_to_user_overview
+AFTER INSERT ON users
 FOR EACH ROW
-EXECUTE PROCEDURE update_user_logged_in_set();
+EXECUTE FUNCTION refresh_user_overview_on_insert();
 
--- Function that will be called when a user is removed from the users table
-CREATE OR REPLACE FUNCTION remove_user_from_user_logged_in_set()    
-RETURNS TRIGGER AS $$    
-BEGIN    
-    DELETE FROM user_logged_in_set WHERE username = OLD.username;    
-    RETURN OLD;    
-END;    
+CREATE OR REPLACE FUNCTION remove_from_user_overview_on_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    DELETE FROM user_overview
+    WHERE username = OLD.username;
+
+    RETURN OLD;
+END;
 $$ LANGUAGE plpgsql;
 
--- When the user is removed from the users table, it will be removed from the user_logged_in_set
-CREATE TRIGGER remove_user_from_user_logged_in_set
+CREATE TRIGGER trigger_remove_from_user_overview
 AFTER DELETE ON users
 FOR EACH ROW
-EXECUTE PROCEDURE remove_user_from_user_logged_in_set();
+EXECUTE FUNCTION remove_from_user_overview_on_delete();
 
+CREATE OR REPLACE FUNCTION update_user_overview_role()
+RETURNS TRIGGER AS $$
+BEGIN
+    UPDATE user_overview
+    SET role_name = (SELECT role_name FROM roles WHERE role_id = NEW.role_id)
+    WHERE username = NEW.username;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_user_overview_role
+AFTER UPDATE OF role_id ON users
+FOR EACH ROW
+WHEN (OLD.role_id IS DISTINCT FROM NEW.role_id)
+EXECUTE FUNCTION update_user_overview_role();
 

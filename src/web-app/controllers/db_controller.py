@@ -162,10 +162,7 @@ def mark_user_logged_in(username: str):
         cursor = conn.cursor()
         
         cursor.execute("""
-            INSERT INTO user_logged_in_set (username, logged_in_at)
-            VALUES (%s, NOW())
-            ON CONFLICT(username) DO UPDATE
-            SET logged_in_at = NOW();
+            update user_overview set user_status = 'Logged in' where username = %s;
         """, (username,))
         
         conn.commit()
@@ -182,7 +179,7 @@ def mark_user_logged_out(username: str):
         cursor = conn.cursor()
         
         cursor.execute("""
-            DELETE FROM user_logged_in_set WHERE username = %s
+            update user_overview set user_status = 'Logged out' where username = %s;
         """, (username,))
         
         conn.commit()
@@ -201,16 +198,7 @@ def get_user_overview():
         cursor = conn.cursor()
 
         cursor.execute("""
-            SELECT 
-                u.username,
-                r.role_name,
-                CASE
-                    WHEN us.username IS NOT NULL THEN 'Logged In'
-                    ELSE 'Logged Out'
-                END AS status
-            FROM users u
-            JOIN roles r ON u.role_id = r.role_id
-            LEFT JOIN user_logged_in_set us ON u.username = us.username;
+            select * from user_overview;
         """)
 
         return cursor.fetchall()
@@ -243,15 +231,11 @@ def is_user_logged_in(username: str):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        # Check if the user is in the logged-in set
         cursor.execute("""
-            SELECT 1
-            FROM user_logged_in_set
-            WHERE username = %s
-            LIMIT 1;
+            SELECT user_status = 'Logged in' FROM user_overview WHERE username = %s;
         """, (username,))
         result = cursor.fetchone()
-        return result is not None
+        return result[0] if result else False
     except Exception as e:
         print(f"Error checking if user is logged in: {e}")
         return False
