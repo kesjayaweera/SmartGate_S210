@@ -198,11 +198,11 @@ async def handle_event(websocket: WebSocket, event: str, data: dict):
     return {"event": "error", "message": f"Unknown event: {event}"}
 
 async def handle_change_role_event(websocket: WebSocket, event: str = "change_role", data: dict = {}):
-    if event == "change_role":
-        username = data.get("username")
-        new_role = data.get("role")
+    username = data.get("username")
+    new_role = data.get("role")
+    if username and new_role:
         change_role(username, new_role)
-    await broadcast_user_overview()
+        await broadcast_user_overview()
 
 async def kick_user(username: str, current_user: str):
     if username == current_user:
