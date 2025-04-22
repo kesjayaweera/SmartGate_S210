@@ -117,7 +117,6 @@ async def logout(request: Request):
 @root_router.get("/removed")
 async def user_has_been_removed(request: Request):
     request.session.clear()
-    await broadcast_user_overview()
     return RedirectResponse(url="/")
 
 @root_router.get("/get-username")
@@ -157,52 +156,15 @@ async def broadcast_data(event: str, data: dict):
     for ws in disconnected_clients:
         websocket_state.pop(ws, None)
 
-async def send_data_if_changed(websocket: WebSocket, data_key: str, fetch_data_fn: callable, event: str, wrap_data_fn: callable = None):
-    raw_data = fetch_data_fn()
-    payload = wrap_data_fn(raw_data) if wrap_data_fn else raw_data
-
-    current_data_json = json.dumps(payload, sort_keys=True)
-    previous_data = websocket_state.get(websocket, {}).get(data_key)
-
-    if current_data_json != previous_data:
-        websocket_state[websocket][data_key] = current_data_json
-        return {
-            "event": event,
-            "data": payload
-        }
-    
-    return None
+async def broadcast_user_overview():
+    user_data = fetch_user_data()
+    await broadcast_data("user_overview", user_data)
 
 def fetch_user_data():
         return {
             "user_data": get_user_data(),
             "roles": get_all_roles()
         }
-
-async def send_user_overview(websocket: WebSocket, event: str = "user_overview", data: dict = {}):
-    return await send_data_if_changed(websocket, "data", fetch_user_data, event)
-
-async def send_alert_data(websocket: WebSocket, event: str = "alert_data", data: dict = {}):
-    return await send_data_if_changed(websocket, "alert_data", get_all_alerts, event)
-
-async def handle_event(websocket: WebSocket, event: str, data: dict):
-    if event == "init":
-        username = data.get("username")
-        if username:
-            websocket_state[websocket] = {"username": username, "data": None}
-        return None
-
-    elif event == "user_overview":
-        return await send_user_overview(websocket)
-
-    return {"event": "error", "message": f"Unknown event: {event}"}
-
-async def handle_change_role_event(websocket: WebSocket, event: str = "change_role", data: dict = {}):
-    username = data.get("username")
-    new_role = data.get("role")
-    if username and new_role:
-        change_role(username, new_role)
-        await broadcast_user_overview()
 
 async def kick_user(username: str, current_user: str):
     if username == current_user:
@@ -242,28 +204,15 @@ async def remove_selected_user(request: Request):
         print(f"User {username_to_remove} removed from database.")
 
         await kick_user(username_to_remove, current_user)
-
+        await broadcast_user_overview()
         return JSONResponse({"message": f"User {username_to_remove} removed and kicked out!"})
     except Exception as e:
         print(f"Error removing user: {e}")
         return JSONResponse({"error": "An error occurred while removing the user."}, status_code=500)
-        
-async def handle_unknown_event(websocket: WebSocket, event: str, data: dict):
-    print(f"Unknown event received {event}.")
-
-async def broadcast_user_overview():
-    user_data = fetch_user_data()
-    await broadcast_data("user_overview", user_data)
-
-event_handler = {
-    "user_overview": send_user_overview,
-    "init": handle_event,
-    "change_role": handle_change_role_event,
-    "alert_data": send_alert_data,
-}
 
 @root_router.websocket("/ws/live-data")
 async def websocket_live_data(websocket: WebSocket):
+    from controllers.websocket_events import event_registry 
     await websocket.accept()
 
     try:
@@ -272,11 +221,16 @@ async def websocket_live_data(websocket: WebSocket):
             event = message.get("event")
             data = message.get("data", {})
 
-            handler = event_handler.get(event, handle_unknown_event)
-            result = await handler(websocket, event, data)
-
-            if result:
-                await websocket.send_json(result)
+            handler = event_registry.get(event)
+            if handler:
+                result = await handler(websocket, data)
+                if result:
+                    await websocket.send_json(result)
+            else:
+                await websocket.send_json({
+                    "event": "error",
+                    "message": f"Unknown event: {event}"
+                })
 
             await asyncio.sleep(0.5)
     except WebSocketDisconnect:
@@ -288,7 +242,5 @@ async def websocket_live_data(websocket: WebSocket):
         try:
             if websocket.client_state == WebSocketState.CONNECTED:
                 await websocket.close()
-        except RuntimeError:
-            print("WebSocket already closed.")
-        except WebSocketDisconnect:
-            print("WebSocket was disconnected during shutdown.")
+        except Exception as e:
+            print(f"WebSocket cleanup error: {e}")
