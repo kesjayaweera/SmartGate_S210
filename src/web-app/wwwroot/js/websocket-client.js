@@ -41,9 +41,9 @@ function setupWebSocketHandlers(socket) {
         const data = JSON.parse(event.data);
 
         if (data.event === "user_overview") {
-            const {users, roles} = data.data;
+            const {user_data, roles} = data.data;
             window.availableRoles = roles;
-            updateUserOverviewTable(users);
+            updateUserOverviewTable(user_data);
             updateRoleSelectDropdown(roles)
         }
 
