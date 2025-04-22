@@ -274,3 +274,18 @@ def get_all_roles():
     finally:
         cursor.close()
         conn.close()
+
+# Get all alerts from database
+def get_all_alerts():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            select * from alerts;
+        """)
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Failed to get all alerts from db: {e}!")
+    finally:
+        cursor.close()
+        conn.close()
