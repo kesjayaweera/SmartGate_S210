@@ -98,6 +98,14 @@ CREATE TABLE IF NOT EXISTS alerts (
     date_and_time TIMESTAMP DEFAULT NOW()
 );
 
+-- Mock data for testing alerts
+INSERT INTO alerts (alert_desc, alert_level)
+VALUES
+    ('Gate #1 Opened', 'info'),
+    ('Gate #2 unable to close', 'critical'),
+    ('talned has logged in', 'info'),
+    ('Animal has been detected, gate closed', 'warning');
+
 -- Creating some predictable data for gates
 CREATE TYPE gate_status_enum AS ENUM ('opened', 'closed');
 CREATE TYPE gate_condition_enum AS ENUM ('unavailable', 'available');

@@ -157,6 +157,9 @@ async def send_user_overview(websocket: WebSocket, event: str = "user_overview",
     
     return None
 
+async def send_alert_data(websocket: WebSocket, event: str = "alert_data", data: dict = {}):
+    pass
+
 async def handle_event(websocket: WebSocket, event: str, data: dict):
     if event == "init":
         username = data.get("username")
@@ -225,7 +228,8 @@ async def handle_unknown_event(websocket: WebSocket, event: str, data: dict):
 event_handler = {
     "user_overview": send_user_overview,
     "init": handle_event,
-    "change_role": handle_change_role_event
+    "change_role": handle_change_role_event,
+    "alert_data": send_alert_data,
 }
 
 @root_router.websocket("/ws/live-data")
