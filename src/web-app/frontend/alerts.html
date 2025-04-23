@@ -81,7 +81,39 @@
             </table>            
         </section>
     </div>
+    <script>
+        function updateAlertsTable(alerts) {
+            const tbody = document.querySelector(".alerts-table tbody");
+            if (!tbody) {
+                console.error("Couldn't find alerts table body");
+                return;
+            }
 
+            // Clear current alerts
+            tbody.innerHTML = "";
+            
+            if (!Array.isArray(alerts)) {
+                console.warn("Alerts data is invalid:", alerts);
+                return;
+            }
+
+            alerts.forEach(alert => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>
+                        <form action="/alerts/select/${alert.alert_no}" method="post">
+                            <button class="btn btn-check">Select</button>
+                        </form>
+                    </td>
+                    <td>${alert.alert_no}</td>
+                    <td>${alert.alert_desc}</td>
+                    <td>${alert.alert_level}</td>
+                    <td>${new Date(alert.date_and_time).toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    </script>
     <style>
         .main-content {
             min-height: 100vh;

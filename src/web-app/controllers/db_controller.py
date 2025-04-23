@@ -277,3 +277,23 @@ def get_all_alerts():
     finally:
         cursor.close()
         conn.close()
+
+# Add Alerts to DB
+def add_alert(alert_desc: str, alert_level: str) -> bool:
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO alerts (alert_desc, alert_level)
+            VALUES (%s, %s);
+        """, (alert_desc, alert_level))
+        conn.commit()
+        return True
+    except Exception as e:
+        print(f"[ERROR] Failed to add alert: {e}")
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

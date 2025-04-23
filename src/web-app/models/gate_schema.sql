@@ -1,6 +1,6 @@
 -- Add a table for animals potentially detected by gate
 CREATE TABLE IF NOT EXISTS detected_animals (
-    time_stamp TIMESTAMP DEFAULT NOW(),
+    time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     animal_id SERIAL PRIMARY KEY,
     animal_type VARCHAR(255) NOT NULL,
     animal_name VARCHAR(255) NOT NULL,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS alerts (
     alert_no SERIAL PRIMARY KEY,
     alert_desc TEXT,
     alert_level alert_level_enum,
-    date_and_time TIMESTAMP DEFAULT NOW()
+    date_and_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Mock data for testing alerts
