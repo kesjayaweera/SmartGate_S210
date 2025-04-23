@@ -35,7 +35,7 @@ async def change_role_event(websocket: WebSocket, data: dict):
 
 @register_event("alert_data")
 async def alert_data_event(websocket: WebSocket, data: dict):
-    from controllers.db_controller import get_all_alerts  # Local import to avoid circular imports
-    alert_data = get_all_alerts()
+    from controllers.main_controller import fetch_alerts_data  # Local import to avoid circular imports
+    alert_data = fetch_alerts_data()
     print(alert_data)
     return {"event": "alert_data", "data": alert_data}

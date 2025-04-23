@@ -7,6 +7,7 @@ from controllers.db_controller import *
 from starlette.websockets import WebSocketState
 import json
 import asyncio
+from datetime import datetime
 
 root_router = APIRouter()
 pages = Jinja2Templates(directory=Path("frontend"))
@@ -54,13 +55,33 @@ async def gates(request: Request):
 async def about(request: Request):
     return await render_page("about.html", "About", request)
 
+def get_alert_data():
+    data = get_all_alerts()
+    return [
+        {       
+            "alert_no": row[0],
+            "alert_desc": row[1],
+            "alert_level": row[2],
+            "date_and_time": row[3].isoformat() if isinstance(row[3], datetime) else row[3]
+        }
+        for row in data
+    ]
+
 @root_router.get("/alerts")
 async def alerts(request: Request):
-    return await render_page("alerts.html", "Alerts", request)
+    alert_data = get_alert_data()
+    return await render_page("alerts.html", "Alerts", request, {"alert_data": alert_data})
 
 def get_user_data():
     data = get_user_overview()
-    return [{"username": row[0], "role_name": row[1], "status": row[2]} for row in data]
+    return [
+        {
+            "username": row[0], 
+            "role_name": row[1], 
+            "status": row[2]
+        } 
+        for row in data
+    ]
 
 @root_router.get("/data")
 async def data(request: Request):
@@ -156,15 +177,24 @@ async def broadcast_data(event: str, data: dict):
     for ws in disconnected_clients:
         websocket_state.pop(ws, None)
 
-async def broadcast_user_overview():
-    user_data = fetch_user_data()
-    await broadcast_data("user_overview", user_data)
-
 def fetch_user_data():
         return {
             "user_data": get_user_data(),
             "roles": get_all_roles()
         }
+
+def fetch_alerts_data():
+    return {
+        "alert_data": get_alert_data()
+    }
+
+async def broadcast_alert_data():
+    alert_data = fetch_alerts_data()
+    await broadcast_data("alert_data", alert_data)
+
+async def broadcast_user_overview():
+    user_data = fetch_user_data()
+    await broadcast_data("user_overview", user_data)
 
 async def kick_user(username: str, current_user: str):
     if username == current_user:
@@ -214,6 +244,13 @@ async def remove_selected_user(request: Request):
 async def websocket_live_data(websocket: WebSocket):
     from controllers.websocket_events import event_registry 
     await websocket.accept()
+
+    # Send alert data immediately on connect
+    alert_handler = event_registry.get("alert_data")
+    if alert_handler:
+        result = await alert_handler(websocket, {})
+        if result:
+            await websocket.send_json(result)
 
     try:
         while True:
