@@ -264,12 +264,16 @@ def get_all_alerts():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("""
-            select * from alerts;
-        """)
-        return cursor.fetchall()
+        cursor.execute("SELECT * FROM alerts;")
+        
+        # Grab column names from cursor.description
+        columns = [col[0] for col in cursor.description]
+        
+        # Return each row as a dictionary
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
     except Exception as e:
         print(f"Failed to get all alerts from db: {e}!")
+        return []
     finally:
         cursor.close()
         conn.close()
