@@ -26,11 +26,16 @@ function setupWebSocketHandlers(socket) {
                         event: "init",
                         data: { username: data.username }
                     }));
+                    
+                    const page = document.body.dataset.page;
 
-                    // Ask for the user overview
-                    socket.send(JSON.stringify({ event: "user_overview" }));
-                    // Ask for alerts
-                    socket.send(JSON.stringify({ event: "alert_data" }));
+                    if (page === "user_overview") {
+                        socket.send(JSON.stringify({ event: "user_overview" }));
+                    }
+    
+                    if (page === "alerts") {
+                        socket.send(JSON.stringify({ event: "alert_data" }));
+                    }
                 }
             })
             .catch(() => {

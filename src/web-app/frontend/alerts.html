@@ -1,4 +1,5 @@
 ﻿{% extends "layout.html" %}
+{% set page = "alerts" %}
 
 {% block title %}Alerts{% endblock %}
 
@@ -91,7 +92,7 @@
 
             // Clear current alerts
             tbody.innerHTML = "";
-            
+
             if (!Array.isArray(alerts)) {
                 console.warn("Alerts data is invalid:", alerts);
                 return;
@@ -113,6 +114,13 @@
                 tbody.appendChild(row);
             });
         }
+        // Add this block to safely run JS after DOM is ready
+        document.addEventListener("DOMContentLoaded", function () {
+            // Optional: Fetch or update the table here
+            // Example: updateAlertsTable(sampleData); — sampleData would be replaced with your actual source
+            
+            console.log("DOM fully loaded and parsed");
+        });
     </script>
     <style>
         .main-content {
