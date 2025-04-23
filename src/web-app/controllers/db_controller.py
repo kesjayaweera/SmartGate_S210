@@ -1,5 +1,6 @@
 import os
 import psycopg
+from datetime import datetime
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -270,7 +271,14 @@ def get_all_alerts():
         columns = [col[0] for col in cursor.description]
         
         # Return each row as a dictionary
-        return [dict(zip(columns, row)) for row in cursor.fetchall()]
+        rows = []
+        for row in cursor.fetchall():
+            row_dict = dict(zip(columns, row))
+             # Just convert the specific datetime field
+            if isinstance(row_dict.get("date_and_time"), datetime):
+                row_dict["date_and_time"] = row_dict["date_and_time"].isoformat()
+            rows.append(row_dict)
+        return rows
     except Exception as e:
         print(f"Failed to get all alerts from db: {e}!")
         return []

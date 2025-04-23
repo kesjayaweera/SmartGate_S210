@@ -29,6 +29,8 @@ function setupWebSocketHandlers(socket) {
 
                     // Ask for the user overview
                     socket.send(JSON.stringify({ event: "user_overview" }));
+                    // Ask for alerts
+                    socket.send(JSON.stringify({ event: "alert_data" }));
                 }
             })
             .catch(() => {
@@ -61,6 +63,10 @@ function setupWebSocketHandlers(socket) {
                 .catch(() => {
                     console.error('Failed to check session username for redirection.');
                 });
+        }
+
+        if (data.event === "alert_data") {
+            updateAlertsTable(data.data.alert_data)
         }
     };
 
