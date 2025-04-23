@@ -9,6 +9,9 @@ import json
 import asyncio
 from datetime import datetime
 
+# ------------------------
+# Router and OAuth Setup
+# -----------------------
 root_router = APIRouter()
 pages = Jinja2Templates(directory=Path("frontend"))
 
@@ -26,10 +29,40 @@ oauth.register(
     client_kwargs={"scope": "user:email"},
 )
 
+# -------------------
+# Global Variables
+# -------------------
 session_initialised = False
+websocket_state = {}
 
+# -------------------
+# Helper Functions
+# ------------------
 async def get_user_from_session(request: Request):
     return request.session.get('user')
+
+def get_alert_data():
+    data = get_all_alerts()
+    return [
+        {       
+            "alert_no": row[0],
+            "alert_desc": row[1],
+            "alert_level": row[2],
+            "date_and_time": row[3].isoformat() if isinstance(row[3], datetime) else row[3]
+        }
+        for row in data
+    ]
+
+def get_user_data():
+    data = get_user_overview()
+    return [
+        {
+            "username": row[0], 
+            "role_name": row[1], 
+            "status": row[2]
+        } 
+        for row in data
+    ]
 
 async def render_page(template_name: str, title: str, request: Request, extra_context: dict = None):
     user = await get_user_from_session(request)
@@ -38,6 +71,9 @@ async def render_page(template_name: str, title: str, request: Request, extra_co
         context.update(extra_context)
     return pages.TemplateResponse(template_name, context)
 
+# -------------
+# Web Routes
+# -------------
 @root_router.get("/")
 async def dashboard(request: Request):
     global session_initialised
@@ -55,33 +91,10 @@ async def gates(request: Request):
 async def about(request: Request):
     return await render_page("about.html", "About", request)
 
-def get_alert_data():
-    data = get_all_alerts()
-    return [
-        {       
-            "alert_no": row[0],
-            "alert_desc": row[1],
-            "alert_level": row[2],
-            "date_and_time": row[3].isoformat() if isinstance(row[3], datetime) else row[3]
-        }
-        for row in data
-    ]
-
 @root_router.get("/alerts")
 async def alerts(request: Request):
     alert_data = get_alert_data()
     return await render_page("alerts.html", "Alerts", request, {"alert_data": alert_data})
-
-def get_user_data():
-    data = get_user_overview()
-    return [
-        {
-            "username": row[0], 
-            "role_name": row[1], 
-            "status": row[2]
-        } 
-        for row in data
-    ]
 
 @root_router.get("/data")
 async def data(request: Request):
@@ -158,7 +171,9 @@ async def check_permission_api(username: str, perm_name: str):
     allowed = check_permission(username, perm_name)
     return JSONResponse(content={"allowed": allowed})
 
-websocket_state = {}
+# ---------------------------------
+# Broadcasting Live Data Functions
+# ---------------------------------
 
 async def broadcast_data(event: str, data: dict):
     disconnected_clients = []
@@ -196,6 +211,9 @@ async def broadcast_user_overview():
     user_data = fetch_user_data()
     await broadcast_data("user_overview", user_data)
 
+# --------------------
+# WebSocket Functions
+# -------------------
 async def kick_user(username: str, current_user: str):
     if username == current_user:
         print(f"Skipping User: {current_user}")
@@ -212,6 +230,9 @@ async def kick_user(username: str, current_user: str):
             except Exception as e:
                 print(f"Error kicking user {username}: {e}")
 
+# -------------------
+# Post Routes
+# -------------------
 @root_router.post("/remove-user")
 async def remove_selected_user(request: Request):
     try:
@@ -240,11 +261,17 @@ async def remove_selected_user(request: Request):
         print(f"Error removing user: {e}")
         return JSONResponse({"error": "An error occurred while removing the user."}, status_code=500)
 
+# -------------------
+# WebSocket Route
+# ------------------
 @root_router.websocket("/ws/live-data")
 async def websocket_live_data(websocket: WebSocket):
     from controllers.websocket_events import event_registry 
     await websocket.accept()
 
+    # -------------------------------------
+    # Send Up to Date Data to Web Socket
+    # -------------------------------------
     # Send alert data immediately on connect
     alert_handler = event_registry.get("alert_data")
     if alert_handler:
@@ -252,6 +279,9 @@ async def websocket_live_data(websocket: WebSocket):
         if result:
             await websocket.send_json(result)
 
+    # ----------------------------------------------
+    # Send Data to WebSocket After Event Recieved
+    # ----------------------------------------------
     try:
         while True:
             message = await websocket.receive_json()
