@@ -1,4 +1,3 @@
-# websocket_events.py
 from typing import Callable, Dict, Awaitable, Union
 from fastapi import WebSocket
 from controllers.main_controller import broadcast_user_overview, websocket_state, fetch_user_data
