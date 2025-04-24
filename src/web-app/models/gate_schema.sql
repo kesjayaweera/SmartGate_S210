@@ -163,14 +163,14 @@ CREATE TABLE IF NOT EXISTS var_stats (
 );
 
 CREATE OR REPLACE FUNCTION refresh_var_stats()
-RETURN void AS $$
+RETURNS void AS $$
 DECLARE
     total_count BIGINT;
     threat_count BIGINT;
     threat_count_percent NUMERIC;
     endangered_count BIGINT;
     endangered_count_percent NUMERIC;
-    both_count BIGINT
+    both_count BIGINT;
     both_count_percent NUMERIC;
 BEGIN
     SELECT COUNT(*) INTO total_count from detected_animals;
