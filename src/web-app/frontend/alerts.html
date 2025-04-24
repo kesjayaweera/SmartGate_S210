@@ -16,36 +16,37 @@
         </section>
 
         <section class="alerts-container">
+            <div class="alert-inner-wrapper">
+                <div class="alerts-actions" style="text-align: right; margin-bottom: 15px;">
+                    <button onclick="hideSelectedAlerts()" class="action-btn">Hide Alerts</button>
+                    <button onclick="removeSelectedAlerts()" class="action-btn">Remove Alerts</button>
+                </div>
 
-            <div class="alerts-actions" style="text-align: right; margin-bottom: 15px;">
-                <button onclick="hideSelectedAlerts()" class="action-btn">Hide Alerts</button>
-                <button onclick="removeSelectedAlerts()" class="action-btn">Remove Alerts</button>
-            </div>
-
-            <table class="alerts-table">
-                <thead>
-                <tr>
-                    <th>Select</th>
-                    <th>Alert No</th>
-                    <th>Description</th>
-                    <th>Level</th>
-                    <th>Date & Time</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for alert in alert_data %}
+                <table class="alerts-table">
+                    <thead>
                     <tr>
-                        <td>
-                            <input type="checkbox" class="alert-checkbox" value="{{ alert.alert_no }}" name="selected_alerts">
-                        </td>
-                        <td>{{ alert.alert_no }}</td>
-                        <td>{{ alert.alert_desc }}</td>
-                        <td class="alert-level {{ alert.alert_level | lower }}">{{ alert.alert_level }}</td>
-                        <td>{{ alert.date_and_time }}</td>
+                        <th>Select</th>
+                        <th>Alert No</th>
+                        <th>Description</th>
+                        <th>Level</th>
+                        <th>Date & Time</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for alert in alert_data %}
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="alert-checkbox" value="{{ alert.alert_no }}" name="selected_alerts">
+                            </td>
+                            <td>{{ alert.alert_no }}</td>
+                            <td>{{ alert.alert_desc }}</td>
+                            <td class="alert-level {{ alert.alert_level | lower }}">{{ alert.alert_level }}</td>
+                            <td>{{ alert.date_and_time }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </section>
     </div>
 
@@ -167,11 +168,14 @@
             accent-color: #0dcaf0;
         }
 
-        /*adding style to hide and remove alerts*/
-
+        .alert-inner-wrapper {
+            width: 100%;
+            max-width: 1200px;
+        }
+        
         .alerts-actions {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             margin-bottom: 20px;
         }
 
@@ -190,7 +194,6 @@
         .action-btn:hover {
             background-color: #0bb2d4;
         }
-
 
     </style>
 
