@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS gates (
     gate_status gate_status_enum, -- opened or closed
     gate_condition gate_condition_enum,
     gate_no_opens BIGINT DEFAULT 0,
-    gate_no_closes BIGINT DEFAULT 0,
+    gate_no_closes BIGINT DEFAULT 0
 );
 
 -- Table for the histogram about the animals (Animals vs Count)
