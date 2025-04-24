@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const openBtn = feed.querySelector('.btn.open');
         const closeBtn = feed.querySelector('.btn.close');
         const statusText = feed.querySelector('.status');
-        const gateImage = feed.querySelector('.gate-image');
 
         // Function to update the gate status
         const updateGateStatus = (status) => {
@@ -18,18 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (status === 'open') {
                 openBtn.classList.add('active');
                 closeBtn.classList.remove('active');
-                // Update image background color to green
-                gateImage.src = gateImage.src.replace(/F44336|4CAF50/, '4CAF50');
             } else {
                 closeBtn.classList.add('active');
                 openBtn.classList.remove('active');
-                // Update image background color to red
-                gateImage.src = gateImage.src.replace(/F44336|4CAF50/, 'F44336');
             }
         };
-        // all the gates closed by default
-
-
+        
         // Event listener for the OPEN button
         openBtn.addEventListener('click', () => {
             checkUserPermission('open_gate').then((allowed) => {

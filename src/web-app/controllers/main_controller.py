@@ -38,12 +38,12 @@ websocket_state = {}
 # ------------------------------------
 # Decorator Functions (if necessary)
 # ------------------------------------
-def auto_broadcast_user_overview(func):
-    async def wrapper(*args, **kwargs):
-        response = await func(*args, **kwargs)
-        await broadcast_user_overview()
-        return response
-    return wrapper
+# def auto_broadcast_user_overview(func):
+#     async def wrapper(*args, **kwargs):
+#         response = await func(*args, **kwargs)
+#         await broadcast_user_overview()
+#         return response
+#     return wrapper
 
 # -------------------
 # Helper Functions
@@ -117,7 +117,6 @@ async def login(request: Request):
     return await oauth.github.authorize_redirect(request, redirect_uri)
 
 @root_router.get("/auth")
-@auto_broadcast_user_overview
 async def auth(request: Request):
     token = await oauth.github.authorize_access_token(request)
     response = await oauth.github.get('user', token=token)
@@ -130,11 +129,10 @@ async def auth(request: Request):
 
     insert_user({"id": user["id"], "login": user["login"], "role_id": 1})
     mark_user_logged_in(user["login"])
-
+    await broadcast_user_overview()
     return RedirectResponse(url="/")
 
 @root_router.get("/dummy-login")
-@auto_broadcast_user_overview
 async def dummy_login(request: Request):
     dummy_user = {
         "username": "Dummy",
@@ -144,11 +142,10 @@ async def dummy_login(request: Request):
     request.session['user'] = dummy_user
     insert_user({"id": 9999, "login": dummy_user["username"], "role_id": 1})
     mark_user_logged_in(dummy_user["username"])
-    
+    await broadcast_user_overview()
     return RedirectResponse(url="/")
 
 @root_router.get("/logout")
-@auto_broadcast_user_overview
 async def logout(request: Request):
     user = await get_user_from_session(request)
     if user and "username" in user:
@@ -156,6 +153,7 @@ async def logout(request: Request):
         if is_user_logged_in(username):
             mark_user_logged_out(username)
         request.session.clear()
+    await broadcast_user_overview()
     return RedirectResponse(url="/")
 
 @root_router.get("/removed")
@@ -244,7 +242,6 @@ async def kick_user(username: str, current_user: str):
 # Post Routes
 # -------------------
 @root_router.post("/remove-user")
-@auto_broadcast_user_overview
 async def remove_selected_user(request: Request):
     try:
         # Get the current logged-in user
@@ -266,6 +263,7 @@ async def remove_selected_user(request: Request):
         print(f"User {username_to_remove} removed from database.")
 
         await kick_user(username_to_remove, current_user)
+        await broadcast_user_overview()
         return JSONResponse({"message": f"User {username_to_remove} removed and kicked out!"})
     except Exception as e:
         print(f"Error removing user: {e}")

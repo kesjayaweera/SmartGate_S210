@@ -312,3 +312,22 @@ def delete_alert(alert_no: int):
             cursor.close()
         if conn:
             conn.close()
+
+def add_gate(gate_no: int, gate_status: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO gates (gate_no, gate_status) 
+            VALUES (%s, %s);
+        """, (gate_no, gate_status,)) # gate_status is Open or Closed
+        conn.commit()
+
+    except Exception as e:
+        print(f"[ERROR] Failed to delete alert: {e}")
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()

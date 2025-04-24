@@ -28,15 +28,13 @@ VALUES
     ('Animal has been detected, gate closed', 'warning');
 
 -- Creating some predictable data for gates
-CREATE TYPE gate_status_enum AS ENUM ('opened', 'closed');
-CREATE TYPE gate_condition_enum AS ENUM ('unavailable', 'available');
+CREATE TYPE gate_status_enum AS ENUM ('Open', 'Closed');
 
 -- List of tables want to show for stats
 -- Table about gates
 CREATE TABLE IF NOT EXISTS gates (
-    gate_no SERIAL PRIMARY KEY,
+    gate_no INTEGER PRIMARY KEY,
     gate_status gate_status_enum, -- opened or closed
-    gate_condition gate_condition_enum,
     gate_no_opens BIGINT DEFAULT 0,
     gate_no_closes BIGINT DEFAULT 0
 );
