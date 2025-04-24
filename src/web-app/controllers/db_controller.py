@@ -283,6 +283,7 @@ def add_alert(alert_desc: str, alert_level: str) -> bool:
             VALUES (%s, %s);
         """, (alert_desc, alert_level))
         conn.commit()
+        print(f"Alert: {alert_desc} has been added sucessfully as {alert_level}")
         return True
     except Exception as e:
         print(f"[ERROR] Failed to add alert: {e}")
