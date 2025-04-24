@@ -293,3 +293,22 @@ def add_alert(alert_desc: str, alert_level: str) -> bool:
             cursor.close()
         if conn:
             conn.close()
+
+# Delete alert from db
+def delete_alert(alert_no: int):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            DELETE FROM alerts WHERE alert_no = %s;
+        """, (alert_no,))
+        conn.commit()
+        print(f"Alert no: {alert_no} has been deleted!")
+    except Exception as e:
+        print(f"[ERROR] Failed to delete alert: {e}")
+        return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
