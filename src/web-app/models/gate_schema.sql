@@ -41,11 +41,6 @@ CREATE TABLE IF NOT EXISTS gates (
     gate_no_closes BIGINT DEFAULT 0,
 );
 
-CREATE TABLE IF NOT EXISTS gate_events (
-    gate_no INTEGER NOT NULL REFERENCES gates(gate_no),
-    event_type gate_status_enum NOT NULL,
-);
-
 -- Table for the histogram about the animals (Animals vs Count)
 CREATE TABLE IF NOT EXISTS animal_name_vs_count (
     animal_name VARCHAR(255) PRIMARY KEY,
