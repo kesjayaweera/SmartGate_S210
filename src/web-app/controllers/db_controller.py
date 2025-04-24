@@ -324,8 +324,29 @@ def add_gate(gate_no: int, gate_status: str):
         conn.commit()
 
     except Exception as e:
-        print(f"[ERROR] Failed to delete alert: {e}")
+        print(f"[ERROR] Failed to add gate to db: {e}")
         return False
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+def update_gate_status(gate_no: int, gate_status: str):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        # Build dynamic SQL for incrementing the correct column
+        increment_column = "gate_no_opens" if gate_status.lower() == "Open" else "gate_no_closes"
+        cursor.execute(f"""
+            UPDATE gates
+            SET gate_status = %s,
+                {increment_column} = {increment_column} + 1
+            WHERE gate_no = %s;
+        """, (gate_status, gate_no))
+        conn.commit()
+    except Exception as e:
+        print(f"[ERROR] Failed to update gate status in db: {e}")
     finally:
         if cursor:
             cursor.close()
