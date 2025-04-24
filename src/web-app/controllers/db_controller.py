@@ -332,19 +332,36 @@ def add_gate(gate_no: int, gate_status: str):
         if conn:
             conn.close()
 
-def update_gate_status(gate_no: int, gate_status: str):
+def update_gate_status(gate_no: int, new_status: str):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        # Build dynamic SQL for incrementing the correct column
-        increment_column = "gate_no_opens" if gate_status.lower() == "Open" else "gate_no_closes"
+
+        # Get the current status
+        cursor.execute("SELECT gate_status FROM gates WHERE gate_no = %s;", (gate_no,))
+        current_status_row = cursor.fetchone()
+        if not current_status_row:
+            print(f"[ERROR] Gate {gate_no} not found.")
+            return
+
+        current_status = current_status_row[0]
+        if current_status.lower() == new_status.lower():
+            print(f"[INFO] Gate {gate_no} is already {new_status}. No update needed.")
+            return
+
+        # Determine which column to increment
+        increment_column = "gate_no_opens" if new_status.lower() == "open" else "gate_no_closes"
+
+        # Perform the update
         cursor.execute(f"""
             UPDATE gates
             SET gate_status = %s,
                 {increment_column} = {increment_column} + 1
             WHERE gate_no = %s;
-        """, (gate_status, gate_no))
+        """, (new_status, gate_no))
+        
         conn.commit()
+        print(f"[INFO] Gate {gate_no} status updated to {new_status}.")
     except Exception as e:
         print(f"[ERROR] Failed to update gate status in db: {e}")
     finally:
