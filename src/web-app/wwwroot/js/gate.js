@@ -6,6 +6,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const openBtn = feed.querySelector('.btn.open');
         const closeBtn = feed.querySelector('.btn.close');
         const statusText = feed.querySelector('.status');
+        const gateText = feed.querySelector('.feed-info span').textContent;
+        // Extract the gate number (only the number part) from the text
+        const gateNo = gateText.match(/\d+/)[0];  // This extracts just the number (e.g., '1')
+        // Extract just the status (Closed or Open) from the text content of the status element
+        const currentStatus = statusText.textContent.split(':')[1]?.trim(); // This will extract 'Closed' or 'Open'
+
+        // Function to push gate data to the DB
+        const pushGateDataToDb = async (gateNo, gateStatus) => {
+            try {
+                const response = await fetch('/add_gate_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        gate_no: gateNo,
+                        gate_status: gateStatus,
+                    }),
+                });
+                const data = await response.json();
+                console.log('Gate data pushed:', data.message);
+            } catch (error) {
+                console.error('Error pushing gate data to DB:', error);
+            }
+        };
+        
+        pushGateDataToDb(gateNo, currentStatus)
 
         // Function to update the gate status
         const updateGateStatus = (status) => {

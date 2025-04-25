@@ -5,6 +5,7 @@ from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
 from controllers.db_controller import *
 from starlette.websockets import WebSocketState
+from pydantic import BaseModel
 import json
 import asyncio
 from datetime import datetime
@@ -28,6 +29,11 @@ oauth.register(
     api_base_url="https://api.github.com",
     client_kwargs={"scope": "user:email"},
 )
+
+# Define a Pydantic model for request body validation
+class GateData(BaseModel):
+    gate_no: int
+    gate_status: str
 
 # -------------------
 # Global Variables
@@ -268,6 +274,16 @@ async def remove_selected_user(request: Request):
     except Exception as e:
         print(f"Error removing user: {e}")
         return JSONResponse({"error": "An error occurred while removing the user."}, status_code=500)
+
+@root_router.post("/add_gate_data")
+async def push_data_from_gate_to_db(gate_data: GateData):
+    gate_no = gate_data.gate_no
+    gate_status = gate_data.gate_status
+    
+    # Call the function to add gate data
+    add_gate(gate_no, gate_status)
+    
+    return JSONResponse({"message": f"Gate {gate_no} status {gate_status} added successfully"})
 
 # -------------------
 # WebSocket Route
