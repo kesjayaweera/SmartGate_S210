@@ -287,6 +287,13 @@ async def push_data_from_gate_to_db(gate_data: GateData):
     
     return JSONResponse({"message": f"Gate {gate_no} status {gate_status} added successfully"})
 
+# add data to database for opening and closing gates
+async def update_gate_data(gate_data: GateData):
+    gate_no = gate_data.gate_no
+    gate_status = gate_data.gate_status
+    update_gate_status(gate_no, gate_status)
+    return JSONResponse({"message": f"Gate {gate_no} status {gate_status} updated successfully"})
+
 # -------------------
 # WebSocket Route
 # ------------------
