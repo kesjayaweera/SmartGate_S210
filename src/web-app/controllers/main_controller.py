@@ -30,7 +30,9 @@ oauth.register(
     client_kwargs={"scope": "user:email"},
 )
 
-# Define a Pydantic model for request body validation
+# --------------------------------------------
+# Global Classes for Pushing or Sending Data
+# --------------------------------------------
 class GateData(BaseModel):
     gate_no: int
     gate_status: str
@@ -136,7 +138,7 @@ async def auth(request: Request):
     insert_user({"id": user["id"], "login": user["login"], "role_id": 1})
     mark_user_logged_in(user["login"])
     await broadcast_user_overview()
-    return RedirectResponse(url="/")
+    return RedirectResponse(url="/gates")
 
 @root_router.get("/dummy-login")
 async def dummy_login(request: Request):
@@ -149,7 +151,7 @@ async def dummy_login(request: Request):
     insert_user({"id": 9999, "login": dummy_user["username"], "role_id": 1})
     mark_user_logged_in(dummy_user["username"])
     await broadcast_user_overview()
-    return RedirectResponse(url="/")
+    return RedirectResponse(url="/gates")
 
 @root_router.get("/logout")
 async def logout(request: Request):
