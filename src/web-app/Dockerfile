@@ -1,5 +1,7 @@
-# Use the official Python Docker image
+# Use the official Python Docker image (OS: Debian)
 FROM python:3.9.21-bookworm
+
+RUN echo "alias connsgdb='psql -h postgres -U admin -d smartgatedb'" >> ~/.bashrc
 
 # Set the working directory inside the container
 WORKDIR /SmartGate
