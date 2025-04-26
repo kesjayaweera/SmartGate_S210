@@ -118,10 +118,14 @@ async def alerts(request: Request):
     alert_data = get_alert_data()
     return await render_page("alerts.html", "Alerts", request, {"alert_data": alert_data})
 
-@root_router.get("/data")
+@root_router.get("/users")
 async def data(request: Request):
     user_data = get_user_data()
-    return await render_page("data.html", "Data", request, {"user_data": user_data})
+    return await render_page("users.html", "Users", request, {"user_data": user_data})
+
+@root_router.get("/stats")
+async def stats(request: Request):
+    return await render_page("stats.html", "Stats", request)
 
 @root_router.get("/login")
 async def login(request: Request):
