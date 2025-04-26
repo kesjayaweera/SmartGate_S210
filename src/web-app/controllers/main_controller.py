@@ -9,6 +9,7 @@ from pydantic import BaseModel
 import json
 import asyncio
 from datetime import datetime
+import plotly.graph_objects as go
 
 # ------------------------
 # Router and OAuth Setup
