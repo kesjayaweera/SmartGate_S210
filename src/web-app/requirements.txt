@@ -14,3 +14,4 @@ websocket-client
 websockets
 pandas
 matplotlib
+plotly
