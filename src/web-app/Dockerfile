@@ -1,5 +1,5 @@
 # Use the official Python Docker image (OS: Debian)
-FROM python:3.9.21-bookworm
+FROM python:3.9.22-bookworm
 
 RUN echo "alias connsgdb='psql -h postgres -U admin -d smartgatedb'" >> ~/.bashrc
 
