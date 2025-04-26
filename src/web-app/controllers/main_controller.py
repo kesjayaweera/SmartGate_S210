@@ -37,6 +37,10 @@ class GateData(BaseModel):
     gate_no: int
     gate_status: str
 
+class updateGateData(BaseModel):
+    gate_no: int
+    new_status: str
+
 # -------------------
 # Global Variables
 # -------------------
@@ -289,9 +293,9 @@ async def push_data_from_gate_to_db(gate_data: GateData):
 
 # add data to database for opening and closing gates
 @root_router.post("/update_gate_data")
-async def update_gate_data(gate_no: int, new_status: str):
-    update_gate_status(gate_no, new_status)
-    return JSONResponse({"message": f"Gate {gate_no} status {new_status} updated successfully"})
+async def update_gate_data(payload: updateGateData):
+    update_gate_status(payload.gate_no, payload.new_status)
+    return JSONResponse({"message": f"Gate {payload.gate_no} status {payload.new_status} updated successfully"})
 
 # -------------------
 # WebSocket Route
