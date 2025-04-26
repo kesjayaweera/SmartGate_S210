@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         
-        pushGateDataToDb(gateNo, currentStatus)
+        pushGateDataToDb(gateNo, currentStatus)  
 
         // Function to update the gate status
         const updateGateStatus = (status) => {
@@ -48,6 +48,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeBtn.classList.add('active');
                 openBtn.classList.remove('active');
             }
+            
+            const gateNo = feed.getAttribute('data-gate-no');
+
+            // function to update gate status 
+            // Chatgpt enter here:      
+            const notifyBackendGateUpdate = async (gateNo, status) => {
+                try {
+                    const res = await fetch('/update_gate_data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            gate_no: gateNo,
+                            new_status: status,
+                        }),
+                    });
+                    const data = await res.json();
+                    console.log('Backend confirmed:', data.message);
+                } catch (error) {
+                    console.error('Backend update failed:', error);
+                }
+            };
+            notifyBackendGateUpdate(gateNo, status.charAt(0).toUpperCase() + status.slice(1));
         };
         
         // Event listener for the OPEN button
