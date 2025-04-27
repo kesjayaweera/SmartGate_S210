@@ -10,6 +10,7 @@ if (!window.socket) {
 }
 
 const socket = window.socket;
+const page = document.body.dataset.page;
 
 if (socket) {
     setupWebSocketHandlers(socket);
@@ -26,8 +27,6 @@ function setupWebSocketHandlers(socket) {
                         event: "init",
                         data: { username: data.username }
                     }));
-                    
-                    const page = document.body.dataset.page;
 
                     if (page === "user_overview") {
                         socket.send(JSON.stringify({ event: "user_overview" }));
@@ -70,7 +69,7 @@ function setupWebSocketHandlers(socket) {
                 });
         }
 
-        if (data.event === "alert_data") {
+        if (data.event === "alert_data" && page === "alerts") {
             updateAlertsTable(data.data.alert_data)
         }
     };
