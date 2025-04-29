@@ -1,4 +1,4 @@
-# Welcome to Contribute to the OpenSI-CoSMIC Project
+# Welcome to Contribute to the OpenSI-SmartGate Project
 
 ## Basic Steps for Contributing to Our Project
 
