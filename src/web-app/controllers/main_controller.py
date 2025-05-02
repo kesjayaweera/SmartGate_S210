@@ -133,6 +133,17 @@ async def login(request: Request):
     redirect_uri = request.url_for("auth")
     return await oauth.github.authorize_redirect(request, redirect_uri)
 
+@root_router.get("/health")
+async def health(request: Request):
+    try:
+        # Example: Check database connectivity
+        db_status = check_db_connection()  # Replace with your actual DB check logic
+        if not db_status:
+            return JSONResponse(content={"status": "unhealthy", "reason": "Database unavailable"}, status_code=500)
+        return JSONResponse(content={"web-status": "ok", "db-status": "ok"}, status_code=200)
+    except Exception as e:
+        return JSONResponse(content={"status": "unhealthy", "reason": str(e)}, status_code=500)
+
 @root_router.get("/auth")
 async def auth(request: Request):
     token = await oauth.github.authorize_access_token(request)

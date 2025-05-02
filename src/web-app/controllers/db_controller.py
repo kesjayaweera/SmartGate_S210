@@ -8,6 +8,23 @@ def get_db_connection():
     conn = psycopg.connect(DATABASE_URL)
     return conn
 
+# Function to check database connection
+def check_db_connection():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1;")
+        result = cursor.fetchone()
+        if result[0] == 1:
+            print("Database connection is successful!")
+            return True
+    except Exception as e:
+        print(f"Database connection failed: {e}")
+        return False
+    finally:
+        cursor.close()
+        conn.close()
+
 def insert_user(user: dict):
     try:
         conn = get_db_connection()

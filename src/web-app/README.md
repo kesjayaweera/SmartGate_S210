@@ -20,6 +20,7 @@ First, clone the SmartGate repository to your local machine.
 git clone https://github.com/ChristopherLaff/SmartGate.git
 cd SmartGate
 ```
+
 ### 2. Navigate to `src/web-app` directory
 Once you're in the `SmartGate` directory, navigate to the `src/web-app` directory.
 
@@ -27,20 +28,13 @@ Once you're in the `SmartGate` directory, navigate to the `src/web-app` director
 cd src/web-app
 ```
 ### 3. Build the docker images
-Now, Build the images using the docker-compose file in the current directory.
+Now, to run the SmartGate Web App, you need to build the images using the docker-compose file in the current directory.
 
 ```sh
 docker-compose up --build -d
 ```
 
-### (Optional) 4. Enter the sgwebimage container running
-After the image is built and running in detached mode. You can enter the container's bash shell by doing:
-
-```sh
-docker-compose exec sgwebimage bash 
-```
-
-### 5. Shutdown the docker images
+### 4. Shutdown the docker images
 Once your done testing the web application, you can remove the containers running on your machine by doing the following command:
 
 ```sh
