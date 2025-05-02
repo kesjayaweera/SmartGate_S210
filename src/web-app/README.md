@@ -8,7 +8,7 @@ This guide walks you through building the Docker images required to run the Smar
 -  Docker Compose installed (usually included with Docker Desktop or available separately). Follow the [Docker Compose Install Guide](https://docs.docker.com/compose/install/) if you can't access docker-compose.
 - Access to a terminal (Linux/macOS) or a terminal emulator like Git Bash (Windows).
 -  Git installed. You can download it from [Git Install Guides](https://github.com/git-guides/install-git)
--  Internet Access is required to download the [Python](https://hub.docker.com/layers/library/python/3.9.21-bookworm/images/sha256-5097c91412f578fe1ac80236fb00e70170aa368daae8f02daebffd3541022abb) and [Postgres](https://hub.docker.com/layers/library/postgres/13/images/sha256-dce7bae4d506b2de20fd95f62a449ae1fd24b5d82f75e58246237becd9ff1c5d) images from Docker Hub (written in `docker-compose.yml` file).
+-  Internet Access is required to download the images from Docker Hub (written in `docker-compose.yml` file).
 
 ## Steps
 
@@ -16,41 +16,36 @@ This guide walks you through building the Docker images required to run the Smar
 
 First, clone the SmartGate repository to your local machine.
 
-```bash
+```sh
 git clone https://github.com/ChristopherLaff/SmartGate.git
 cd SmartGate
 ```
 ### 2. Navigate to `src/web-app` directory
 Once you're in the `SmartGate` directory, navigate to the `src/web-app` directory.
 
-```bash
+```sh
 cd src/web-app
 ```
 ### 3. Build the docker images
 Now, Build the images using the docker-compose file in the current directory.
 
-```bash
-docker-compose up --build
+```sh
+docker-compose up --build -d
 ```
 
-This will build and start the containers in attached mode, meaning they will run in the foreground.
-
-### 4. Open New Terminal & Navigate to web-app folder
-
-Once its finished building, enter into a new terminal and navigate to web-app.
-```bash
-cd src/web-app
-```
-
-### 5. Run the image as a docker container
+### (Optional) 4. Enter the sgwebimage container running
 After the image is built and running in detached mode. You can enter the container's bash shell by doing:
 
-```bash
+```sh
 docker-compose exec sgwebimage bash 
 ```
-You can use `docker-compose exec sgwebimage` whether the container is running in **attached** or **detached** mode.
 
-In attached mode, be sure to type in that command in a **different terminal** to interact with the container as needed. **Note**: When opening another terminal, make sure you're in `cd src/web-app`.
+### 5. Shutdown the docker images
+Once your done testing the web application, you can remove the containers running on your machine by doing the following command:
+
+```sh
+docker-compose down --volumes
+```
 
 ## SmartGate Web App Commands
 
