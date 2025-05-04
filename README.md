@@ -11,6 +11,7 @@
 - [Usage](#usage)
 - [Contact](#contact)
 - [Contributing](#contributing)
+- [Web App README](src/web-app/README.md)
 
 Utilizing real-time object detection for endangered animal species under the Jetson Nano using TensorRT engine optimization. This detection model will be used to determine the state of the hardware-configured gate.
 
