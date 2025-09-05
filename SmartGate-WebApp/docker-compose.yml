@@ -1,0 +1,56 @@
+networks:
+  smartgate-webapp:
+    driver: bridge
+
+services:
+  smartgate-webapp:
+    build: . 
+    container_name: smartgate-webapp
+    ports:
+      - "8000:8000"  # Expose web app on port 8000
+    environment:
+      - DATABASE_URL=postgresql://admin:smartgate@postgres:5432/smartgatedb
+      - ENV=production
+      - WEBAPP_HOST=0.0.0.0
+      - WEBAPP_PORT=8000
+    depends_on:
+      - postgres
+    stdin_open: true  # Keep STDIN open for interactive mode
+    tty: true         # Allocate a pseudo-TTY
+    volumes:
+      - .:/SmartGate-WebApp
+    networks:
+      - smartgate-webapp
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: postgres:13 
+    container_name: smartgate-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: smartgate
+      POSTGRES_DB: smartgatedb
+    volumes:
+      - smartgate-webapp-data:/var/lib/postgresql/data
+      - ./models/user_schema.sql:/docker-entrypoint-initdb.d/user_schema.sql
+      - ./models/gate_schema.sql:/docker-entrypoint-initdb.d/gate_schema.sql
+    networks:
+      - smartgate-webapp
+    ports:
+      - "5432:5432"  # Expose PostgreSQL port 5432
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d smartgatedb -h localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  smartgate-webapp-data:
