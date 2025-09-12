@@ -4,6 +4,7 @@ Simple SmartGate Connection Test Script
 - Connects to EC2 web app /test endpoint
 - WebApp will wait 30 seconds then send gate open request back
 - SmartGate HTTP server must be running to receive the gate open command
+
 """
 
 import requests
@@ -108,7 +109,7 @@ def main():
     print("=" * 60)
     
     # Configuration
-    EC2_IP = "192.168.0.1"  # Replace with actual EC2 IP
+    EC2_IP = "3.27.77.237"  # Replace with EC2 IP
     EC2_PORT = 8000
     LOCAL_PORT = 8000
     
