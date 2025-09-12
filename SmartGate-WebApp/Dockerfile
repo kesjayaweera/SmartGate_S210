@@ -10,28 +10,43 @@ LABEL version="1.0"
 # Set the working directory inside the container
 WORKDIR /SmartGate-WebApp
 
-# Copy requirements first for better Docker layer caching
-COPY requirements.txt /SmartGate-WebApp/
+# Update package lists and install system dependencies
+# Split into separate RUN commands for better error handling
+RUN apt-get update
 
-# Update, upgrade and install system dependencies
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y \
-        curl \
-        sudo \
-        nano \
-        libdbus-1-dev \
-        neofetch \
-        postgresql-client \
-        openssh-client \
-        neovim && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y --no-install-recommends \
+    curl \
+    sudo \
+    nano \
+    libdbus-1-dev \
+    libpq-dev \
+    postgresql-client \
+    openssh-client \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install the required Python packages from the requirements.txt file
-RUN pip install --no-cache-dir -r /SmartGate-WebApp/requirements.txt
+# Install the required Python packages directly
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+        authlib \
+        dbus-python \
+        python-dotenv \
+        fastapi \
+        flask \
+        h11 \
+        httpx \
+        jinja2 \
+        psycopg \
+        requests \
+        starlette \
+        uvicorn \
+        websocket-client \
+        websockets \
+        pandas \
+        matplotlib \
+        plotly
 
-# Copy the rest of the application code to the container
+# Copy the application code to the container
 COPY . /SmartGate-WebApp/
 
 # Create a non-root user for security
