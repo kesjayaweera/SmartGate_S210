@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartGate Test Control</title>
+</head>
+<body>
+    <h1>SmartGate Test Control Panel</h1>
+    <p>Remote gate control and monitoring system</p>
+
+    <div id="statusBox">
+        <div id="statusMessage">
+            Waiting for connection from SmartGate device...
+        </div>
+    </div>
+
+    <h3>Camera Feed</h3>
+    <div id="cameraFeed">
+        <div>Camera Feed</div>
+        <div>No requests received</div>
+    </div>
+    
+    <h3>Gate Controls</h3>
+    <div>
+        <button id="openBtn" onclick="sendCommand('OPEN_DOOR')">
+            Open Gate
+        </button>
+        <button id="closeBtn" onclick="sendCommand('CLOSE_DOOR')">
+            Close Gate
+        </button>
+        <button id="stopBtn" onclick="sendCommand('STOP_DOOR')">
+            Stop Gate
+        </button>
+    </div>
+    
+    <h3>Connection Status</h3>
+    <div id="connectionInfo">
+        <div>SmartGate IP: <span id="gateIP">Not connected</span></div>
+        <div>Last Activity: <span id="lastActivity">Never</span></div>
+        <div>Status: <span id="connectionStatus">Disconnected</span></div>
+    </div>
+
+    <script>
+        let smartGateIP = null;
+        let isConnected = false;
+
+        // Update status message
+        function updateStatus(message, type = 'info') {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = message;
+        }
+
+        // Display error on screen
+        function displayError(error) {
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.textContent = `ERROR: ${error}`;
+        }
+
+        // Update connection info
+        function updateConnectionInfo(ip, status) {
+            document.getElementById('gateIP').textContent = ip || 'Not connected';
+            document.getElementById('connectionStatus').textContent = status;
+            document.getElementById('lastActivity').textContent = new Date().toLocaleString();
+        }
+
+        // Send command to SmartGate
+        async function sendCommand(command) {
+            if (!smartGateIP) {
+                displayError('No SmartGate device connected!');
+                return;
+            }
+
+            // Disable buttons temporarily
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            updateStatus(`Sending ${command.toLowerCase().replace('_', ' ')} request to gate...`);
+
+            try {
+                const response = await fetch(`http://${smartGateIP}:8000/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ command: command })
+                });
+
+                if (response.ok) {
+                    updateStatus(`Successfully sent ${command.toLowerCase().replace('_', ' ')} command!`);
+                } else {
+                    displayError(`Failed to send command. HTTP ${response.status}`);
+                }
+            } catch (error) {
+                displayError(`Error sending command: ${error.message}`);
+            } finally {
+                // Re-enable buttons after 2 seconds
+                setTimeout(() => {
+                    buttons.forEach(btn => btn.disabled = false);
+                }, 2000);
+            }
+        }
+
+        // Request camera stream from SmartGate device
+        async function requestCameraStream() {
+            if (!smartGateIP) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`http://${smartGateIP}:8000/stream`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    document.getElementById('cameraFeed').innerHTML = `
+                        <div>Camera Feed</div>
+                        <div>Camera stream active</div>
+                    `;
+                } else {
+                    document.getElementById('cameraFeed').innerHTML = `
+                        <div>Camera Feed</div>
+                        <div>No requests received</div>
+                    `;
+                    displayError(`Camera stream failed: HTTP ${response.status}`);
+                }
+            } catch (error) {
+                document.getElementById('cameraFeed').innerHTML = `
+                    <div>Camera Feed</div>
+                    <div>No requests received</div>
+                `;
+                displayError(`Camera stream error: ${error.message}`);
+            }
+        }
+
+        // Handle page load - check if we have a SmartGate IP from URL params
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const gateIP = urlParams.get('gate_ip');
+            
+            if (gateIP) {
+                smartGateIP = gateIP;
+                isConnected = true;
+                updateStatus(`SmartGate device connected from IP: ${gateIP}`);
+                updateConnectionInfo(gateIP, 'Connected');
+                
+                // Request camera stream after connection
+                requestCameraStream();
+            } else {
+                updateStatus('Waiting for connection from SmartGate device...');
+                updateConnectionInfo(null, 'Disconnected');
+            }
+        };
+
+    </script>
+</body>
+</html>

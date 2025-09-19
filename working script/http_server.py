@@ -92,32 +92,18 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-        
-        print(f"[+] POST request received from: {self.client_address[0]}")
-        print(f"[+] Request path: {self.path}")
-        print(f"[+] Content length: {content_length}")
-        print(f"[+] Raw POST data: {post_data.decode('utf-8')}")
 
         try:
             data = json.loads(post_data.decode('utf-8'))
             command = data.get('command')
-            
-            print(f"[+] Parsed command: {command}")
-            print(f"[+] Full request data: {data}")
 
-            if command in ['OPEN_DOOR', 'CLOSE_DOOR', 'STOP_DOOR']:
-                print(f"[+] Valid command received: {command}")
+            if command in ['OPEN_DOOR', 'CLOSE_DOOR']:
                 command_queue.put(command)
-                print(f"[+] Command {command} added to queue")
-                
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()
-                response_data = {"status": "success", "message": f"Command {command} received"}
-                print(f"[+] Sending response: {response_data}")
-                self.wfile.write(json.dumps(response_data).encode('utf-8'))
+                self.wfile.write(json.dumps({"status": "success", "message": f"Command {command} received"}).encode('utf-8'))
             else:
-                print(f"[-] Invalid command received: {command}")
                 self.send_response(400)
                 self.send_header('Content-type', 'application/json')
                 self.end_headers()

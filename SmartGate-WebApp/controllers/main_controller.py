@@ -47,6 +47,7 @@ class updateGateData(BaseModel):
 # -------------------
 session_initialised = False
 websocket_state = {}
+smartgate_ip = None
 
 # ------------------------------------
 # Decorator Functions (if necessary)
@@ -210,64 +211,33 @@ async def check_permission_api(username: str, perm_name: str):
 
 @root_router.get("/test")
 async def test_endpoint(request: Request):
-    """Test endpoint that logs origin IP, waits 30s, then sends gate open request back"""
-    client_ip = request.client.host
+    """Test endpoint that serves the control panel webpage"""
+    # ========================================
+    # EC2 IP TRACKING - This is where the EC2 tracks the SmartGate IP
+    # ========================================
+    client_ip = request.client.host  # Gets the IP of the device making the request
     
-    # Log the request
+    # Log the request details
     print(f"[+] Test endpoint accessed from IP: {client_ip}")
-    print(f"[+] Connection test successful! Starting 30-second timer...")
+    print(f"[+] Request method: {request.method}")
+    print(f"[+] Request URL: {request.url}")
+    print(f"[+] Request headers: {dict(request.headers)}")
+    print(f"[+] Serving control panel to SmartGate device")
     
-    # Start background task to send gate open request after 30 seconds
-    import asyncio
-    asyncio.create_task(send_gate_open_after_delay(client_ip))
+    # Store the SmartGate IP for later use (this is the tracked IP)
+    global smartgate_ip
+    smartgate_ip = client_ip  # This global variable stores the SmartGate device IP
     
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "test endpoint working - gate will open in 30 seconds",
-            "client_ip": client_ip,
-            "timestamp": datetime.now().isoformat()
-        }
-    )
+    print(f"[+] SmartGate IP stored: {smartgate_ip}")
+    print(f"[+] Control panel will be available for remote gate control")
+    
+    # Serve the test control panel HTML page
+    return pages.TemplateResponse("test.html", {
+        "request": request,
+        "gate_ip": client_ip,  # Pass the tracked IP to the webpage
+        "timestamp": datetime.now().isoformat()
+    })
 
-async def send_gate_open_after_delay(smartgate_ip: str):
-    """Wait 30 seconds then send gate open request to SmartGate device"""
-    import asyncio
-    import httpx
-    
-    print(f"[+] Waiting 30 seconds before sending gate open request...")
-    
-    # Countdown timer
-    for i in range(30, 0, -1):
-        print(f"[+] Sending gate open request in {i} seconds...", end='\r')
-        await asyncio.sleep(1)
-    
-    print(f"\n[+] Sending gate open request to SmartGate device...")
-    print(f"[+] Target IP: {smartgate_ip}:8000")
-    
-    try:
-        # Send POST request to SmartGate device
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.post(
-                f"http://{smartgate_ip}:8000/",
-                json={"command": "OPEN_DOOR"},
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                print(f"[+] SUCCESS: Gate open command sent to SmartGate!")
-                print(f"[+] Response: {response.text}")
-            else:
-                print(f"[-] FAILED: SmartGate returned HTTP {response.status_code}")
-                print(f"[-] Response: {response.text}")
-                
-    except httpx.ConnectError:
-        print(f"[-] FAILED: Could not connect to SmartGate at {smartgate_ip}:8000")
-        print(f"[-] Make sure the SmartGate device is running and accessible")
-    except httpx.TimeoutException:
-        print(f"[-] FAILED: SmartGate connection timeout (10 seconds)")
-    except Exception as e:
-        print(f"[-] FAILED: Unexpected error: {str(e)}")
 
 # ---------------------------------
 # Broadcasting Live Data Functions

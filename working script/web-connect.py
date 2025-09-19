@@ -13,7 +13,7 @@ import threading
 import time
 import subprocess
 import os
-from door_control import DoorController
+from doorTest import openDoor, closeDoor, initDoor
 from http_server import Initialize_Server, Fetch_Queued_Command
 
 class SmartGateConnector:
@@ -25,8 +25,8 @@ class SmartGateConnector:
 		self.local_port = local_port
 		self.ec2_base_url = "http://{}:{}".format(ec2_ip, ec2_port)
 		
-		# Initialize door controller
-		self.door_controller = DoorController()
+		# Initialize door functions (from doorTest.py)
+		initDoor()
 		
 		# Initialize HTTP server
 		server_config = {'port': local_port}
@@ -35,7 +35,7 @@ class SmartGateConnector:
 		print("[+] SmartGate Connector initialized")
 		print("[+] EC2 Target: {}".format(self.ec2_base_url))
 		print("[+] Local HTTP Server: localhost:{}".format(local_port))
-		print("[+] Door controller ready")
+		print("[+] Door functions ready (openDoor, closeDoor)")
 		print("[+] Manual WiFi connection required - connect via GUI")
 	
 	def check_internet_connection(self):
@@ -108,17 +108,19 @@ class SmartGateConnector:
 					if command == 'OPEN_DOOR':
 						print("[+] Executing OPEN_DOOR command...")
 						print("[+] Opening gate...")
-						self.door_controller.open_door()
+						openDoor()
 						print("[+] Gate opening started")
 					elif command == 'CLOSE_DOOR':
 						print("[+] Executing CLOSE_DOOR command...")
 						print("[+] Closing gate...")
-						self.door_controller.close_door()
+						closeDoor()
 						print("[+] Gate closing started")
 					elif command == 'STOP_DOOR':
 						print("[+] Executing STOP_DOOR command...")
 						print("[+] Stopping gate...")
-						self.door_controller.stop_door()
+						# Import ioControl for cleanup
+						import ioControl as io
+						io.allPinsOff()
 						print("[+] Gate stopped")
 				
 				time.sleep(0.1)  # Small delay to prevent excessive CPU usage
@@ -133,7 +135,10 @@ class SmartGateConnector:
 	def cleanup(self):
 		"""Cleanup GPIO and pins when exiting"""
 		print("[+] Cleaning up...")
-		self.door_controller.cleanup()
+		import ioControl as io
+		import Jetson.GPIO as GPIO
+		io.allPinsOff()
+		GPIO.cleanup()
 		print("[+] Cleanup complete")
 
 def main():
