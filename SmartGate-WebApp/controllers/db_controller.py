@@ -10,6 +10,8 @@ def get_db_connection():
 
 # Function to check database connection
 def check_db_connection():
+    conn = None
+    cursor = None
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -22,8 +24,10 @@ def check_db_connection():
         print(f"Database connection failed: {e}")
         return False
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
 def insert_user(user: dict):
     try:
