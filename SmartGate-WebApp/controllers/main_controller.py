@@ -48,6 +48,7 @@ class updateGateData(BaseModel):
 session_initialised = False
 websocket_state = {}
 smartgate_ip = None
+connected_devices = {}  # Store all connected devices with timestamps
 
 # ------------------------------------
 # Decorator Functions (if necessary)
@@ -209,34 +210,65 @@ async def check_permission_api(username: str, perm_name: str):
     return JSONResponse(content={"allowed": allowed})
 
 
-@root_router.get("/test")
-async def test_endpoint(request: Request):
-    """Test endpoint that serves the control panel webpage"""
+@root_router.get("/web-connect")
+async def web_connect_endpoint(request: Request):
+    """Web-connect endpoint that serves the control panel webpage"""
     # ========================================
     # EC2 IP TRACKING - This is where the EC2 tracks the SmartGate IP
     # ========================================
     client_ip = request.client.host  # Gets the IP of the device making the request
     
     # Log the request details
-    print(f"[+] Test endpoint accessed from IP: {client_ip}")
+    print(f"[+] Web-connect endpoint accessed from IP: {client_ip}")
     print(f"[+] Request method: {request.method}")
     print(f"[+] Request URL: {request.url}")
     print(f"[+] Request headers: {dict(request.headers)}")
-    print(f"[+] Serving control panel to SmartGate device")
     
     # Store the SmartGate IP for later use (this is the tracked IP)
-    global smartgate_ip
+    global smartgate_ip, connected_devices
     smartgate_ip = client_ip  # This global variable stores the SmartGate device IP
     
+    # Add to connected devices list with timestamp
+    connected_devices[client_ip] = {
+        "ip": client_ip,
+        "last_seen": datetime.now().isoformat(),
+        "status": "connected"
+    }
+    
     print(f"[+] SmartGate IP stored: {smartgate_ip}")
+    print(f"[+] Connected devices: {list(connected_devices.keys())}")
     print(f"[+] Control panel will be available for remote gate control")
     
     # Serve the test control panel HTML page
     return pages.TemplateResponse("test.html", {
         "request": request,
-        "gate_ip": client_ip,  # Pass the tracked IP to the webpage
+        "gate_ip": smartgate_ip,  # Pass the tracked SmartGate IP to the webpage
+        "connected_devices": connected_devices,  # Pass all connected devices
         "timestamp": datetime.now().isoformat()
     })
+
+@root_router.get("/api/connected-devices")
+async def get_connected_devices():
+    """API endpoint to get list of connected devices"""
+    global connected_devices
+    return JSONResponse({
+        "devices": connected_devices,
+        "count": len(connected_devices)
+    })
+
+@root_router.post("/api/select-device")
+async def select_device(request: Request):
+    """API endpoint to select which device to send commands to"""
+    global smartgate_ip
+    data = await request.json()
+    selected_ip = data.get("ip")
+    
+    if selected_ip in connected_devices:
+        smartgate_ip = selected_ip
+        print(f"[+] Selected device changed to: {smartgate_ip}")
+        return JSONResponse({"status": "success", "selected_ip": smartgate_ip})
+    else:
+        return JSONResponse({"status": "error", "message": "Device not found"}, status_code=404)
 
 
 # ---------------------------------

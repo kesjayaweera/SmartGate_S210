@@ -32,13 +32,37 @@
         <button id="stopBtn" onclick="sendCommand('STOP_DOOR')">
             Stop Gate
         </button>
+        <button id="clearBtn" onclick="clearGate()" style="background-color: #ff6b6b; color: white;">
+            Clear Gate
+        </button>
     </div>
     
-    <h3>Connection Status</h3>
-    <div id="connectionInfo">
-        <div>SmartGate IP: <span id="gateIP">Not connected</span></div>
+    <h3>Connected Devices</h3>
+    <div id="connectedDevices">
+        <div>Select Device: 
+            <select id="deviceSelector" onchange="selectDevice()">
+                <option value="">No devices connected</option>
+            </select>
+            <button onclick="refreshDevices()">Refresh</button>
+        </div>
+        <div>Selected Device: <span id="selectedDevice">None</span></div>
         <div>Last Activity: <span id="lastActivity">Never</span></div>
         <div>Status: <span id="connectionStatus">Disconnected</span></div>
+    </div>
+
+    <h3>Connected IPs Log</h3>
+    <div id="connectedIPsLog">
+        <div>All Connected IPs:</div>
+        <div id="allConnectedIPs">Loading...</div>
+        <button onclick="refreshDevices()">Refresh IP List</button>
+    </div>
+
+    <h3>Request Log</h3>
+    <div id="requestLog">
+        <div>Last POST Request:</div>
+        <div id="lastRequest">No requests sent yet</div>
+        <div>Last Response:</div>
+        <div id="lastResponse">No responses received yet</div>
     </div>
 
     <script>
@@ -55,6 +79,30 @@
         function displayError(error) {
             const statusMessage = document.getElementById('statusMessage');
             statusMessage.textContent = `ERROR: ${error}`;
+        }
+
+        // Update request log on screen
+        function updateRequestLog(requestInfo, responseInfo) {
+            const lastRequestElement = document.getElementById('lastRequest');
+            const lastResponseElement = document.getElementById('lastResponse');
+            
+            if (lastRequestElement && requestInfo) {
+                lastRequestElement.innerHTML = `
+                    <div><strong>Target IP:</strong> ${requestInfo.targetIP}</div>
+                    <div><strong>URL:</strong> ${requestInfo.url}</div>
+                    <div><strong>Command:</strong> ${requestInfo.command}</div>
+                    <div><strong>Data:</strong> ${requestInfo.data}</div>
+                    <div><strong>Time:</strong> ${new Date().toLocaleTimeString()}</div>
+                `;
+            }
+            
+            if (lastResponseElement && responseInfo) {
+                lastResponseElement.innerHTML = `
+                    <div><strong>Status:</strong> ${responseInfo.status}</div>
+                    <div><strong>Response:</strong> ${responseInfo.data}</div>
+                    <div><strong>Time:</strong> ${new Date().toLocaleTimeString()}</div>
+                `;
+            }
         }
 
         // Update connection info
@@ -77,22 +125,73 @@
 
             updateStatus(`Sending ${command.toLowerCase().replace('_', ' ')} request to gate...`);
 
+            // Log the request details
+            const requestUrl = `http://${smartGateIP}:8001/`;
+            const requestData = { command: command };
+            
+            // Prepare request info for screen display
+            const requestInfo = {
+                targetIP: smartGateIP,
+                url: requestUrl,
+                command: command,
+                data: JSON.stringify(requestData)
+            };
+            
+            console.log(`[+] WebApp sending POST request:`);
+            console.log(`    Target IP: ${smartGateIP}`);
+            console.log(`    Request URL: ${requestUrl}`);
+            console.log(`    Command: ${command}`);
+            console.log(`    Request Data: ${JSON.stringify(requestData)}`);
+
             try {
-                const response = await fetch(`http://${smartGateIP}:8000/`, {
+                const response = await fetch(requestUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ command: command })
+                    body: JSON.stringify(requestData)
                 });
 
+                console.log(`[+] WebApp received response:`);
+                console.log(`    Status: ${response.status} ${response.statusText}`);
+                console.log(`    Response Headers: ${JSON.stringify(Object.fromEntries(response.headers))}`);
+
                 if (response.ok) {
+                    const responseData = await response.json();
+                    console.log(`    Response Data: ${JSON.stringify(responseData)}`);
+                    
+                    // Update screen with request and response info
+                    const responseInfo = {
+                        status: `${response.status} ${response.statusText}`,
+                        data: JSON.stringify(responseData)
+                    };
+                    updateRequestLog(requestInfo, responseInfo);
+                    
                     updateStatus(`Successfully sent ${command.toLowerCase().replace('_', ' ')} command!`);
                 } else {
+                    console.log(`    Error Response: ${response.status} ${response.statusText}`);
+                    
+                    // Update screen with request and error response
+                    const responseInfo = {
+                        status: `${response.status} ${response.statusText}`,
+                        data: `Error: ${response.statusText}`
+                    };
+                    updateRequestLog(requestInfo, responseInfo);
+                    
                     displayError(`Failed to send command. HTTP ${response.status}`);
                 }
             } catch (error) {
-                displayError(`Error sending command: ${error.message}`);
+                console.log(`[-] WebApp request failed:`);
+                console.log(`    Error: ${error.message}`);
+                
+                // Update screen with request and error info
+                const responseInfo = {
+                    status: 'Send Failed',
+                    data: `Failed to send: ${error.message}`
+                };
+                updateRequestLog(requestInfo, responseInfo);
+                
+                displayError(`Failed to send command: ${error.message}`);
             } finally {
                 // Re-enable buttons after 2 seconds
                 setTimeout(() => {
@@ -107,22 +206,34 @@
                 return;
             }
             
+            const streamUrl = `http://${smartGateIP}:8000/stream`;
+            
+            console.log(`[+] WebApp requesting camera stream:`);
+            console.log(`    Target IP: ${smartGateIP}`);
+            console.log(`    Stream URL: ${streamUrl}`);
+            
             try {
-                const response = await fetch(`http://${smartGateIP}:8000/stream`, {
+                const response = await fetch(streamUrl, {
                     method: 'GET',
                     timeout: 5000
                 });
+                
+                console.log(`[+] WebApp camera stream response:`);
+                console.log(`    Status: ${response.status} ${response.statusText}`);
+                console.log(`    Response Headers: ${JSON.stringify(Object.fromEntries(response.headers))}`);
                 
                 if (response.ok) {
                     document.getElementById('cameraFeed').innerHTML = `
                         <div>Camera Feed</div>
                         <div>Camera stream active</div>
                     `;
+                    console.log(`    Camera stream request successful`);
                 } else {
                     document.getElementById('cameraFeed').innerHTML = `
                         <div>Camera Feed</div>
                         <div>No requests received</div>
                     `;
+                    console.log(`    Camera stream request failed: HTTP ${response.status}`);
                     displayError(`Camera stream failed: HTTP ${response.status}`);
                 }
             } catch (error) {
@@ -130,20 +241,194 @@
                     <div>Camera Feed</div>
                     <div>No requests received</div>
                 `;
+                console.log(`[-] WebApp camera stream error:`);
+                console.log(`    Error: ${error.message}`);
                 displayError(`Camera stream error: ${error.message}`);
             }
         }
 
+        // Clear gate connection and reset to listening state
+        function clearGate() {
+            // Reset connection variables
+            smartGateIP = null;
+            isConnected = false;
+            
+            // Update status message
+            updateStatus('Gate connection cleared. Waiting for new connection from SmartGate device...');
+            
+            // Reset connection info
+            updateConnectionInfo(null, 'Disconnected');
+            
+            // Reset camera feed
+            document.getElementById('cameraFeed').innerHTML = `
+                <div>Camera Feed</div>
+                <div>No requests received</div>
+            `;
+            
+            // Clear URL parameters to remove gate_ip
+            const url = new URL(window.location);
+            url.searchParams.delete('gate_ip');
+            window.history.replaceState({}, '', url);
+            
+            console.log('[+] Gate connection cleared - ready for new connections');
+        }
+
+        // Refresh connected devices list
+        async function refreshDevices() {
+            try {
+                const response = await fetch('/api/connected-devices');
+                const data = await response.json();
+                
+                const selector = document.getElementById('deviceSelector');
+                if (!selector) {
+                    console.error('[-] Device selector not found in refreshDevices');
+                    displayError('Device selector not found');
+                    return;
+                }
+                
+                const allConnectedIPsElement = document.getElementById('allConnectedIPs');
+                
+                selector.innerHTML = '<option value="">No devices connected</option>';
+                
+                if (data.count > 0) {
+                    let ipLogHTML = '';
+                    
+                    for (const [ip, device] of Object.entries(data.devices)) {
+                        const option = document.createElement('option');
+                        option.value = ip;
+                        option.textContent = `${ip} (${device.last_seen})`;
+                        if (ip === smartGateIP) {
+                            option.selected = true;
+                        }
+                        selector.appendChild(option);
+                        
+                        // Add to IP log
+                        const lastSeenTime = new Date(device.last_seen).toLocaleString();
+                        ipLogHTML += `
+                            <div style="margin: 5px 0; padding: 5px; border: 1px solid #ccc; background-color: #f9f9f9;">
+                                <strong>IP:</strong> ${ip}<br>
+                                <strong>Last Seen:</strong> ${lastSeenTime}<br>
+                                <strong>Status:</strong> ${device.status}
+                            </div>
+                        `;
+                    }
+                    
+                    if (allConnectedIPsElement) {
+                        allConnectedIPsElement.innerHTML = ipLogHTML;
+                    }
+                } else {
+                    if (allConnectedIPsElement) {
+                        allConnectedIPsElement.innerHTML = '<div style="color: #666;">No devices connected</div>';
+                    }
+                }
+                
+                console.log(`[+] Refreshed devices: ${data.count} connected`);
+            } catch (error) {
+                console.error('[-] Error refreshing devices:', error);
+                displayError(`Error refreshing devices: ${error.message}`);
+            }
+        }
+
+        // Select a device to send commands to
+        async function selectDevice() {
+            const selector = document.getElementById('deviceSelector');
+            const selectedDeviceElement = document.getElementById('selectedDevice');
+            
+            if (!selector) {
+                console.error('[-] Device selector not found');
+                displayError('Device selector not found');
+                return;
+            }
+            
+            if (!selectedDeviceElement) {
+                console.error('[-] Selected device element not found');
+                displayError('Selected device element not found');
+                return;
+            }
+            
+            const selectedIP = selector.value;
+            
+            if (!selectedIP) {
+                smartGateIP = null;
+                selectedDeviceElement.textContent = 'None';
+                updateConnectionInfo(null, 'Disconnected');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/select-device', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ip: selectedIP })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    smartGateIP = selectedIP;
+                    selectedDeviceElement.textContent = selectedIP;
+                    updateConnectionInfo(selectedIP, 'Connected');
+                    updateStatus(`Selected device: ${selectedIP}`);
+                    
+                    // Request camera stream for selected device
+                    requestCameraStream();
+                    
+                    console.log(`[+] Device selected: ${selectedIP}`);
+                } else {
+                    displayError(`Failed to select device: ${data.message}`);
+                }
+            } catch (error) {
+                console.error('[-] Error selecting device:', error);
+                displayError(`Error selecting device: ${error.message}`);
+            }
+        }
+
+        // Debug function to check if all elements exist
+        function debugElements() {
+            const elements = [
+                'deviceSelector',
+                'selectedDevice', 
+                'lastActivity',
+                'connectionStatus',
+                'statusMessage',
+                'cameraFeed'
+            ];
+            
+            console.log('[DEBUG] Checking elements:');
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                console.log(`  ${id}: ${element ? 'FOUND' : 'NOT FOUND'}`);
+                if (element) {
+                    console.log(`    Current content: "${element.textContent || element.innerHTML}"`);
+                }
+            });
+        }
+
         // Handle page load - check if we have a SmartGate IP from URL params
         window.onload = function() {
+            // Debug elements first
+            debugElements();
+            
             const urlParams = new URLSearchParams(window.location.search);
             const gateIP = urlParams.get('gate_ip');
+            
+            // Refresh connected devices list
+            refreshDevices();
             
             if (gateIP) {
                 smartGateIP = gateIP;
                 isConnected = true;
                 updateStatus(`SmartGate device connected from IP: ${gateIP}`);
                 updateConnectionInfo(gateIP, 'Connected');
+                
+                const selectedDeviceElement = document.getElementById('selectedDevice');
+                if (selectedDeviceElement) {
+                    selectedDeviceElement.textContent = gateIP;
+                } else {
+                    console.error('[-] selectedDevice element not found on page load');
+                }
                 
                 // Request camera stream after connection
                 requestCameraStream();
