@@ -168,5 +168,84 @@
         background-color: red;
         color: white;
     }
+
+    /* Emergency Stop Button */
+    .emergency-stop {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 20px auto;
+        display: block;
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .emergency-stop:hover {
+        background-color: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(220, 53, 69, 0.4);
+    }
+
+    .emergency-stop:active {
+        transform: translateY(0);
+    }
+
+    /* Operation Status Indicator */
+    .operation-status {
+        font-size: 12px;
+        font-weight: bold;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin-top: 5px;
+        display: inline-block;
+    }
+
+    .operation-status.idle {
+        background-color: #e9ecef;
+        color: #6c757d;
+    }
+
+    .operation-status.executing {
+        background-color: #fff3cd;
+        color: #856404;
+        animation: pulse 1.5s infinite;
+    }
+
+    .operation-status.completed {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .operation-status.failed {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .operation-status.cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .operation-status.emergency {
+        background-color: #dc3545;
+        color: white;
+        animation: blink 1s infinite;
+    }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0.3; }
+    }
 </style>
 {% endblock %}

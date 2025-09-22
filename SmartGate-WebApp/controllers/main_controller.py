@@ -4,8 +4,10 @@ from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from authlib.integrations.starlette_client import OAuth
 from pathlib import Path
 from controllers.db_controller import *
+from controllers.command_controller import command_manager, CommandType
 from starlette.websockets import WebSocketState
 from pydantic import BaseModel
+from typing import Optional
 import json
 import asyncio
 from datetime import datetime
@@ -41,6 +43,11 @@ class GateData(BaseModel):
 class updateGateData(BaseModel):
     gate_no: int
     new_status: str
+
+class CommandRequest(BaseModel):
+    command_type: str
+    gate_no: Optional[int] = None
+    priority: int = 1
 
 # -------------------
 # Global Variables
@@ -344,6 +351,95 @@ async def push_data_from_gate_to_db(gate_data: GateData):
 async def update_gate_data(payload: updateGateData):
     update_gate_status(payload.gate_no, payload.new_status)
     return JSONResponse({"message": f"Gate {payload.gate_no} status {payload.new_status} updated successfully"})
+
+# Command execution endpoints
+@root_router.post("/execute_command")
+async def execute_command(request: Request, command_req: CommandRequest):
+    """Execute a command through the command manager"""
+    try:
+        user = await get_user_from_session(request)
+        if not user:
+            return JSONResponse({"error": "Not logged in"}, status_code=401)
+        
+        user_id = user["username"]
+        
+        # Convert string to CommandType enum
+        try:
+            cmd_type = CommandType(command_req.command_type)
+        except ValueError:
+            return JSONResponse({"error": f"Invalid command type: {command_req.command_type}"}, status_code=400)
+        
+        # Add command to queue
+        command_id = await command_manager.add_command(
+            cmd_type, 
+            command_req.gate_no, 
+            user_id, 
+            command_req.priority
+        )
+        
+        return JSONResponse({
+            "message": "Command submitted successfully",
+            "command_id": command_id,
+            "command_type": command_req.command_type,
+            "gate_no": command_req.gate_no
+        })
+        
+    except Exception as e:
+        return JSONResponse({"error": f"Failed to execute command: {str(e)}"}, status_code=500)
+
+@root_router.post("/emergency_stop")
+async def emergency_stop(request: Request):
+    """Activate emergency stop"""
+    try:
+        user = await get_user_from_session(request)
+        if not user:
+            return JSONResponse({"error": "Not logged in"}, status_code=401)
+        
+        user_id = user["username"]
+        
+        # Add emergency stop command
+        command_id = await command_manager.add_command(
+            CommandType.EMERGENCY_STOP, 
+            None, 
+            user_id, 
+            priority=0
+        )
+        
+        return JSONResponse({
+            "message": "Emergency stop activated",
+            "command_id": command_id
+        })
+        
+    except Exception as e:
+        return JSONResponse({"error": f"Failed to activate emergency stop: {str(e)}"}, status_code=500)
+
+@root_router.get("/command_status/{command_id}")
+async def get_command_status(command_id: str):
+    """Get status of a specific command"""
+    try:
+        command = command_manager.get_command_status(command_id)
+        if command:
+            return JSONResponse({
+                "command_id": command.command_id,
+                "command_type": command.command_type.value,
+                "gate_no": command.gate_no,
+                "status": command.status.value,
+                "timestamp": command.timestamp.isoformat(),
+                "user_id": command.user_id
+            })
+        else:
+            return JSONResponse({"error": "Command not found"}, status_code=404)
+    except Exception as e:
+        return JSONResponse({"error": f"Failed to get command status: {str(e)}"}, status_code=500)
+
+@root_router.get("/system_status")
+async def get_system_status():
+    """Get current system status"""
+    try:
+        status = command_manager.get_system_status()
+        return JSONResponse(status)
+    except Exception as e:
+        return JSONResponse({"error": f"Failed to get system status: {str(e)}"}, status_code=500)
 
 # -------------------
 # WebSocket Route

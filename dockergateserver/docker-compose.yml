@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  smartgate-bridge:
+    build: .
+    container_name: smartgate-bridge
+    restart: unless-stopped
+    
+    # Port mapping - expose local gate interface
+    ports:
+      - "8001:8001"
+    
+    # Environment variables
+    environment:
+      - SERVER_HOST=${SERVER_HOST:-3.27.77.237}
+      - SERVER_PORT=${SERVER_PORT:-8000}
+      - DEVICE_ID=${DEVICE_ID:-gate-001}
+      - DEVICE_NAME=${DEVICE_NAME:-SmartGate-Bridge}
+      - API_KEY=${API_KEY:-your-secret-api-key-here}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    
+    # Volume mounts
+    volumes:
+      - ./logs:/app/logs
+      - ./config.yaml:/app/config.yaml:ro
+    
+    # Network configuration
+    networks:
+      - smartgate-network
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # User
+    user: "1000:1000"
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  smartgate-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+

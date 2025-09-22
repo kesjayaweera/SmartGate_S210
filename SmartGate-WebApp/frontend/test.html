@@ -32,6 +32,22 @@
         <button id="stopBtn" onclick="sendCommand('STOP_DOOR')">
             Stop Gate
         </button>
+        <button id="emergencyBtn" onclick="activateEmergencyStop()" style="background-color: #dc3545; color: white; font-weight: bold;">
+            EMERGENCY STOP
+        </button>
+    </div>
+    
+    <h3>Command Queue</h3>
+    <div id="commandQueue">
+        <div id="queueStatus">No commands in queue</div>
+        <div id="activeOperations">No active operations</div>
+    </div>
+    
+    <h3>System Status</h3>
+    <div id="systemStatus">
+        <div>Emergency Stop: <span id="emergencyStatus">Inactive</span></div>
+        <div>Queue Length: <span id="queueLength">0</span></div>
+        <div>Active Operations: <span id="activeCount">0</span></div>
     </div>
     
     <h3>Connection Status</h3>
@@ -100,6 +116,113 @@
                 }, 2000);
             }
         }
+
+        // New command system functions
+        async function executeCommand(commandType, gateNo = null) {
+            try {
+                const response = await fetch('/execute_command', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        command_type: commandType,
+                        gate_no: gateNo,
+                        priority: 1
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    updateStatus(`Command submitted: ${commandType}`);
+                    updateSystemStatus();
+                } else {
+                    displayError(`Command failed: ${data.error}`);
+                }
+            } catch (error) {
+                displayError(`Error executing command: ${error.message}`);
+            }
+        }
+
+        async function activateEmergencyStop() {
+            if (!confirm('Are you sure you want to activate emergency stop? This will halt all gate operations immediately.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/emergency_stop', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    updateStatus('Emergency stop activated! All operations halted.');
+                    updateSystemStatus();
+                } else {
+                    displayError(`Emergency stop failed: ${data.error}`);
+                }
+            } catch (error) {
+                displayError(`Error activating emergency stop: ${error.message}`);
+            }
+        }
+
+        async function updateSystemStatus() {
+            try {
+                const response = await fetch('/system_status');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Update emergency stop status
+                    document.getElementById('emergencyStatus').textContent = 
+                        data.emergency_stop_active ? 'ACTIVE' : 'Inactive';
+                    document.getElementById('emergencyStatus').style.color = 
+                        data.emergency_stop_active ? '#dc3545' : '#28a745';
+                    
+                    // Update queue length
+                    document.getElementById('queueLength').textContent = data.queue_length;
+                    
+                    // Update active operations count
+                    const activeCount = Object.keys(data.active_operations).length;
+                    document.getElementById('activeCount').textContent = activeCount;
+                    
+                    // Update command queue display
+                    updateCommandQueueDisplay(data);
+                }
+            } catch (error) {
+                console.error('Error updating system status:', error);
+            }
+        }
+
+        function updateCommandQueueDisplay(systemData) {
+            const queueStatus = document.getElementById('queueStatus');
+            const activeOperations = document.getElementById('activeOperations');
+            
+            // Update queue status
+            if (systemData.queue_length > 0) {
+                queueStatus.innerHTML = `<strong>${systemData.queue_length} commands in queue:</strong><br>`;
+                systemData.queued_commands.forEach(cmd => {
+                    queueStatus.innerHTML += `• ${cmd.command_type} (Gate ${cmd.gate_no || 'N/A'}) - Priority: ${cmd.priority}<br>`;
+                });
+            } else {
+                queueStatus.textContent = 'No commands in queue';
+            }
+            
+            // Update active operations
+            if (Object.keys(systemData.active_operations).length > 0) {
+                activeOperations.innerHTML = '<strong>Active Operations:</strong><br>';
+                Object.entries(systemData.active_operations).forEach(([gateNo, operation]) => {
+                    activeOperations.innerHTML += `• Gate ${gateNo}: ${operation.command_type} (${operation.status})<br>`;
+                });
+            } else {
+                activeOperations.textContent = 'No active operations';
+            }
+        }
+
+        // Update system status every 2 seconds
+        setInterval(updateSystemStatus, 2000);
 
         // Request camera stream from SmartGate device
         async function requestCameraStream() {

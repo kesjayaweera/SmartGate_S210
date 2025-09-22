@@ -1,0 +1,48 @@
+# SmartGate Bridge Configuration
+
+# Server connection settings
+server:
+  host: "3.27.77.237"  # Your hosted server IP
+  port: 8000
+  endpoint: "/web-connect"
+  protocol: "http"
+  reconnect_interval: 30  # seconds
+  heartbeat_interval: 60  # seconds
+  connection_timeout: 10  # seconds
+
+# Local gate interface settings
+gate:
+  local_host: "0.0.0.0"
+  local_port: 8001
+  interface_type: "http"  # http, serial, tcp
+  serial_port: "/dev/ttyUSB0"  # if using serial
+  serial_baudrate: 9600
+  tcp_host: "localhost"
+  tcp_port: 8080
+
+# Device identification
+device:
+  name: "SmartGate-Bridge"
+  location: "Gate Location"
+  device_id: "gate-001"
+  version: "1.0.0"
+
+# Logging configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "/app/logs/gate_bridge.log"
+  max_size: "10MB"
+  backup_count: 5
+
+# Security settings
+security:
+  api_key: "your-secret-api-key-here"
+  enable_ssl: false
+  verify_ssl: true
+
+# Health check settings
+health:
+  check_interval: 30  # seconds
+  gate_check_timeout: 5  # seconds
+  server_check_timeout: 10  # seconds
+

@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Add emergency stop button to the page
+    addEmergencyStopButton();
+    
     // Select all camera feed elements
     const cameraFeeds = document.querySelectorAll('.camera-feed');
 
@@ -11,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const gateNo = gateText.match(/\d+/)[0];  // This extracts just the number (e.g., '1')
         // Extract just the status (Closed or Open) from the text content of the status element
         const currentStatus = statusText.textContent.split(':')[1]?.trim(); // This will extract 'Closed' or 'Open'
+        
+        // Add operation status indicator
+        addOperationStatusIndicator(feed, gateNo);
 
         // Function to push gate data to the DB
         const pushGateDataToDb = async (gateNo, gateStatus) => {
@@ -80,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (allowed === null) {
                     alert("You need to log in to open the gate.");
                 } else if (allowed) {
-                    updateGateStatus('open');
+                    executeCommand('GATE_OPEN', gateNo);
                 } else {
                     alert("You don't have permission to open the gate.");
                 }
@@ -95,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (allowed === null) {
                     alert("You need to log in to close the gate.");
                 } else if (allowed) {
-                    updateGateStatus('closed');
+                    executeCommand('GATE_CLOSE', gateNo);
                 } else {
                     alert("You don't have permission to close the gate.");
                 }
@@ -123,5 +129,154 @@ async function checkUserPermission(permission) {
     } catch (error) {
         console.error("Error checking permission:", error);
         return false;
+    }
+}
+
+// New command execution functions
+async function executeCommand(commandType, gateNo) {
+    try {
+        const response = await fetch('/execute_command', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                command_type: commandType,
+                gate_no: parseInt(gateNo),
+                priority: 1
+            })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            console.log('Command submitted:', data.message);
+            updateOperationStatus(gateNo, 'EXECUTING', commandType);
+            
+            // Monitor command status
+            monitorCommandStatus(data.command_id, gateNo);
+        } else {
+            console.error('Command failed:', data.error);
+            alert(`Command failed: ${data.error}`);
+        }
+    } catch (error) {
+        console.error('Error executing command:', error);
+        alert('Error executing command. Please try again.');
+    }
+}
+
+async function monitorCommandStatus(commandId, gateNo) {
+    const maxAttempts = 100; // Monitor for up to 10 seconds
+    let attempts = 0;
+    
+    const checkStatus = async () => {
+        try {
+            const response = await fetch(`/command_status/${commandId}`);
+            const data = await response.json();
+            
+            if (response.ok) {
+                updateOperationStatus(gateNo, data.status, data.command_type);
+                
+                if (data.status === 'COMPLETED' || data.status === 'FAILED' || data.status === 'CANCELLED') {
+                    // Command finished, stop monitoring
+                    setTimeout(() => {
+                        updateOperationStatus(gateNo, 'IDLE', null);
+                    }, 2000);
+                    return;
+                }
+            }
+            
+            attempts++;
+            if (attempts < maxAttempts) {
+                setTimeout(checkStatus, 100); // Check every 100ms
+            }
+        } catch (error) {
+            console.error('Error monitoring command status:', error);
+        }
+    };
+    
+    checkStatus();
+}
+
+function updateOperationStatus(gateNo, status, commandType) {
+    const statusIndicator = document.querySelector(`[data-gate-no="${gateNo}"] .operation-status`);
+    if (statusIndicator) {
+        statusIndicator.textContent = getStatusText(status, commandType);
+        statusIndicator.className = `operation-status ${status.toLowerCase()}`;
+    }
+}
+
+function getStatusText(status, commandType) {
+    switch (status) {
+        case 'EXECUTING':
+            return commandType === 'GATE_OPEN' ? 'Opening...' : 
+                   commandType === 'GATE_CLOSE' ? 'Closing...' : 'Processing...';
+        case 'COMPLETED':
+            return 'Completed';
+        case 'FAILED':
+            return 'Failed';
+        case 'CANCELLED':
+            return 'Cancelled';
+        case 'IDLE':
+        default:
+            return 'Ready';
+    }
+}
+
+function addOperationStatusIndicator(feed, gateNo) {
+    const feedInfo = feed.querySelector('.feed-info');
+    const statusIndicator = document.createElement('div');
+    statusIndicator.className = 'operation-status idle';
+    statusIndicator.textContent = 'Ready';
+    statusIndicator.setAttribute('data-gate-no', gateNo);
+    feedInfo.appendChild(statusIndicator);
+}
+
+function addEmergencyStopButton() {
+    // Check if emergency stop button already exists
+    if (document.getElementById('emergency-stop-btn')) {
+        return;
+    }
+    
+    const emergencyStopBtn = document.createElement('button');
+    emergencyStopBtn.id = 'emergency-stop-btn';
+    emergencyStopBtn.className = 'emergency-stop';
+    emergencyStopBtn.textContent = 'EMERGENCY STOP';
+    emergencyStopBtn.onclick = activateEmergencyStop;
+    
+    // Add to the top of the camera feeds section
+    const cameraFeeds = document.querySelector('.camera-feeds');
+    if (cameraFeeds) {
+        cameraFeeds.parentNode.insertBefore(emergencyStopBtn, cameraFeeds);
+    }
+}
+
+async function activateEmergencyStop() {
+    if (!confirm('Are you sure you want to activate emergency stop? This will halt all gate operations immediately.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('/emergency_stop', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('Emergency stop activated! All operations have been halted.');
+            
+            // Update all gate status indicators
+            document.querySelectorAll('.operation-status').forEach(indicator => {
+                indicator.textContent = 'Emergency Stop';
+                indicator.className = 'operation-status emergency';
+            });
+        } else {
+            alert(`Emergency stop failed: ${data.error}`);
+        }
+    } catch (error) {
+        console.error('Error activating emergency stop:', error);
+        alert('Error activating emergency stop. Please try again.');
     }
 }
