@@ -12,7 +12,7 @@ at least according to chat
 1. Port 8080 - Most likely to work
 2. Port 443 - Almost never blocked
 3. Port 80 - Rarely blocked
-4. Port 8883 - MQTT standard secure
+4. Port 1883 - MQTT standard secure
 5. Port 3000 - Development friendly
 6. Port 9001 - WebSocket friendly
 7. Port 8083 - Alternative MQTT
