@@ -8,6 +8,7 @@ services:
     container_name: smartgate-webapp
     ports:
       - "8000:8000"  # Expose web app on port 8000
+      - "1883:1883"  # Expose MQTT broker on port 1883
     environment:
       - DATABASE_URL=postgresql://admin:smartgate@postgres:5432/smartgatedb
       - ENV=production

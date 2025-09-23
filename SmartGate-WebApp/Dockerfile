@@ -41,8 +41,8 @@ RUN useradd -m -s /bin/bash smartgate && \
 # Switch to non-root user
 USER smartgate
 
-# Expose the web application port
-EXPOSE 8000
+# Expose the web application port and MQTT broker port
+EXPOSE 8000 1883
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \

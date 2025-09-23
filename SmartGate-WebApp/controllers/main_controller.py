@@ -12,6 +12,8 @@ import json
 import asyncio
 from datetime import datetime
 import plotly.graph_objects as go
+from mqtt_broker import start_mqtt_broker
+from mqtt_client import get_mqtt_client
 
 # ------------------------
 # Router and OAuth Setup
@@ -54,8 +56,7 @@ class CommandRequest(BaseModel):
 # -------------------
 session_initialised = False
 websocket_state = {}
-smartgate_ip = None
-connected_devices = {}  # Store all connected devices with timestamps
+# MQTT-based system - no need for IP tracking
 
 # ------------------------------------
 # Decorator Functions (if necessary)
@@ -219,63 +220,14 @@ async def check_permission_api(username: str, perm_name: str):
 
 @root_router.get("/web-connect")
 async def web_connect_endpoint(request: Request):
-    """Web-connect endpoint that serves the control panel webpage"""
-    # ========================================
-    # EC2 IP TRACKING - This is where the EC2 tracks the SmartGate IP
-    # ========================================
-    client_ip = request.client.host  # Gets the IP of the device making the request
+    """MQTT-based gate control panel"""
+    print(f"[+] MQTT Test Control Panel accessed from IP: {request.client.host}")
     
-    # Log the request details
-    print(f"[+] Web-connect endpoint accessed from IP: {client_ip}")
-    print(f"[+] Request method: {request.method}")
-    print(f"[+] Request URL: {request.url}")
-    print(f"[+] Request headers: {dict(request.headers)}")
-    
-    # Store the SmartGate IP for later use (this is the tracked IP)
-    global smartgate_ip, connected_devices
-    smartgate_ip = client_ip  # This global variable stores the SmartGate device IP
-    
-    # Add to connected devices list with timestamp
-    connected_devices[client_ip] = {
-        "ip": client_ip,
-        "last_seen": datetime.now().isoformat(),
-        "status": "connected"
-    }
-    
-    print(f"[+] SmartGate IP stored: {smartgate_ip}")
-    print(f"[+] Connected devices: {list(connected_devices.keys())}")
-    print(f"[+] Control panel will be available for remote gate control")
-    
-    # Serve the test control panel HTML page
+    # Serve the MQTT test control panel HTML page
     return pages.TemplateResponse("test.html", {
         "request": request,
-        "gate_ip": smartgate_ip,  # Pass the tracked SmartGate IP to the webpage
-        "connected_devices": connected_devices,  # Pass all connected devices
         "timestamp": datetime.now().isoformat()
     })
-
-@root_router.get("/api/connected-devices")
-async def get_connected_devices():
-    """API endpoint to get list of connected devices"""
-    global connected_devices
-    return JSONResponse({
-        "devices": connected_devices,
-        "count": len(connected_devices)
-    })
-
-@root_router.post("/api/select-device")
-async def select_device(request: Request):
-    """API endpoint to select which device to send commands to"""
-    global smartgate_ip
-    data = await request.json()
-    selected_ip = data.get("ip")
-    
-    if selected_ip in connected_devices:
-        smartgate_ip = selected_ip
-        print(f"[+] Selected device changed to: {smartgate_ip}")
-        return JSONResponse({"status": "success", "selected_ip": smartgate_ip})
-    else:
-        return JSONResponse({"status": "error", "message": "Device not found"}, status_code=404)
 
 
 # ---------------------------------
@@ -385,65 +337,9 @@ async def update_gate_data(payload: updateGateData):
     return JSONResponse({"message": f"Gate {payload.gate_no} status {payload.new_status} updated successfully"})
 
 # Command execution endpoints
-@root_router.post("/execute_command")
-async def execute_command(request: Request, command_req: CommandRequest):
-    """Execute a command through the command manager"""
-    try:
-        user = await get_user_from_session(request)
-        if not user:
-            return JSONResponse({"error": "Not logged in"}, status_code=401)
-        
-        user_id = user["username"]
-        
-        # Convert string to CommandType enum
-        try:
-            cmd_type = CommandType(command_req.command_type)
-        except ValueError:
-            return JSONResponse({"error": f"Invalid command type: {command_req.command_type}"}, status_code=400)
-        
-        # Add command to queue
-        command_id = await command_manager.add_command(
-            cmd_type, 
-            command_req.gate_no, 
-            user_id, 
-            command_req.priority
-        )
-        
-        return JSONResponse({
-            "message": "Command submitted successfully",
-            "command_id": command_id,
-            "command_type": command_req.command_type,
-            "gate_no": command_req.gate_no
-        })
-        
-    except Exception as e:
-        return JSONResponse({"error": f"Failed to execute command: {str(e)}"}, status_code=500)
+# HTTP-based command endpoint removed - using MQTT-only communication
 
-@root_router.post("/emergency_stop")
-async def emergency_stop(request: Request):
-    """Activate emergency stop"""
-    try:
-        user = await get_user_from_session(request)
-        if not user:
-            return JSONResponse({"error": "Not logged in"}, status_code=401)
-        
-        user_id = user["username"]
-        
-        # Add emergency stop command
-        command_id = await command_manager.add_command(
-            CommandType.EMERGENCY_STOP, 
-            None, 
-            user_id, 
-            priority=0
-        )
-        
-        return JSONResponse({
-            "message": "Emergency stop activated",
-            "command_id": command_id
-        })
-        
-    except Exception as e:
-        return JSONResponse({"error": f"Failed to activate emergency stop: {str(e)}"}, status_code=500)
+# HTTP-based emergency stop endpoint removed - using MQTT-only communication
 
 @root_router.get("/command_status/{command_id}")
 async def get_command_status(command_id: str):
@@ -523,3 +419,149 @@ async def websocket_live_data(websocket: WebSocket):
                 await websocket.close()
         except Exception as e:
             print(f"WebSocket cleanup error: {e}")
+
+
+# ---------------------------------
+# MQTT Endpoints``
+# ---------------------------------
+
+
+# Add MQTT endpoints
+@root_router.post("/mqtt/send_command")
+async def mqtt_send_command(request: Request):
+    """Send command to gate via MQTT"""
+    try:
+        data = await request.json()
+        gate_id = data.get("gate_id", "gate1")
+        command = data.get("command")
+        
+        if not command:
+            return JSONResponse(
+                {"error": "Command is required"},
+                status_code=400
+            )
+        
+        mqtt_client = get_mqtt_client()
+        success = mqtt_client.send_command(gate_id, command)
+        
+        if success:
+            return JSONResponse({
+                "message": f"Command '{command}' sent to gate {gate_id} via MQTT",
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return JSONResponse(
+                {"error": f"Failed to send command to gate {gate_id}"},
+                status_code=500
+            )
+            
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Error sending command: {str(e)}"},
+            status_code=500
+        )
+
+@root_router.post("/mqtt/open_gate")
+async def mqtt_open_gate(request: Request):
+    """Open gate via MQTT"""
+    try:
+        data = await request.json()
+        gate_id = data.get("gate_id", "gate1")
+        
+        mqtt_client = get_mqtt_client()
+        success = mqtt_client.send_command(gate_id, "OPEN_DOOR")
+        
+        if success:
+            return JSONResponse({
+                "message": f"Gate {gate_id} open command sent via MQTT",
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return JSONResponse(
+                {"error": f"Failed to send open command to gate {gate_id}"},
+                status_code=500
+            )
+            
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Error opening gate: {str(e)}"},
+            status_code=500
+        )
+
+@root_router.post("/mqtt/close_gate")
+async def mqtt_close_gate(request: Request):
+    """Close gate via MQTT"""
+    try:
+        data = await request.json()
+        gate_id = data.get("gate_id", "gate1")
+        
+        mqtt_client = get_mqtt_client()
+        success = mqtt_client.send_command(gate_id, "CLOSE_DOOR")
+        
+        if success:
+            return JSONResponse({
+                "message": f"Gate {gate_id} close command sent via MQTT",
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return JSONResponse(
+                {"error": f"Failed to send close command to gate {gate_id}"},
+                status_code=500
+            )
+            
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Error closing gate: {str(e)}"},
+            status_code=500
+        )
+
+@root_router.get("/mqtt/gate_status/{gate_id}")
+async def mqtt_get_gate_status(gate_id: str):
+    """Get latest gate status from MQTT"""
+    try:
+        # This would need to be implemented to store and retrieve status
+        return JSONResponse({
+            "gate_id": gate_id,
+            "status": "unknown",
+            "message": "Status retrieval not yet implemented",
+            "timestamp": datetime.now().isoformat()
+        })
+            
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Error getting gate status: {str(e)}"},
+            status_code=500
+        )
+
+# Initialize MQTT on startup
+def initialize_mqtt():
+    """Initialize MQTT broker and client"""
+    try:
+        print("[+] Starting MQTT broker...")
+        # Start MQTT broker
+        start_mqtt_broker()
+        
+        print("[+] Connecting MQTT client...")
+        # Get MQTT client
+        mqtt_client = get_mqtt_client()
+        
+        # Subscribe to gate status updates
+        def on_gate_status(topic, payload):
+            asyncio.create_task(broadcast_data("gate_status", {
+                "gate_id": topic.split('/')[1],
+                "status": payload
+            }))
+        
+        mqtt_client.subscribe("smartgate/+/status", on_gate_status)
+        
+        print("[+] MQTT system initialized successfully")
+        print("[+] MQTT broker running on port 1883")
+        print("[+] MQTT client connected and subscribed to gate status")
+        
+    except Exception as e:
+        print(f"[-] Error initializing MQTT: {e}")
+        print(f"[-] WebApp will continue without MQTT functionality")
+
+# Initialize MQTT when the module loads
+print("[+] SmartGate WebApp starting...")
+initialize_mqtt()
