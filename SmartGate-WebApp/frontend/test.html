@@ -176,12 +176,37 @@
                 console.error('MQTT status check failed:', error);
             }
         }
+        
+        // Real-time status updates
+        let statusUpdateInterval;
+        
+        function startRealTimeUpdates() {
+            // Check status every 2 seconds
+            statusUpdateInterval = setInterval(checkMQTTStatus, 2000);
+            console.log('[+] Real-time status updates started');
+        }
+        
+        function stopRealTimeUpdates() {
+            if (statusUpdateInterval) {
+                clearInterval(statusUpdateInterval);
+                statusUpdateInterval = null;
+                console.log('[-] Real-time status updates stopped');
+            }
+        }
 
         // Update system status every 2 seconds
         setInterval(updateSystemStatus, 2000);
         
-        // Check MQTT status every 5 seconds
-        setInterval(checkMQTTStatus, 5000);
+        // Start real-time updates on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkMQTTStatus();
+            startRealTimeUpdates();
+        });
+        
+        // Stop updates when page is unloaded
+        window.addEventListener('beforeunload', function() {
+            stopRealTimeUpdates();
+        });
 
         // Update gate status display
         function updateGateStatusDisplay(status, timestamp) {

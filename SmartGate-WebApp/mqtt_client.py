@@ -144,8 +144,31 @@ class SmartGateMQTTClient:
 		return self.connected_devices
 	
 	def get_device_status(self, device_id):
-		"""Get status of specific device"""
-		return self.device_status.get(device_id, "unknown")
+		"""Get status of a specific device"""
+		if device_id in self.connected_devices:
+			device_info = self.connected_devices[device_id]
+			return {
+				"status": device_info.get("status", "unknown"),
+				"message": device_info.get("message", ""),
+				"last_seen": device_info.get("last_seen"),
+				"timestamp": device_info.get("timestamp"),
+				"is_online": True
+			}
+		return {
+			"status": "offline",
+			"message": "Device not connected",
+			"last_seen": None,
+			"timestamp": None,
+			"is_online": False
+		}
+	
+	def get_all_devices(self):
+		"""Get all connected devices"""
+		return self.connected_devices
+	
+	def is_device_online(self, device_id):
+		"""Check if device is online"""
+		return device_id in self.connected_devices
 	
 	def disconnect(self):
 		"""Disconnect from MQTT broker"""

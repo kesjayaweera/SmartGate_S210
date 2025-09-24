@@ -7,11 +7,23 @@ import asyncio
 
 @asynccontextmanager
 async def lifespan(app):
+    # Startup
     try:
+        print("[+] SmartGate WebApp starting up...")
+        # Initialize MQTT client on startup
+        from controllers.main_controller import get_mqtt_client
+        mqtt_client = get_mqtt_client()
+        if mqtt_client:
+            print("[+] MQTT client initialized and connected on startup")
+        else:
+            print("[-] Failed to initialize MQTT client on startup")
         yield
     except asyncio.CancelledError:
         # Prevent ugly traceback on Ctrl+C
         pass
+    finally:
+        # Shutdown
+        print("[+] SmartGate WebApp shutting down...")
 
 app = FastAPI(lifespan=lifespan)
 

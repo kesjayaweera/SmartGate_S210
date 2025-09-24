@@ -519,17 +519,55 @@ async def mqtt_close_gate(request: Request):
 async def mqtt_get_gate_status(gate_id: str):
     """Get latest gate status from MQTT"""
     try:
-        # This would need to be implemented to store and retrieve status
-        return JSONResponse({
-            "gate_id": gate_id,
-            "status": "unknown",
-            "message": "Status retrieval not yet implemented",
-            "timestamp": datetime.now().isoformat()
-        })
+        mqtt_client = get_mqtt_client()
+        if mqtt_client:
+            device_status = mqtt_client.get_device_status(gate_id)
+            return JSONResponse({
+                "gate_id": gate_id,
+                "status": device_status.get("status", "unknown"),
+                "message": device_status.get("message", ""),
+                "last_seen": device_status.get("last_seen"),
+                "timestamp": device_status.get("timestamp"),
+                "is_online": device_status.get("is_online", False)
+            })
+        else:
+            return JSONResponse({
+                "gate_id": gate_id,
+                "status": "offline",
+                "message": "MQTT client not available",
+                "timestamp": datetime.now().isoformat(),
+                "is_online": False
+            })
             
     except Exception as e:
         return JSONResponse(
             {"error": f"Error getting gate status: {str(e)}"},
+            status_code=500
+        )
+
+@root_router.get("/mqtt/devices")
+async def get_all_devices():
+    """Get all connected devices"""
+    try:
+        mqtt_client = get_mqtt_client()
+        if mqtt_client:
+            devices = mqtt_client.get_all_devices()
+            return JSONResponse({
+                "devices": devices,
+                "count": len(devices),
+                "timestamp": datetime.now().isoformat()
+            })
+        else:
+            return JSONResponse({
+                "devices": {},
+                "count": 0,
+                "message": "MQTT client not available",
+                "timestamp": datetime.now().isoformat()
+            })
+            
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Error getting devices: {str(e)}"},
             status_code=500
         )
 
