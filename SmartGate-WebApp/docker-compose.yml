@@ -8,14 +8,16 @@ services:
     container_name: smartgate-webapp
     ports:
       - "8000:8000"  # Expose web app on port 8000
-      - "1883:1883"  # Expose MQTT broker on port 1883
     environment:
       - DATABASE_URL=postgresql://admin:smartgate@postgres:5432/smartgatedb
       - ENV=production
       - WEBAPP_HOST=0.0.0.0
       - WEBAPP_PORT=8000
+      - MQTT_BROKER_HOST=mqtt-broker
+      - MQTT_BROKER_PORT=1883
     depends_on:
       - postgres
+      - mqtt-broker
     stdin_open: true  # Keep STDIN open for interactive mode
     tty: true         # Allocate a pseudo-TTY
     volumes:
@@ -25,6 +27,25 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    container_name: smartgate-mqtt-broker
+    ports:
+      - "1883:1883"  # Expose MQTT broker on port 1883
+    volumes:
+      - ./mqtt/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mqtt-data:/mosquitto/data
+      - mqtt-logs:/mosquitto/log
+    networks:
+      - smartgate-webapp
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_pub -h localhost -t test -m 'healthcheck' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -55,3 +76,5 @@ services:
 
 volumes:
   smartgate-webapp-data:
+  mqtt-data:
+  mqtt-logs:

@@ -1,229 +1,230 @@
 #!/usr/bin/env python3
 """
-SmartGate Connection Script with Periodic Server Verification
-- Connects to EC2 web app /test endpoint
-- Periodically checks with server to verify it's still the connected IP
-- Uses Hall Effect sensors for precise gate control
-- SmartGate HTTP server must be running to receive commands
-
+SmartGate MQTT Client (Main Repository Version)
+- Connects to EC2 MQTT broker
+- Listens for gate control commands
+- Executes commands using door_control.py functions
 """
 
-import requests
-import sys
-import threading
+import paho.mqtt.client as mqtt
 import time
-import subprocess
-import os
-import socket
-from door_control import DoorController
-from http_server import Initialize_Server, Fetch_Queued_Command
+import json
+import sys
+from door_control import DoorControl
+import Jetson.GPIO as GPIO
 
-class SmartGateConnector:
-	"""Handles SmartGate connection to EC2 and command processing"""
+class SmartGateMQTTClient:
+	"""MQTT client for SmartGate device"""
 	
-	def __init__(self, ec2_ip, ec2_port=8000, local_port=8000, command_port=8001):
-		self.ec2_ip = ec2_ip
-		self.ec2_port = ec2_port
-		self.local_port = local_port
-		self.command_port = command_port
-		self.ec2_base_url = "http://{}:{}".format(ec2_ip, ec2_port)
-		
-		# Get local IP address
-		self.local_ip = self.get_local_ip()
-		
-		# Initialize door controller
-		self.door_controller = DoorController()
-		
-		# Initialize HTTP server (for both local use and webapp commands)
-		server_config = {'port': local_port}
-		self.web_server = Initialize_Server(server_config)
-		
-		# Initialize command server (for webapp commands on different port)
-		self.command_server = self.start_command_server()
-		
-		# Periodic check settings
-		self.check_interval = 30  # Check every 30 seconds
-		self.last_check_time = 0
+	def __init__(self, broker_ip, broker_port=1883):
+		self.broker_ip = broker_ip
+		self.broker_port = broker_port
+		self.client = None
 		self.is_connected = False
 		
-		print("[+] SmartGate Connector initialized")
-		print("[+] Local IP: {}".format(self.local_ip))
-		print("[+] EC2 Target: {}".format(self.ec2_base_url))
-		print("[+] Local HTTP Server: localhost:{}".format(local_port))
-		print("[+] Command Server: 0.0.0.0:{} (accessible from webapp)".format(command_port))
-		print("[+] Door controller ready")
-		print("[+] Manual WiFi connection required - connect via GUI")
+		# Initialize door controller
+		self.door_controller = DoorControl()
+		self.door_controller.init_door()
+		
+		# MQTT topics
+		self.command_topic = "smartgate/commands"
+		self.status_topic = "smartgate/status"
+		self.device_id = "smartgate_device_001"
+		
+		print("[+] SmartGate MQTT Client initialized")
+		print("[+] Broker: {}:{}".format(broker_ip, broker_port))
+		print("[+] Device ID: {}".format(self.device_id))
+		print("[+] Door controller initialized")
 	
-	def get_local_ip(self):
-		"""Get the local IP address of this device"""
+	def on_connect(self, client, userdata, flags, rc):
+		"""Callback when connected to MQTT broker"""
+		if rc == 0:
+			print("[+] Connected to MQTT broker successfully")
+			self.is_connected = True
+			
+			# Subscribe to command topic
+			client.subscribe(self.command_topic)
+			print("[+] Subscribed to topic: {}".format(self.command_topic))
+			
+			# Publish device status
+			self.publish_status("online", "Device connected and ready")
+			
+		else:
+			print("[-] Failed to connect to MQTT broker. Return code: {}".format(rc))
+			self.is_connected = False
+	
+	def on_disconnect(self, client, userdata, rc):
+		"""Callback when disconnected from MQTT broker"""
+		print("[-] Disconnected from MQTT broker")
+		self.is_connected = False
+	
+	def on_message(self, client, userdata, msg):
+		"""Callback when message received"""
 		try:
-			# Connect to a remote address to determine local IP
-			s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-			s.connect(("8.8.8.8", 80))
-			local_ip = s.getsockname()[0]
-			s.close()
-			return local_ip
+			topic = msg.topic
+			payload = msg.payload.decode('utf-8')
+			
+			print("[+] Received message on topic: {}".format(topic))
+			print("[+] Message payload: {}".format(payload))
+			
+			# Parse JSON command
+			command_data = json.loads(payload)
+			command = command_data.get('command')
+			device_id = command_data.get('device_id', '')
+			
+			# Check if command is for this device
+			if device_id and device_id != self.device_id:
+				print("[+] Command not for this device ({}), ignoring".format(device_id))
+				return
+			
+			print("[+] Executing command: {}".format(command))
+			
+			# Execute command using door_control.py functions
+			if command == 'OPEN_DOOR':
+				print("[+] Opening gate...")
+				self.door_controller.open_door()
+				self.publish_status("gate_opening", "Gate opening command executed")
+				
+			elif command == 'CLOSE_DOOR':
+				print("[+] Closing gate...")
+				self.door_controller.close_door()
+				self.publish_status("gate_closing", "Gate closing command executed")
+				
+			elif command == 'STOP_DOOR':
+				print("[+] Stopping gate...")
+				self.door_controller.stop_door()
+				self.publish_status("gate_stopped", "Gate stop command executed")
+				
+			elif command == 'STATUS':
+				print("[+] Status requested")
+				status = self.door_controller.get_door_status()
+				print("[+] Door status: {}".format(status))
+				self.publish_status("status_requested", "Status check completed: {}".format(status))
+				
+			else:
+				print("[-] Unknown command: {}".format(command))
+				self.publish_status("error", "Unknown command: {}".format(command))
+				
+		except json.JSONDecodeError:
+			print("[-] Invalid JSON in message: {}".format(payload))
 		except Exception as e:
-			print("[-] Could not determine local IP: {}".format(str(e)))
-			return "unknown"
+			print("[-] Error processing message: {}".format(str(e)))
+			self.publish_status("error", "Error processing command: {}".format(str(e)))
 	
-	def start_command_server(self):
-		"""Start HTTP server on command port using existing http_server.py system"""
-		try:
-			# Use the existing http_server.py system but on the command port
-			server_config = {'port': self.command_port}
-			command_server = Initialize_Server(server_config)
-			print(f"[+] Command server started on port {self.command_port}")
-			return command_server
-		except Exception as e:
-			print(f"[-] Failed to start command server: {str(e)}")
-			return None
-	
-	
-	def test_ec2_connection(self):
-		"""Test connection to EC2 web app - registers device for control panel"""
-		url = "{}/web-connect".format(self.ec2_base_url)
-		print("[+] Testing connection to EC2: {}".format(url))
-		print("[+] Registering SmartGate device for remote control")
-		print("[+] Sending GET request from IP: {} to IP: {}".format(self.local_ip, self.ec2_ip))
-		print("[+] Sending GET request to EC2...")
+	def publish_status(self, status, message):
+		"""Publish device status to MQTT broker"""
+		if not self.is_connected:
+			return
+			
+		status_data = {
+			"device_id": self.device_id,
+			"status": status,
+			"message": message,
+			"timestamp": time.time()
+		}
 		
 		try:
-			# Send GET request to /test endpoint
-			response = requests.get(url, timeout=10)
+			self.client.publish(self.status_topic, json.dumps(status_data))
+			print("[+] Published status: {} - {}".format(status, message))
+		except Exception as e:
+			print("[-] Failed to publish status: {}".format(str(e)))
+	
+	def connect(self):
+		"""Connect to MQTT broker"""
+		try:
+			print("[+] Connecting to MQTT broker at {}:{}".format(self.broker_ip, self.broker_port))
 			
-			print("[+] EC2 Response received:")
-			print("    Status Code: {}".format(response.status_code))
-			print("    Response Headers: {}".format(dict(response.headers)))
-			print("    Response Content: {}".format(response.text[:200] + "..." if len(response.text) > 200 else response.text))
+			self.client = mqtt.Client(self.device_id)
+			self.client.on_connect = self.on_connect
+			self.client.on_disconnect = self.on_disconnect
+			self.client.on_message = self.on_message
 			
-			# Check if we got HTTP 200 OK
-			if response.status_code == 200:
-				print("[+] SUCCESS: Connected to EC2 web app!")
-				print("[+] SmartGate device registered - control panel available at: {}".format(url))
-				self.is_connected = True
-				self.last_check_time = time.time()
+			# Connect to broker
+			self.client.connect(self.broker_ip, self.broker_port, 60)
+			
+			# Start network loop
+			self.client.loop_start()
+			
+			# Wait for connection
+			timeout = 10
+			start_time = time.time()
+			while not self.is_connected and (time.time() - start_time) < timeout:
+				time.sleep(0.1)
+			
+			if self.is_connected:
+				print("[+] MQTT connection established successfully")
 				return True
 			else:
-				print("[-] FAILED: EC2 returned HTTP {}".format(response.status_code))
-				self.is_connected = False
+				print("[-] MQTT connection timeout")
 				return False
 				
-		except requests.exceptions.ConnectionError:
-			print("[-] FAILED: Could not connect to EC2 at {}".format(url))
-			print("[-] Make sure the EC2 instance is running and accessible")
-			self.is_connected = False
-			return False
-		except requests.exceptions.Timeout:
-			print("[-] FAILED: EC2 connection timeout (10 seconds)")
-			self.is_connected = False
-			return False
 		except Exception as e:
-			print("[-] FAILED: Unexpected error: {}".format(str(e)))
-			self.is_connected = False
+			print("[-] Failed to connect to MQTT broker: {}".format(str(e)))
 			return False
 	
-	def periodic_server_check(self):
-		"""Periodically check with server to verify we're still the connected IP"""
-		current_time = time.time()
-		
-		# Check if it's time for a periodic check
-		if current_time - self.last_check_time >= self.check_interval:
-			print("[+] Performing periodic server check...")
-			print("[+] Checking if IP {} is still connected to server at {}".format(self.local_ip, self.ec2_ip))
+	def disconnect(self):
+		"""Disconnect from MQTT broker"""
+		if self.client:
+			self.client.loop_stop()
+			self.client.disconnect()
+			print("[+] Disconnected from MQTT broker")
+	
+	def run(self):
+		"""Main run loop"""
+		try:
+			print("[+] SmartGate MQTT client running...")
+			print("[+] Listening for commands on topic: {}".format(self.command_topic))
+			print("[+] Press Ctrl+C to stop")
 			
-			# Send a simple check request
-			check_url = "{}/web-connect".format(self.ec2_base_url)
-			try:
-				response = requests.get(check_url, timeout=5)
-				if response.status_code == 200:
-					print("[+] Periodic check SUCCESS: Still connected as IP {}".format(self.local_ip))
-					self.is_connected = True
-					self.last_check_time = current_time
-				else:
-					print("[-] Periodic check FAILED: Server returned HTTP {}".format(response.status_code))
-					self.is_connected = False
-			except Exception as e:
-				print("[-] Periodic check FAILED: {}".format(str(e)))
-				self.is_connected = False
-	
-	def process_commands(self):
-		"""Continuously process commands from HTTP server queue"""
-		print("[+] Starting command processor...")
-		print("[+] Listening for commands from WebApp...")
-		
-		while True:
-			try:
-				# Perform periodic server check
-				self.periodic_server_check()
-				
-				# Check for commands from HTTP server queue
-				command = Fetch_Queued_Command()
-				if command:
-					print("[+] Request to {} received".format(command.lower().replace('_', ' ')))
-					print("[+] Command details: {}".format(command))
-					
-					if command == 'OPEN_DOOR':
-						print("[+] Executing OPEN_DOOR command...")
-						print("[+] Opening gate...")
-						self.door_controller.open_door()
-						print("[+] Gate opening started")
-					elif command == 'CLOSE_DOOR':
-						print("[+] Executing CLOSE_DOOR command...")
-						print("[+] Closing gate...")
-						self.door_controller.close_door()
-						print("[+] Gate closing started")
-					elif command == 'STOP_DOOR':
-						print("[+] Executing STOP_DOOR command...")
-						print("[+] Stopping gate...")
-						self.door_controller.stop_door()
-						print("[+] Gate stopped")
-				
-				time.sleep(0.1)  # Small delay to prevent excessive CPU usage
-				
-			except KeyboardInterrupt:
-				print("\n[+] Command processor stopped by user")
-				break
-			except Exception as e:
-				print("[-] Error processing commands: {}".format(str(e)))
+			# Keep running
+			while True:
 				time.sleep(1)
-	
+				
+				# Publish periodic heartbeat
+				if self.is_connected:
+					self.publish_status("heartbeat", "Device online and listening")
+					time.sleep(30)  # Heartbeat every 30 seconds
+				else:
+					print("[-] Not connected to MQTT broker, attempting reconnection...")
+					self.connect()
+					time.sleep(5)
+					
+		except KeyboardInterrupt:
+			print("\n[+] Stopping SmartGate MQTT client...")
+			self.publish_status("offline", "Device shutting down")
+			self.disconnect()
+			print("[+] SmartGate MQTT client stopped")
 
 def main():
 	"""Main function"""
 	print("=" * 60)
-	print("SmartGate EC2 Connection with Periodic Verification")
+	print("SmartGate MQTT Client (Main Repository)")
 	print("=" * 60)
 	
 	# Configuration
-	EC2_IP = "3.27.77.237"  # Replace with EC2 IP
-	EC2_PORT = 8000
-	LOCAL_PORT = 8000
-	COMMAND_PORT = 8001  # Port for receiving commands from webapp
+	EC2_IP = "3.27.77.237"  # EC2 MQTT broker IP
+	MQTT_PORT = 1883
 	
-	# Initialize connector (starts HTTP server and door controller)
-	connector = SmartGateConnector(EC2_IP, EC2_PORT, LOCAL_PORT, COMMAND_PORT)
+	print("[+] EC2 MQTT Broker: {}:{}".format(EC2_IP, MQTT_PORT))
+	print("[+] Commands will be executed using door_control.py functions")
+	print("[+] Press Ctrl+C to stop")
+	print("=" * 60)
 	
-	# Test EC2 connection
-	print("\n[STEP 1] Test EC2 Connection")
-	print("-" * 40)
-	if not connector.test_ec2_connection():
-		print("\n[-] EC2 connection failed. Exiting.")
+	# Initialize MQTT client
+	mqtt_client = SmartGateMQTTClient(EC2_IP, MQTT_PORT)
+	
+	# Connect to broker
+	if not mqtt_client.connect():
+		print("[-] Failed to connect to MQTT broker. Exiting.")
 		sys.exit(1)
 	
-	# Start command processor (listens for commands from WebApp)
-	print("\n[STEP 2] Start Command Processor with Periodic Checks")
-	print("-" * 40)
-	print("[+] SmartGate device is now ready for remote control")
-	print("[+] Access the control panel at: http://{}:{}/web-connect".format(EC2_IP, EC2_PORT))
-	print("[+] Periodic server verification every {} seconds".format(connector.check_interval))
-	print("[+] Press Ctrl+C to stop the command processor")
-	
+	# Run the client
 	try:
-		connector.process_commands()
-	except KeyboardInterrupt:
-		print("\n[+] Command processor stopped by user")
-		sys.exit(0)
+		mqtt_client.run()
+	except Exception as e:
+		print("[-] Error running MQTT client: {}".format(str(e)))
+	finally:
+		mqtt_client.disconnect()
 
 if __name__ == "__main__":
 	main()

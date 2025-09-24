@@ -432,7 +432,7 @@ async def mqtt_send_command(request: Request):
     """Send command to gate via MQTT"""
     try:
         data = await request.json()
-        gate_id = data.get("gate_id", "gate1")
+        gate_id = data.get("gate_id", "smartgate_device_001")
         command = data.get("command")
         
         if not command:
@@ -466,7 +466,7 @@ async def mqtt_open_gate(request: Request):
     """Open gate via MQTT"""
     try:
         data = await request.json()
-        gate_id = data.get("gate_id", "gate1")
+        gate_id = data.get("gate_id", "smartgate_device_001")
         
         mqtt_client = get_mqtt_client()
         success = mqtt_client.send_command(gate_id, "OPEN_DOOR")
@@ -493,7 +493,7 @@ async def mqtt_close_gate(request: Request):
     """Close gate via MQTT"""
     try:
         data = await request.json()
-        gate_id = data.get("gate_id", "gate1")
+        gate_id = data.get("gate_id", "smartgate_device_001")
         
         mqtt_client = get_mqtt_client()
         success = mqtt_client.send_command(gate_id, "CLOSE_DOOR")

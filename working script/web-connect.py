@@ -1,173 +1,227 @@
 #!/usr/bin/env python3
 """
-MQTT client for SmartGate that works with test.py
-Receives MQTT commands and executes them using the existing test.py script
+SmartGate MQTT Client
+- Connects to EC2 MQTT broker
+- Listens for gate control commands
+- Executes commands using test.py functions
 """
 
-import json
-import socket
+import paho.mqtt.client as mqtt
 import time
-import subprocess
-import threading
-from datetime import datetime
+import json
+import sys
+from test import open_gate, close_gate, print_status
+import io_control as io
+import Jetson.GPIO as GPIO
 
 class SmartGateMQTTClient:
-    """MQTT client for SmartGate that works with test.py"""
-    
-    def __init__(self, client_id="smartgate", broker_host="YOUR_EC2_PUBLIC_IP", broker_port=1883):
-        self.client_id = client_id
-        self.broker_host = broker_host
-        self.broker_port = broker_port
-        self.socket = None
-        self.connected = False
-        self.test_script_path = "test.py"
-    
-    def connect(self):
-        """Connect to MQTT broker and start listening for commands"""
-        try:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self.socket.connect((self.broker_host, self.broker_port))
-            self.connected = True
-            print(f"[+] SmartGate MQTT client connected to {self.broker_host}:{self.broker_port}")
-            
-            # Subscribe to commands
-            self._subscribe_to_commands()
-            
-            # Start listening for messages
-            self._start_listening()
-            
-        except Exception as e:
-            print(f"[-] Failed to connect: {e}")
-            self.connected = False
-    
-    def _subscribe_to_commands(self):
-        """Subscribe to command topic"""
-        topic = "smartgate/gate1/commands"
-        message = {
-            "action": "subscribe",
-            "topic": topic
-        }
-        
-        try:
-            self.socket.send(json.dumps(message).encode('utf-8'))
-            print(f"[+] Subscribed to {topic}")
-        except Exception as e:
-            print(f"[-] Error subscribing to commands: {e}")
-    
-    def _start_listening(self):
-        """Start listening for MQTT messages in a separate thread"""
-        def listen():
-            while self.connected:
-                try:
-                    data = self.socket.recv(1024)
-                    if data:
-                        message = json.loads(data.decode('utf-8'))
-                        self._handle_message(message)
-                except Exception as e:
-                    if self.connected:
-                        print(f"[-] Error receiving message: {e}")
-                    break
-        
-        thread = threading.Thread(target=listen, daemon=True)
-        thread.start()
-    
-    def _handle_message(self, message):
-        """Handle incoming MQTT message"""
-        topic = message.get('topic', '')
-        payload = message.get('payload', {})
-        
-        if 'smartgate/gate1/commands' in topic:
-            command = payload.get('command')
-            if command:
-                print(f"[MQTT] Received command: {command}")
-                self._execute_command(command)
-    
-    def _execute_command(self, command):
-        """Execute command using test.py script"""
-        try:
-            if command == "OPEN_DOOR":
-                print("[+] Executing: python3 test.py open")
-                subprocess.run(["python3", self.test_script_path, "open"], check=True)
-            elif command == "CLOSE_DOOR":
-                print("[+] Executing: python3 test.py close")
-                subprocess.run(["python3", self.test_script_path, "close"], check=True)
-            elif command == "STOP_DOOR":
-                print("[+] Executing: python3 test.py status (to stop)")
-                subprocess.run(["python3", self.test_script_path, "status"], check=True)
-            else:
-                print(f"[-] Unknown command: {command}")
-        except subprocess.CalledProcessError as e:
-            print(f"[-] Error executing command: {e}")
-        except Exception as e:
-            print(f"[-] Error executing command: {e}")
-    
-    def publish_status(self):
-        """Publish gate status"""
-        try:
-            # Get status from test.py
-            result = subprocess.run(["python3", self.test_script_path, "status"], 
-                                  capture_output=True, text=True, check=True)
-            
-            # Parse status from output
-            status = "unknown"
-            if "FULLY OPEN" in result.stdout:
-                status = "open"
-            elif "FULLY CLOSED" in result.stdout:
-                status = "closed"
-            elif "PARTIALLY OPEN" in result.stdout:
-                status = "moving"
-            
-            topic = "smartgate/gate1/status"
-            payload = {
-                "gate_id": "gate1",
-                "status": status,
-                "timestamp": datetime.now().isoformat()
-            }
-            
-            message = {
-                "topic": topic,
-                "payload": payload
-            }
-            
-            self.socket.send(json.dumps(message).encode('utf-8'))
-            print(f"[+] Published status: {status}")
-            
-        except Exception as e:
-            print(f"[-] Error publishing status: {e}")
-    
-    def disconnect(self):
-        """Disconnect from broker"""
-        if self.socket:
-            self.socket.close()
-        self.connected = False
-        print("[+] SmartGate MQTT client disconnected")
+	"""MQTT client for SmartGate device"""
+	
+	def __init__(self, broker_ip, broker_port=1883):
+		self.broker_ip = broker_ip
+		self.broker_port = broker_port
+		self.client = None
+		self.is_connected = False
+		
+		# MQTT topics
+		self.command_topic = "smartgate/commands"
+		self.status_topic = "smartgate/status"
+		self.device_id = "smartgate_device_001"
+		
+		print("[+] SmartGate MQTT Client initialized")
+		print("[+] Broker: {}:{}".format(broker_ip, broker_port))
+		print("[+] Device ID: {}".format(self.device_id))
+	
+	def on_connect(self, client, userdata, flags, rc):
+		"""Callback when connected to MQTT broker"""
+		if rc == 0:
+			print("[+] Connected to MQTT broker successfully")
+			self.is_connected = True
+			
+			# Subscribe to command topic
+			client.subscribe(self.command_topic)
+			print("[+] Subscribed to topic: {}".format(self.command_topic))
+			
+			# Publish device status
+			self.publish_status("online", "Device connected and ready")
+			
+		else:
+			print("[-] Failed to connect to MQTT broker. Return code: {}".format(rc))
+			self.is_connected = False
+	
+	def on_disconnect(self, client, userdata, rc):
+		"""Callback when disconnected from MQTT broker"""
+		print("[-] Disconnected from MQTT broker")
+		self.is_connected = False
+	
+	def on_message(self, client, userdata, msg):
+		"""Callback when message received"""
+		try:
+			topic = msg.topic
+			payload = msg.payload.decode('utf-8')
+			
+			print("[+] Received message on topic: {}".format(topic))
+			print("[+] Message payload: {}".format(payload))
+			
+			# Parse JSON command
+			command_data = json.loads(payload)
+			command = command_data.get('command')
+			device_id = command_data.get('device_id', '')
+			
+			# Check if command is for this device
+			if device_id and device_id != self.device_id:
+				print("[+] Command not for this device ({}), ignoring".format(device_id))
+				return
+			
+			print("[+] Executing command: {}".format(command))
+			
+			# Execute command using test.py functions
+			if command == 'OPEN_DOOR':
+				print("[+] Opening gate...")
+				open_gate()
+				self.publish_status("gate_opening", "Gate opening command executed")
+				
+			elif command == 'CLOSE_DOOR':
+				print("[+] Closing gate...")
+				close_gate()
+				self.publish_status("gate_closing", "Gate closing command executed")
+				
+			elif command == 'STOP_DOOR':
+				print("[+] Stopping gate...")
+				io.set_val('IN3', False)
+				io.set_val('IN4', False)
+				io.all_pins_off()
+				self.publish_status("gate_stopped", "Gate stop command executed")
+				
+			elif command == 'STATUS':
+				print("[+] Status requested")
+				print_status()
+				self.publish_status("status_requested", "Status check completed")
+				
+			else:
+				print("[-] Unknown command: {}".format(command))
+				self.publish_status("error", "Unknown command: {}".format(command))
+				
+		except json.JSONDecodeError:
+			print("[-] Invalid JSON in message: {}".format(payload))
+		except Exception as e:
+			print("[-] Error processing message: {}".format(str(e)))
+			self.publish_status("error", "Error processing command: {}".format(str(e)))
+	
+	def publish_status(self, status, message):
+		"""Publish device status to MQTT broker"""
+		if not self.is_connected:
+			return
+			
+		status_data = {
+			"device_id": self.device_id,
+			"status": status,
+			"message": message,
+			"timestamp": time.time()
+		}
+		
+		try:
+			self.client.publish(self.status_topic, json.dumps(status_data))
+			print("[+] Published status: {} - {}".format(status, message))
+		except Exception as e:
+			print("[-] Failed to publish status: {}".format(str(e)))
+	
+	def connect(self):
+		"""Connect to MQTT broker"""
+		try:
+			print("[+] Connecting to MQTT broker at {}:{}".format(self.broker_ip, self.broker_port))
+			
+			self.client = mqtt.Client(self.device_id)
+			self.client.on_connect = self.on_connect
+			self.client.on_disconnect = self.on_disconnect
+			self.client.on_message = self.on_message
+			
+			# Connect to broker
+			self.client.connect(self.broker_ip, self.broker_port, 60)
+			
+			# Start network loop
+			self.client.loop_start()
+			
+			# Wait for connection
+			timeout = 10
+			start_time = time.time()
+			while not self.is_connected and (time.time() - start_time) < timeout:
+				time.sleep(0.1)
+			
+			if self.is_connected:
+				print("[+] MQTT connection established successfully")
+				return True
+			else:
+				print("[-] MQTT connection timeout")
+				return False
+				
+		except Exception as e:
+			print("[-] Failed to connect to MQTT broker: {}".format(str(e)))
+			return False
+	
+	def disconnect(self):
+		"""Disconnect from MQTT broker"""
+		if self.client:
+			self.client.loop_stop()
+			self.client.disconnect()
+			print("[+] Disconnected from MQTT broker")
+	
+	def run(self):
+		"""Main run loop"""
+		try:
+			print("[+] SmartGate MQTT client running...")
+			print("[+] Listening for commands on topic: {}".format(self.command_topic))
+			print("[+] Press Ctrl+C to stop")
+			
+			# Keep running
+			while True:
+				time.sleep(1)
+				
+				# Publish periodic heartbeat
+				if self.is_connected:
+					self.publish_status("heartbeat", "Device online and listening")
+					time.sleep(30)  # Heartbeat every 30 seconds
+				else:
+					print("[-] Not connected to MQTT broker, attempting reconnection...")
+					self.connect()
+					time.sleep(5)
+					
+		except KeyboardInterrupt:
+			print("\n[+] Stopping SmartGate MQTT client...")
+			self.publish_status("offline", "Device shutting down")
+			self.disconnect()
+			print("[+] SmartGate MQTT client stopped")
 
 def main():
-    """Main function - start MQTT client and keep running"""
-    print("=" * 50)
-    print("SmartGate MQTT Client")
-    print("=" * 50)
-    print("Connecting to MQTT broker and listening for commands...")
-    print("Commands will be executed using test.py script")
-    print("Press Ctrl+C to stop")
-    print("=" * 50)
-    
-    # Create MQTT client
-    client = SmartGateMQTTClient()
-    client.connect()
-    
-    if client.connected:
-        try:
-            # Keep running and publish status periodically
-            while True:
-                time.sleep(30)  # Publish status every 30 seconds
-                client.publish_status()
-        except KeyboardInterrupt:
-            print("\n[+] Stopping MQTT client...")
-            client.disconnect()
-            print("[+] MQTT client stopped!")
-    else:
-        print("[-] Failed to connect to MQTT broker")
+	"""Main function"""
+	print("=" * 60)
+	print("SmartGate MQTT Client")
+	print("=" * 60)
+	
+	# Configuration
+	EC2_IP = "3.27.77.237"  # EC2 MQTT broker IP
+	MQTT_PORT = 1883
+	
+	print("[+] EC2 MQTT Broker: {}:{}".format(EC2_IP, MQTT_PORT))
+	print("[+] Commands will be executed using test.py functions")
+	print("[+] Press Ctrl+C to stop")
+	print("=" * 60)
+	
+	# Initialize MQTT client
+	mqtt_client = SmartGateMQTTClient(EC2_IP, MQTT_PORT)
+	
+	# Connect to broker
+	if not mqtt_client.connect():
+		print("[-] Failed to connect to MQTT broker. Exiting.")
+		sys.exit(1)
+	
+	# Run the client
+	try:
+		mqtt_client.run()
+	except Exception as e:
+		print("[-] Error running MQTT client: {}".format(str(e)))
+	finally:
+		mqtt_client.disconnect()
 
 if __name__ == "__main__":
-    main()
+	main()
