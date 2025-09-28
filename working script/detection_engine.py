@@ -181,3 +181,4 @@ class DetectionEngine:
         """Clean up detection engine resources."""
         self.stop_detection()
         print("Detection engine cleaned up.")
+

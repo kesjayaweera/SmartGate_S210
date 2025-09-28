@@ -4,76 +4,430 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartGate MQTT Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-open {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-close {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-camera {
+            background-color: #007bff;
+            color: white;
+        }
+         .btn-camera.active {
+             background-color: #6c757d;
+         }
+         .btn-refresh {
+             background-color: #17a2b8;
+             color: white;
+         }
+         .controls button:hover {
+             opacity: 0.8;
+         }
+        .controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+        }
+        .status-table th,
+        .status-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .status-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+        .status-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .status-value {
+            font-weight: bold;
+        }
+        .status-connected {
+            color: #28a745;
+        }
+        .status-disconnected {
+            color: #dc3545;
+        }
+        .status-unknown {
+            color: #ffc107;
+        }
+        .camera-section {
+            margin-top: 20px;
+        }
+        .camera-feed {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            display: block;
+            margin: 10px auto;
+        }
+        .camera-status {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .timestamp {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .log-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background-color: #e9ecef;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+        .btn-copy-logs {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-copy-logs:hover {
+            background-color: #0056b3;
+        }
+        .log-content {
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        .log-timestamp {
+            color: #6c757d;
+        }
+        .log-info {
+            color: #007bff;
+        }
+        .log-success {
+            color: #28a745;
+        }
+        .log-error {
+            color: #dc3545;
+        }
+        .log-warning {
+            color: #ffc107;
+        }
+        .log-header {
+            background-color: #e9ecef;
+            padding: 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #ddd;
+        }
+        .log-content {
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+        .log-timestamp {
+            color: #6c757d;
+        }
+        .log-info {
+            color: #007bff;
+        }
+        .log-success {
+            color: #28a745;
+        }
+        .log-error {
+            color: #dc3545;
+        }
+        .log-warning {
+            color: #ffc107;
+        }
+    </style>
 </head>
 <body>
-    <h1>SmartGate MQTT Control Panel</h1>
-    <p>MQTT-based remote gate control and monitoring system</p>
+    <div class="container">
+        <h1>SmartGate MQTT Control Panel</h1>
+        <p style="text-align: center; color: #666;">MQTT-based remote gate control and monitoring system</p>
 
-    <div id="statusBox">
-        <div id="statusMessage">
-            MQTT SmartGate Control Panel Ready
+         <!-- Control Buttons -->
+         <div class="controls">
+             <button class="btn-open" onclick="sendCommand('OPEN_DOOR')">Open Gate</button>
+             <button class="btn-close" onclick="sendCommand('CLOSE_DOOR')">Close Gate</button>
+             <button class="btn-camera" id="cameraBtn" onclick="toggleCameraStream()">Start Camera Stream</button>
+             <button class="btn-refresh" onclick="refreshAllStatus()">Refresh Status</button>
+         </div>
+
+        <!-- Status Table -->
+        <table class="status-table">
+            <thead>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Value</th>
+                    <th>Last Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Gate Connection Status</strong></td>
+                    <td><span class="status-value" id="connectionStatus">Checking...</span></td>
+                    <td><span class="timestamp" id="connectionStatusTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Gate State</strong></td>
+                    <td><span class="status-value" id="gateState">Unknown</span></td>
+                    <td><span class="timestamp" id="gateStateTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>MQTT Broker Status</strong></td>
+                    <td><span class="status-value" id="mqttBrokerStatus">Unknown</span></td>
+                    <td><span class="timestamp" id="mqttBrokerTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Publish Status</strong></td>
+                    <td><span class="status-value" id="publishStatus">Unknown</span></td>
+                    <td><span class="timestamp" id="publishTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Subscribe Status</strong></td>
+                    <td><span class="status-value" id="subscribeStatus">Unknown</span></td>
+                    <td><span class="timestamp" id="subscribeTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Last Command Sent</strong></td>
+                    <td><span class="status-value" id="lastCommandSent">None</span></td>
+                    <td><span class="timestamp" id="lastCommandSentTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Last Response Received</strong></td>
+                    <td><span class="status-value" id="lastResponseReceived">None</span></td>
+                    <td><span class="timestamp" id="lastResponseReceivedTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Last Timestamp from Gate</strong></td>
+                    <td><span class="status-value" id="lastGateTimestamp">None</span></td>
+                    <td><span class="timestamp" id="lastGateTimestampTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Device ID</strong></td>
+                    <td><span class="status-value">smartgate_device_001</span></td>
+                    <td><span class="timestamp">Static</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Broker Host</strong></td>
+                    <td><span class="status-value" id="brokerHost">localhost:1883</span></td>
+                    <td><span class="timestamp">Static</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Command Topic</strong></td>
+                    <td><span class="status-value">smartgate/commands</span></td>
+                    <td><span class="timestamp">Static</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Status Topic</strong></td>
+                    <td><span class="status-value">smartgate/status</span></td>
+                    <td><span class="timestamp">Static</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Camera Stream Section -->
+        <div class="camera-section">
+            <h3>Camera Stream</h3>
+            <div class="camera-status" id="cameraStatus">Camera: <span id="cameraStatusText">Not connected</span></div>
+            <img id="cameraFeed" class="camera-feed" src="" alt="Camera Feed" style="display: none;">
+        </div>
+
+        <!-- Log Section -->
+        <div class="log-container">
+            <div class="log-header">
+                System Log
+                <button class="btn-copy-logs" onclick="copyAllLogs()" title="Copy all logs to clipboard">Copy Logs</button>
+            </div>
+            <div class="log-content" id="logContent"></div>
         </div>
     </div>
 
-    <h3>Gate Status</h3>
-    <div id="gateStatus">
-        <div>Gate Status: <span id="currentGateStatus">Unknown</span></div>
-        <div>Last Update: <span id="lastGateUpdate">Never</span></div>
-    </div>
-    
-    <h3>Gate Controls (MQTT)</h3>
-    <div>
-        <button id="openBtn" onclick="sendMQTTCommand('OPEN_DOOR')">
-            Open Gate
-        </button>
-        <button id="closeBtn" onclick="sendMQTTCommand('CLOSE_DOOR')">
-            Close Gate
-        </button>
-        <button id="stopBtn" onclick="sendMQTTCommand('STOP_DOOR')">
-            Stop Gate
-        </button>
-    </div>
-    
-    
-    
-    <h3>MQTT Status</h3>
-    <div id="mqttStatus">
-        <div>MQTT Broker: <span id="mqttBrokerStatus">Unknown</span></div>
-        <div>Gate Connection: <span id="mqttGateStatus">Unknown</span></div>
-        <div>Last MQTT Message: <span id="lastMqttMessage">None</span></div>
-        <button onclick="checkMQTTStatus()">Check MQTT Status</button>
-    </div>
-    
-    <h3>MQTT Connection Info</h3>
-    <div id="mqttConnectionInfo">
-        <div>Gate ID: <span id="gateId">smartgate_device_001</span></div>
-        <div>Broker Host: <span id="brokerHost">localhost:1883</span></div>
-        <div>Connection Status: <span id="connectionStatus">Checking...</span></div>
-    </div>
-
     <script>
-        // MQTT SmartGate Control Panel
+        // Global variables
+        let cameraStreamActive = false;
+        let cameraStreamInterval;
+        let statusUpdateInterval;
 
-        // Update status message
-        function updateStatus(message, type = 'info') {
-            const statusMessage = document.getElementById('statusMessage');
-            statusMessage.textContent = message;
+        // Logging functions
+        function addLogEntry(message, type = 'info') {
+            const logContent = document.getElementById('logContent');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `<span class="log-timestamp">[${timestamp}]</span> ${message}`;
+            logContent.appendChild(logEntry);
+            logContent.scrollTop = logContent.scrollHeight;
+            
+            // Keep only last 100 entries
+            while (logContent.children.length > 100) {
+                logContent.removeChild(logContent.firstChild);
+            }
         }
 
-        // Display error on screen
-        function displayError(error) {
-            const statusMessage = document.getElementById('statusMessage');
-            statusMessage.textContent = `ERROR: ${error}`;
+        function logInfo(message) {
+            addLogEntry(message, 'info');
         }
 
+        function logSuccess(message) {
+            addLogEntry(message, 'success');
+        }
 
+        function logError(message) {
+            addLogEntry(message, 'error');
+        }
 
-        // Send MQTT command to SmartGate
-        async function sendMQTTCommand(command) {
-            updateStatus(`Sending ${command.toLowerCase().replace('_', ' ')} command via MQTT...`);
+        function logWarning(message) {
+            addLogEntry(message, 'warning');
+        }
 
+        // Copy all logs to clipboard
+        function copyAllLogs() {
+            const logContent = document.getElementById('logContent');
+            const logEntries = logContent.querySelectorAll('.log-entry');
+            let allLogs = '';
+            
+            logEntries.forEach(entry => {
+                allLogs += entry.textContent + '\n';
+            });
+            
+            if (allLogs.trim()) {
+                // Use fallback method for older browsers
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(allLogs).then(() => {
+                        logSuccess('All logs copied to clipboard!');
+                    }).catch(err => {
+                        // Fallback to textarea method
+                        fallbackCopyToClipboard(allLogs);
+                    });
+                } else {
+                    // Fallback for browsers without clipboard API
+                    fallbackCopyToClipboard(allLogs);
+                }
+            } else {
+                logWarning('No logs to copy');
+            }
+        }
+
+        // Fallback copy method using textarea
+        function fallbackCopyToClipboard(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                logSuccess('All logs copied to clipboard!');
+            } catch (err) {
+                logError('Failed to copy logs: ' + err);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+         // Initialize on page load
+         document.addEventListener('DOMContentLoaded', function() {
+             logInfo('SmartGate MQTT Control Panel initialized');
+             updateBrokerHost();
+             startStatusUpdates();
+             checkMQTTStatus();
+             checkLatestDetection();
+         });
+
+        // Update broker host display
+        function updateBrokerHost() {
+            document.getElementById('brokerHost').textContent = window.location.hostname + ':1883';
+        }
+
+        // Send command to gate
+        async function sendCommand(command) {
+            const commandTime = new Date().toISOString();
+            
+            logInfo(`Sending command: ${command}`);
+            
+            // Update table immediately
+            updateTableValue('lastCommandSent', command);
+            updateTableValue('lastCommandSentTime', formatTime(commandTime));
+            
             // Disable buttons temporarily
-            const buttons = document.querySelectorAll('button');
+            const buttons = document.querySelectorAll('.controls button');
             buttons.forEach(btn => btn.disabled = true);
 
             try {
@@ -89,17 +443,27 @@
                 });
 
                 const data = await response.json();
+                const responseTime = new Date().toISOString();
                 
+                // Update table with response
                 if (response.ok) {
-                    updateStatus(`MQTT command sent successfully: ${command}`);
-                    console.log(`[MQTT] Command sent: ${command}`);
+                    logSuccess(`Command ${command} sent successfully: ${data.message || 'Command sent'}`);
+                    updateTableValue('lastResponseReceived', 'Success: ' + (data.message || 'Command sent'));
+                    updateTableValue('lastResponseReceivedTime', formatTime(responseTime));
+                    updateTableValue('lastResponseReceived', 'Success: ' + (data.message || 'Command sent'), 'success');
                 } else {
-                    displayError(`MQTT command failed: ${data.error}`);
-                    console.error(`[MQTT] Command failed: ${data.error}`);
+                    logError(`Command ${command} failed: ${data.error || 'Unknown error'}`);
+                    updateTableValue('lastResponseReceived', 'Error: ' + (data.error || 'Unknown error'));
+                    updateTableValue('lastResponseReceivedTime', formatTime(responseTime));
+                    updateTableValue('lastResponseReceived', 'Error: ' + (data.error || 'Unknown error'), 'error');
                 }
+                
             } catch (error) {
-                displayError(`MQTT command error: ${error.message}`);
-                console.error(`[MQTT] Command error: ${error.message}`);
+                const errorTime = new Date().toISOString();
+                logError(`Network error sending command ${command}: ${error.message}`);
+                updateTableValue('lastResponseReceived', 'Network Error: ' + error.message);
+                updateTableValue('lastResponseReceivedTime', formatTime(errorTime));
+                updateTableValue('lastResponseReceived', 'Network Error: ' + error.message, 'error');
             } finally {
                 // Re-enable buttons after 2 seconds
                 setTimeout(() => {
@@ -108,131 +472,352 @@
             }
         }
 
-        // New command system functions
-        async function executeCommand(commandType, gateNo = null) {
+        // Toggle camera stream
+        function toggleCameraStream() {
+            if (cameraStreamActive) {
+                stopCameraStream();
+            } else {
+                startCameraStream();
+            }
+        }
+
+        // Start camera stream
+        async function startCameraStream() {
+            const cameraFeed = document.getElementById('cameraFeed');
+            const cameraStatus = document.getElementById('cameraStatusText');
+            const cameraBtn = document.getElementById('cameraBtn');
+            
+            logInfo('Starting camera stream...');
+            
+            // First, send START_CAMERA command to SmartGate
             try {
-                const response = await fetch('/execute_command', {
+                const startResponse = await fetch('/mqtt/start_camera', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        command_type: commandType,
-                        gate_no: gateNo,
-                        priority: 1
+                        device_id: 'smartgate_device_001'
                     })
                 });
-
-                const data = await response.json();
-                if (response.ok) {
-                    updateStatus(`Command submitted: ${commandType}`);
-                    updateSystemStatus();
+                
+                if (startResponse.ok) {
+                    logSuccess('Camera start command sent successfully');
+                    // Wait a moment for camera server to start
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                 } else {
-                    displayError(`Command failed: ${data.error}`);
+                    logError('Failed to send camera start command');
                 }
             } catch (error) {
-                displayError(`Error executing command: ${error.message}`);
+                logError(`Error sending camera start command: ${error.message}`);
+            }
+            
+            // Use MQTT-based camera streaming
+            const streamUrl = `http://3.27.77.237:8000/stream`;
+            logInfo(`Using MQTT camera stream: ${streamUrl}`);
+            
+            // Update debug info (with null checks)
+            const currentUrlElement = document.getElementById('currentCameraUrl');
+            const connectionStatusElement = document.getElementById('cameraConnectionStatus');
+            
+            if (currentUrlElement) {
+                currentUrlElement.textContent = streamUrl;
+            }
+            if (connectionStatusElement) {
+                connectionStatusElement.textContent = 'Connecting...';
+            }
+            
+            cameraFeed.src = streamUrl;
+            cameraFeed.style.display = 'block';
+            cameraStatus.textContent = 'Connecting...';
+            cameraStatus.className = 'status-unknown';
+            
+            cameraBtn.textContent = 'Stop Camera Stream';
+            cameraBtn.classList.add('active');
+            
+            // Handle image load/error with detailed logging
+            cameraFeed.onload = function() {
+                logSuccess('Image loaded successfully');
+                logInfo(`Image dimensions: ${cameraFeed.naturalWidth}x${cameraFeed.naturalHeight}`);
+                
+                // Update debug info (with null checks)
+                const connectionStatusElement = document.getElementById('cameraConnectionStatus');
+                const dimensionsElement = document.getElementById('cameraDimensions');
+                const lastErrorElement = document.getElementById('cameraLastError');
+                
+                if (connectionStatusElement) {
+                    connectionStatusElement.textContent = 'Connected';
+                }
+                if (dimensionsElement) {
+                    dimensionsElement.textContent = cameraFeed.naturalWidth + 'x' + cameraFeed.naturalHeight;
+                }
+                if (lastErrorElement) {
+                    lastErrorElement.textContent = 'None';
+                }
+                
+                cameraStatus.textContent = 'Connected';
+                cameraStatus.className = 'status-connected';
+                cameraStreamActive = true;
+                
+                // Refresh image every 200ms for live stream
+                cameraStreamInterval = setInterval(() => {
+                    if (cameraFeed.src) {
+                        const newUrl = cameraFeed.src.split('?')[0] + '?t=' + new Date().getTime();
+                        cameraFeed.src = newUrl;
+                    }
+                }, 200);
+            };
+            
+            cameraFeed.onerror = function(event) {
+                logError(`Image load error: ${event.type}`);
+                logError(`Error details: src=${event.target.src}, dimensions=${event.target.naturalWidth}x${event.target.naturalHeight}`);
+                
+                // Update debug info (with null checks)
+                const errorMsg = 'Image load failed - ' + event.type;
+                const connectionStatusElement = document.getElementById('cameraConnectionStatus');
+                const lastErrorElement = document.getElementById('cameraLastError');
+                const dimensionsElement = document.getElementById('cameraDimensions');
+                
+                if (connectionStatusElement) {
+                    connectionStatusElement.textContent = 'Failed';
+                }
+                if (lastErrorElement) {
+                    lastErrorElement.textContent = errorMsg;
+                }
+                if (dimensionsElement) {
+                    dimensionsElement.textContent = 'N/A';
+                }
+                
+                cameraStatus.textContent = 'Connection failed - check debug info below';
+                cameraStatus.className = 'status-disconnected';
+                cameraFeed.style.display = 'none';
+                cameraStreamActive = false;
+                cameraBtn.textContent = 'Start Camera Stream';
+                cameraBtn.classList.remove('active');
+            };
+        }
+        
+        // Get SmartGate IP from connected devices
+        async function getSmartGateIP() {
+            try {
+                // Try to get the IP from the MQTT status endpoint
+                const response = await fetch('/mqtt/gate_status/smartgate_device_001');
+                const data = await response.json();
+                
+                if (response.ok && data.last_seen) {
+                    logInfo(`Gate status data: ${JSON.stringify(data)}`);
+                    
+                    // Check if the device sent its IP in the status message
+                    if (data.device_ip) {
+                        logInfo(`Using device IP from status: ${data.device_ip}`);
+                        return data.device_ip;
+                    }
+                    
+                    // If no device IP, try common IPs that might be the SmartGate device
+                    const possibleIPs = [
+                        '192.168.1.100',  // Common router IP range
+                        '192.168.0.100',  // Common router IP range
+                        '10.0.0.100',     // Common router IP range
+                        'localhost'        // Fallback
+                    ];
+                    
+                        logWarning('No device IP found, trying common IPs');
+                    return possibleIPs[0];
+                }
+            } catch (error) {
+                logError(`Error getting SmartGate IP: ${error.message}`);
+            }
+            
+            return null;
+        }
+
+        // Stop camera stream
+        async function stopCameraStream() {
+            const cameraFeed = document.getElementById('cameraFeed');
+            const cameraStatus = document.getElementById('cameraStatusText');
+            const cameraBtn = document.getElementById('cameraBtn');
+            
+            // Send STOP_CAMERA command to SmartGate
+            try {
+                const stopResponse = await fetch('/mqtt/stop_camera', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        device_id: 'smartgate_device_001'
+                    })
+                });
+                
+                if (stopResponse.ok) {
+                    logSuccess('Camera stop command sent successfully');
+                } else {
+                    logError('Failed to send camera stop command');
+                }
+            } catch (error) {
+                logError(`Error sending camera stop command: ${error.message}`);
+            }
+            
+            cameraFeed.src = '';
+            cameraFeed.style.display = 'none';
+            cameraStatus.textContent = 'Stopped';
+            cameraStatus.className = 'status-disconnected';
+            
+            cameraBtn.textContent = 'Start Camera Stream';
+            cameraBtn.classList.remove('active');
+            cameraStreamActive = false;
+            
+            if (cameraStreamInterval) {
+                clearInterval(cameraStreamInterval);
+                cameraStreamInterval = null;
             }
         }
 
-
-
+         // Refresh all status information
+         async function refreshAllStatus() {
+             const refreshTime = new Date().toISOString();
+             
+             // Update refresh button to show it's working
+             const refreshBtn = document.querySelector('.btn-refresh');
+             const originalText = refreshBtn.textContent;
+             refreshBtn.textContent = 'Refreshing...';
+             refreshBtn.disabled = true;
+             
+             try {
+                 // Check MQTT status
+                 await checkMQTTStatus();
+                 
+                 // Check for latest detection
+                 await checkLatestDetection();
+                 
+                 // Update pub/sub status
+                 updateTableValue('publishStatus', 'Active', 'success');
+                 updateTableValue('subscribeStatus', 'Active', 'success');
+                 updateTableValue('publishTime', formatTime(refreshTime));
+                 updateTableValue('subscribeTime', formatTime(refreshTime));
+                 
+                 logInfo(`Status refresh completed at ${formatTime(refreshTime)}`);
+                 
+             } catch (error) {
+                 logError('Error during status refresh: ' + error.message);
+                 updateTableValue('connectionStatus', 'Refresh Error', 'error');
+                 updateTableValue('connectionStatusTime', formatTime(refreshTime));
+             } finally {
+                 // Restore button
+                 refreshBtn.textContent = originalText;
+                 refreshBtn.disabled = false;
+             }
+         }
+         
+         // Check for latest animal detection
+         async function checkLatestDetection() {
+             try {
+                 const response = await fetch('/mqtt/get_latest_detection');
+                 const data = await response.json();
+                 const checkTime = new Date().toISOString();
+                 
+                 if (response.ok && data.animal && data.animal !== 'None') {
+                     updateTableValue('lastDetectedAnimal', `${data.animal} (${Math.round(data.confidence * 100)}%)`, 'success');
+                     updateTableValue('lastDetectedAnimalTime', formatTime(data.timestamp || checkTime));
+                 } else {
+                     updateTableValue('lastDetectedAnimal', 'No detections', 'status-unknown');
+                     updateTableValue('lastDetectedAnimalTime', formatTime(checkTime));
+                 }
+             } catch (error) {
+                 logError('Error checking latest detection: ' + error.message);
+                 updateTableValue('lastDetectedAnimal', 'Error', 'error');
+                 updateTableValue('lastDetectedAnimalTime', formatTime(new Date().toISOString()));
+             }
+         }
 
         // Check MQTT status
         async function checkMQTTStatus() {
             try {
-                // Check gate status via MQTT
                 const response = await fetch('/mqtt/gate_status/smartgate_device_001');
                 const data = await response.json();
+                const checkTime = new Date().toISOString();
                 
                 if (response.ok) {
-                    document.getElementById('mqttBrokerStatus').textContent = 'Connected';
-                    document.getElementById('mqttBrokerStatus').style.color = '#28a745';
+                    updateTableValue('mqttBrokerStatus', 'Connected', 'success');
+                    updateTableValue('mqttBrokerTime', formatTime(checkTime));
                     
                     if (data.status && data.status !== 'unknown') {
-                        document.getElementById('mqttGateStatus').textContent = 'Connected';
-                        document.getElementById('mqttGateStatus').style.color = '#28a745';
-                        document.getElementById('lastMqttMessage').textContent = 
-                            `${data.status} at ${new Date(data.timestamp).toLocaleTimeString()}`;
+                        // Check if this is a heartbeat message
+                        if (data.status === 'heartbeat') {
+                            updateTableValue('gateHeartbeat', 'Online - ' + (data.message || 'Device listening'), 'success');
+                            updateTableValue('gateHeartbeatTime', formatTime(data.timestamp || checkTime));
+                            updateTableValue('gateState', 'Connected');
+                        } else {
+                            updateTableValue('gateState', data.status);
+                        }
                         
-                        // Update gate status display
-                        updateGateStatusDisplay(data.status, data.timestamp);
+                        updateTableValue('lastGateTimestamp', data.timestamp || 'N/A');
+                        updateTableValue('lastGateTimestampTime', formatTime(checkTime));
+                        updateTableValue('connectionStatus', 'Connected', 'success');
                     } else {
-                        document.getElementById('mqttGateStatus').textContent = 'No gate connected';
-                        document.getElementById('mqttGateStatus').style.color = '#dc3545';
-                        updateGateStatusDisplay('Disconnected', null);
+                        updateTableValue('gateHeartbeat', 'No heartbeat received', 'error');
+                        updateTableValue('gateHeartbeatTime', formatTime(checkTime));
+                        updateTableValue('gateState', 'No gate connected', 'error');
+                        updateTableValue('connectionStatus', 'No gate connected', 'error');
                     }
                 } else {
-                    document.getElementById('mqttBrokerStatus').textContent = 'Error';
-                    document.getElementById('mqttBrokerStatus').style.color = '#dc3545';
-                    document.getElementById('mqttGateStatus').textContent = 'Unknown';
-                    document.getElementById('mqttGateStatus').style.color = '#ffc107';
+                    updateTableValue('mqttBrokerStatus', 'Error', 'error');
+                    updateTableValue('gateHeartbeat', 'Broker error', 'error');
+                    updateTableValue('connectionStatus', 'Error', 'error');
                 }
+                
+                updateTableValue('connectionStatusTime', formatTime(checkTime));
+                
             } catch (error) {
-                document.getElementById('mqttBrokerStatus').textContent = 'Disconnected';
-                document.getElementById('mqttBrokerStatus').style.color = '#dc3545';
-                document.getElementById('mqttGateStatus').textContent = 'Unknown';
-                document.getElementById('mqttGateStatus').style.color = '#ffc107';
-                console.error('MQTT status check failed:', error);
+                const errorTime = new Date().toISOString();
+                updateTableValue('mqttBrokerStatus', 'Disconnected', 'error');
+                updateTableValue('gateHeartbeat', 'Connection failed', 'error');
+                updateTableValue('connectionStatus', 'Disconnected', 'error');
+                updateTableValue('connectionStatusTime', formatTime(errorTime));
             }
         }
-        
-        // Real-time status updates
-        let statusUpdateInterval;
-        
-        function startRealTimeUpdates() {
-            // Check status every 2 seconds
-            statusUpdateInterval = setInterval(checkMQTTStatus, 2000);
-            console.log('[+] Real-time status updates started');
+
+        // Update table value with optional CSS class
+        function updateTableValue(elementId, value, cssClass = null) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = value;
+                if (cssClass) {
+                    element.className = 'status-value ' + cssClass;
+                }
+            }
         }
-        
-        function stopRealTimeUpdates() {
+
+        // Format timestamp for display
+        function formatTime(timestamp) {
+            try {
+                return new Date(timestamp).toLocaleString();
+            } catch (e) {
+                return 'Invalid time';
+            }
+        }
+
+        // Start periodic status updates
+        function startStatusUpdates() {
+            // Update pub/sub status
+            updateTableValue('publishStatus', 'Active', 'success');
+            updateTableValue('subscribeStatus', 'Active', 'success');
+            updateTableValue('publishTime', formatTime(new Date().toISOString()));
+            updateTableValue('subscribeTime', formatTime(new Date().toISOString()));
+            
+            // Check MQTT status every 5 seconds
+            statusUpdateInterval = setInterval(checkMQTTStatus, 5000);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (cameraStreamInterval) {
+                clearInterval(cameraStreamInterval);
+            }
             if (statusUpdateInterval) {
                 clearInterval(statusUpdateInterval);
-                statusUpdateInterval = null;
-                console.log('[-] Real-time status updates stopped');
             }
-        }
-
-        // Update system status every 2 seconds
-        setInterval(updateSystemStatus, 2000);
-        
-        // Start real-time updates on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            checkMQTTStatus();
-            startRealTimeUpdates();
         });
-        
-        // Stop updates when page is unloaded
-        window.addEventListener('beforeunload', function() {
-            stopRealTimeUpdates();
-        });
-
-        // Update gate status display
-        function updateGateStatusDisplay(status, timestamp) {
-            document.getElementById('currentGateStatus').textContent = status;
-            document.getElementById('lastGateUpdate').textContent = 
-                timestamp ? new Date(timestamp).toLocaleString() : 'Never';
-        }
-
-        // Update MQTT connection info
-        function updateMQTTConnectionInfo() {
-            document.getElementById('gateId').textContent = 'smartgate_device_001';
-            document.getElementById('brokerHost').textContent = window.location.hostname + ':1883';
-        }
-
-        // Handle page load
-        window.onload = function() {
-            // Update MQTT connection info
-            updateMQTTConnectionInfo();
-            
-            // Check MQTT status on page load
-            checkMQTTStatus();
-            
-            // Update status message
-            updateStatus('MQTT SmartGate Control Panel Ready');
-        };
-
     </script>
 </body>
 </html>

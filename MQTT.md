@@ -2,10 +2,63 @@
 
 Gate (University) → Connects to → EC2 MQTT Broker (Port 1883) ← WebApp
 
-**All HTTP-based direct communication has been removed** - the system now operates exclusively through MQTT messaging.
+## Camera Stream Implementation
+
+The system streams JPEGs over MQTT at 10 FPS using the following integration:
+
+### **Integration Flow:**
+
+1. **`camera_stream.py` (CameraStream class)**
+
+   - Captures frames using GStreamer pipeline
+   - Stores latest frame in `self.latest_frame`
+   - Provides `get_latest_frame()` method
+2. **`web-connect.py` (MQTT streaming)**
+
+   - Gets frames via `get_latest_frame()`
+   - Resizes to 480x360 for faster transmission
+   - Encodes as JPEG (80% quality)
+   - Base64 encodes for MQTT
+   - Publishes to `"smartgate/camera"` topic
+3. **EC2 MQTT Broker**
+
+   - Receives JPEGs from SmartGate device
+   - Forwards to WebApp
+4. **WebApp**
+
+   - Receives JPEGs via MQTT
+   - Displays camera stream
+
+### **Key Methods Used:**
+
+**From `camera_stream.py`:**
+
+- `CameraStream()` - Constructor
+- `start_stream()` - Starts camera capture
+- `get_latest_frame()` - Gets current frame
+- `is_available()` - Checks if camera is working
+- `stop_stream()` - Stops camera capture
+
+**From `web-connect.py`:**
+
+- `start_camera_stream()` - Initializes CameraStream
+- `_camera_stream_loop()` - MQTT streaming loop
+- `stop_camera_stream()` - Stops everything
+
+### **MQTT Message Structure:**
+
+```json
+{
+  "device_id": "smartgate_device_001",
+  "frame": "base64_encoded_jpeg_data",
+  "timestamp": 1234567890.123,
+  "width": 480,
+  "height": 360,
+  "frame_id": 1234
+}
+```
 
 ## ALTERNATE PORTS
-
 
 at least according to chat
 

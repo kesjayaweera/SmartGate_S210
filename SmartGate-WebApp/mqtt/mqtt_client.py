@@ -1,38 +1,37 @@
 #!/usr/bin/env python3
 """
-SmartGate WebApp MQTT Client
+MQTT Client for SmartGate WebApp
 - Connects to MQTT broker
-- Subscribes to device status and detection topics
-- Stores device status and detection data
+- Sends commands to SmartGate devices
+- Receives status updates from devices
 """
 
 import paho.mqtt.client as mqtt
 import json
 import time
+import os
 from datetime import datetime
 
 class SmartGateMQTTClient:
-	"""MQTT client for SmartGate WebApp"""
+	"""MQTT client for webapp to control SmartGate devices"""
 	
-	def __init__(self, broker_host, broker_port=1883):
-		self.broker_host = broker_host
-		self.broker_port = broker_port
+	def __init__(self):
+		self.broker_host = os.getenv('MQTT_BROKER_HOST', 'localhost')
+		self.broker_port = int(os.getenv('MQTT_BROKER_PORT', 1883))
 		self.client = None
 		self.is_connected = False
 		
 		# MQTT topics
 		self.command_topic = "smartgate/commands"
 		self.status_topic = "smartgate/status"
-		self.detection_topic = "smartgate/detections"
-		self.camera_topic = "smartgate/camera"
 		
 		# Device tracking
 		self.connected_devices = {}
 		self.device_status = {}
 		self.latest_detection = None
-		self.latest_camera_frame = None
 		
 		print("[+] SmartGate WebApp MQTT Client initialized")
+		print("[+] Broker: {}:{}".format(self.broker_host, self.broker_port))
 	
 	def on_connect(self, client, userdata, flags, rc):
 		"""Callback when connected to MQTT broker"""
@@ -40,17 +39,9 @@ class SmartGateMQTTClient:
 			print("[+] WebApp connected to MQTT broker successfully")
 			self.is_connected = True
 			
-			# Subscribe to status topic
+			# Subscribe to status topic to receive device updates
 			client.subscribe(self.status_topic)
 			print("[+] Subscribed to status topic: {}".format(self.status_topic))
-			
-			# Subscribe to detection topic to receive animal detections
-			client.subscribe(self.detection_topic)
-			print("[+] Subscribed to detection topic: {}".format(self.detection_topic))
-			
-			# Subscribe to camera topic to receive camera frames
-			client.subscribe(self.camera_topic)
-			print("[+] Subscribed to camera topic: {}".format(self.camera_topic))
 			
 		else:
 			print("[-] WebApp failed to connect to MQTT broker. Return code: {}".format(rc))
@@ -70,48 +61,12 @@ class SmartGateMQTTClient:
 			print("[+] WebApp received message on topic: {}".format(topic))
 			print("[+] Message payload: {}".format(payload))
 			
-			# Parse JSON message
-			message_data = json.loads(payload)
-			device_id = message_data.get('device_id')
-			
-			# Handle detection messages
-			if topic == self.detection_topic:
-				animal = message_data.get('animal')
-				confidence = message_data.get('confidence')
-				timestamp = message_data.get('timestamp')
-				
-				if animal:
-					self.latest_detection = {
-						"animal": animal,
-						"confidence": confidence,
-						"timestamp": timestamp,
-						"device_id": device_id
-					}
-					print("[+] Latest detection updated: {} ({}%)".format(animal, confidence * 100))
-				return
-			
-			# Handle camera messages
-			if topic == self.camera_topic:
-				frame_b64 = message_data.get('frame')
-				timestamp = message_data.get('timestamp')
-				width = message_data.get('width', 640)
-				height = message_data.get('height', 480)
-				
-				if frame_b64:
-					self.latest_camera_frame = {
-						"frame": frame_b64,
-						"timestamp": timestamp,
-						"width": width,
-						"height": height,
-						"device_id": device_id
-					}
-					print("[+] Camera frame received: {}x{} at {}".format(width, height, timestamp))
-				return
-			
-			# Handle status messages
-			status = message_data.get('status')
-			message = message_data.get('message')
-			timestamp = message_data.get('timestamp')
+			# Parse JSON status message
+			status_data = json.loads(payload)
+			device_id = status_data.get('device_id')
+			status = status_data.get('status')
+			message = status_data.get('message')
+			timestamp = status_data.get('timestamp')
 			
 			if device_id:
 				# Update device tracking
@@ -165,22 +120,22 @@ class SmartGateMQTTClient:
 			return False
 	
 	def send_command(self, device_id, command):
-		"""Send command to device"""
+		"""Send command to specific SmartGate device"""
 		if not self.is_connected:
 			print("[-] Not connected to MQTT broker")
 			return False
 		
+		command_data = {
+			"device_id": device_id,
+			"command": command,
+			"timestamp": time.time(),
+			"source": "webapp"
+		}
+		
 		try:
-			command_data = {
-				"device_id": device_id,
-				"command": command,
-				"timestamp": time.time()
-			}
-			
 			self.client.publish(self.command_topic, json.dumps(command_data))
-			print("[+] Sent command to {}: {}".format(device_id, command))
+			print("[+] WebApp sent command to device {}: {}".format(device_id, command))
 			return True
-			
 		except Exception as e:
 			print("[-] Failed to send command: {}".format(str(e)))
 			return False
@@ -217,12 +172,8 @@ class SmartGateMQTTClient:
 		return device_id in self.connected_devices
 	
 	def get_latest_detection(self):
-		"""Get latest animal detection"""
+		"""Get latest animal detection data"""
 		return self.latest_detection
-	
-	def get_latest_camera_frame(self):
-		"""Get latest camera frame"""
-		return self.latest_camera_frame
 	
 	def disconnect(self):
 		"""Disconnect from MQTT broker"""
@@ -232,33 +183,22 @@ class SmartGateMQTTClient:
 			print("[+] WebApp disconnected from MQTT broker")
 
 # Global MQTT client instance
-_mqtt_client = None
+mqtt_client = None
 
 def get_mqtt_client():
-	"""Get or create MQTT client instance"""
-	global _mqtt_client
-	if _mqtt_client is None:
-		# Get broker host from environment or use default
-		import os
-		broker_host = os.getenv('MQTT_BROKER_HOST', 'mqtt-broker')
-		broker_port = int(os.getenv('MQTT_BROKER_PORT', '1883'))
-		
-		_mqtt_client = SmartGateMQTTClient(broker_host, broker_port)
-		_mqtt_client.connect()
-	
-	return _mqtt_client
+	"""Get or create global MQTT client instance"""
+	global mqtt_client
+	if mqtt_client is None:
+		mqtt_client = SmartGateMQTTClient()
+		mqtt_client.connect()
+	return mqtt_client
 
-def get_connected_devices():
-	"""Get connected devices"""
+def send_gate_command(device_id, command):
+	"""Send command to gate device"""
+	client = get_mqtt_client()
+	return client.send_command(device_id, command)
+
+def get_connected_gates():
+	"""Get list of connected gate devices"""
 	client = get_mqtt_client()
 	return client.get_connected_devices()
-
-def get_latest_detection():
-	"""Get latest animal detection"""
-	client = get_mqtt_client()
-	return client.latest_detection
-
-def get_latest_camera_frame():
-	"""Get latest camera frame"""
-	client = get_mqtt_client()
-	return client.latest_camera_frame

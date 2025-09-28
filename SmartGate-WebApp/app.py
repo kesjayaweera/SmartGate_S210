@@ -11,7 +11,7 @@ async def lifespan(app):
     try:
         print("[+] SmartGate WebApp starting up...")
         # Initialize MQTT client on startup
-        from controllers.main_controller import get_mqtt_client
+        from mqtt.mqtt_client import get_mqtt_client
         mqtt_client = get_mqtt_client()
         if mqtt_client:
             print("[+] MQTT client initialized and connected on startup")

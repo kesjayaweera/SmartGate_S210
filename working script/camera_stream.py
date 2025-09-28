@@ -45,9 +45,20 @@ class CameraStream:
             return
             
         try:
+            # Try GStreamer first
+            print("[+] Trying GStreamer camera...")
             self.cap = cv2.VideoCapture(self.gstreamer_pipeline(), cv2.CAP_GSTREAMER)
+            
             if not self.cap.isOpened():
-                raise Exception("Failed to open camera")
+                print("[-] GStreamer failed, trying OpenCV direct...")
+                self.cap = cv2.VideoCapture(0)
+                
+                if not self.cap.isOpened():
+                    print("[-] OpenCV direct failed, trying V4L2...")
+                    self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
+            
+            if not self.cap.isOpened():
+                raise Exception("Failed to open camera with any method")
                 
             self.is_running = True
             self.stream_thread = threading.Thread(target=self._stream_loop, daemon=True)
