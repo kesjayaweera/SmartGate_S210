@@ -13,7 +13,8 @@ from door_control import DoorControl
 ### HTTP Server Handler. ###
 
 #Global variable to store the latest frame
-latest_frame = None
+latest_frame0 = None
+latest_frame1 = None
 gate_status  = None
 
 # Global queue to communicate between HTTP server and main thread
@@ -36,15 +37,34 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(Read_Web_Page('../web/index.html'))
 
         #--- Camera stream request. ---
-        elif self.path == '/stream':
+        elif self.path == '/stream0':
             self.send_response(200)
             self.send_header('Content-type', 'multipart/x-mixed-replace; boundary=frame')
             self.end_headers()
 
             try:
                 while True:
-                    if latest_frame is not None:
-                        _, jpeg = cv2.imencode('.jpg', latest_frame)
+                    if latest_frame0 is not None:
+                        _, jpeg = cv2.imencode('.jpg', latest_frame0)
+                        self.wfile.write(b'--frame\r\n')
+                        self.send_header('Content-type', 'image/jpeg')
+                        self.send_header('Content-length', len(jpeg))
+                        self.end_headers()
+                        self.wfile.write(jpeg.tobytes())
+                        self.wfile.write(b'\r\n')
+
+            except Exception as e:
+                print(f"[-] Streaming error: {str(e)}")
+
+        elif self.path == '/stream1':
+            self.send_response(200)
+            self.send_header('Content-type', 'multipart/x-mixed-replace; boundary=frame')
+            self.end_headers()
+
+            try:
+                while True:
+                    if latest_frame1 is not None:
+                        _, jpeg = cv2.imencode('.jpg', latest_frame1)
                         self.wfile.write(b'--frame\r\n')
                         self.send_header('Content-type', 'image/jpeg')
                         self.send_header('Content-length', len(jpeg))
@@ -92,10 +112,24 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
+<<<<<<< HEAD
+=======
+
+        print(f"[+] POST request received from: {self.client_address[0]}")
+        print(f"[+] Request path: {self.path}")
+        print(f"[+] Content length: {content_length}")
+        print(f"[+] Raw POST data: {post_data.decode('utf-8')}")
+>>>>>>> ce3a10e (Add support for dual camera streams in AI detection)
 
         try:
             data = json.loads(post_data.decode('utf-8'))
             command = data.get('command')
+<<<<<<< HEAD
+=======
+
+            print(f"[+] Parsed command: {command}")
+            print(f"[+] Full request data: {data}")
+>>>>>>> ce3a10e (Add support for dual camera streams in AI detection)
 
             if command in ['OPEN_DOOR', 'CLOSE_DOOR']:
                 command_queue.put(command)
@@ -115,9 +149,14 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps({"status": "error", "message": "Invalid JSON"}).encode('utf-8'))
 
 #Set the frame to be passed to web server
-def set_latest_frame(frame):
-    global latest_frame
-    latest_frame = frame
+def set_latest_frame0(frame):
+    global latest_frame0
+    latest_frame0 = frame
+
+def set_latest_frame1(frame):
+    global latest_frame1
+    latest_frame1 = frame
+
 
 #Set the door_controller reference to read door status 
 def set_door_controller_reference(door_controller : DoorControl):

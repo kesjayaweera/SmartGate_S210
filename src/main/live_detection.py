@@ -9,7 +9,7 @@ import io_control as io
 from enum import Enum, auto
 import threading
 
-from http_server import Initialize_Server, Shutdown_Server, set_latest_frame, set_door_controller_reference, Fetch_Queued_Command
+from http_server import Initialize_Server, Shutdown_Server, set_latest_frame0, set_latest_frame1, set_door_controller_reference, Fetch_Queued_Command
 from ruleset_decider import RulesetDecider
 from gate_states import State
 from json_config import JsonConfig
@@ -18,6 +18,7 @@ import signal
 import sys
 
 def gstreamer_pipeline(
+    sensor_id=0,
     capture_width=1280,
     capture_height=720,
     display_width=1280,
@@ -26,7 +27,7 @@ def gstreamer_pipeline(
     flip_method=0
 ):
     return (
-        f"nvarguscamerasrc ! "
+        f"nvarguscamerasrc sensor-id={sensor_id} ! "
         f"video/x-raw(memory:NVMM), "
         f"width=(int){capture_width}, height=(int){capture_height}, "
         f"format=(string)NV12, framerate=(fraction){framerate}/1 ! "
@@ -89,9 +90,10 @@ def main():
     #Initialize object detection class list
     object_list = []
 
-    #Open the camera using GStreamer pipeline
-    cap = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
-
+    #Open both cameras using GStreamer pipeline
+    cap0 = cv2.VideoCapture(gstreamer_pipeline(sensor_id=0), cv2.CAP_GSTREAMER)
+    cap1 = cv2.VideoCapture(gstreamer_pipeline(sensor_id=1), cv2.CAP_GSTREAMER)
+    
     #Our main loop
     while True:
         #----------Check for commands from POST requests coming from HTTP server------------
@@ -123,20 +125,22 @@ def main():
         #------------DETECT State ----------------------------------------------------------
         elif current_state == State.DETECT:
             print("Detecting objects.")
-            ret_val, img = cap.read()
-            if not ret_val:
+            ret_val0, img0 = cap0.read()
+            ret_val1, img1 = cap1.read()
+            if not ret_val0 or not ret_val1:
                 break
 
             #Resize the frame for YOLOv5
-            img = imutils.resize(img, width=600)
+            img0 = imutils.resize(img0, width=600)
+            img1 = imutils.resize(img1, width=600)
 
             #Perform inference
-            detections, t = model.Inference(img)
-
+            detections0, t0 = model.Inference(img0)
+            detections1, t1 = model.Inference(img1)
             #Update the latest_frame for streaming
-            set_latest_frame(img.copy())
-
-            object_list = [obj['class'] for obj in detections]
+            set_latest_frame0(img0.copy())
+            set_latest_frame1(img1.copy())
+            object_list = [obj['class'] for obj in detections0] + [obj['class'] for obj in detections1]
             current_state = State.DECISION
 
         #------------DECISION State --------------------------------------------------------
