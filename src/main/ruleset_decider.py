@@ -20,16 +20,17 @@ class RulesetDecider:
         :return: The next state based on the detected objects of type `State` enum
         """
         #Check the rules accordingly and set the state
-        open_detected  = False
-        close_detected = False
-
+        open_objects = set()
+        close_objects = set()
         for rule in self.rules:
-            for obj in object_list:
-                if obj in rule['objects']:
-                    if rule['action'] == 'OPEN':
-                        open_detected = True
-                    elif rule['action'] == 'CLOSE':
-                        close_detected = True
+            if rule['action'] == 'OPEN':
+                open_objects.update(rule['objects'])
+            elif rule['action'] == 'CLOSE':
+                close_objects.update(rule['objects'])
+
+        open_detected = any(obj in open_objects for obj in object_list)
+        close_detected = any(obj in close_objects for obj in object_list)
+
 
         #Decision Logic
         if close_detected and open_detected:
