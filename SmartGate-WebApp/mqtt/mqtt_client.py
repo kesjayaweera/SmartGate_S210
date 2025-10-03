@@ -24,6 +24,7 @@ class SmartGateMQTTClient:
 		# MQTT topics
 		self.command_topic = "smartgate/commands"
 		self.status_topic = "smartgate/status"
+		self.detection_topic = "smartgate/detections"
 		
 		# Device tracking
 		self.connected_devices = {}
@@ -43,6 +44,10 @@ class SmartGateMQTTClient:
 			client.subscribe(self.status_topic)
 			print("[+] Subscribed to status topic: {}".format(self.status_topic))
 			
+			# Subscribe to detection topic to receive animal detections
+			client.subscribe(self.detection_topic)
+			print("[+] Subscribed to detection topic: {}".format(self.detection_topic))
+			
 		else:
 			print("[-] WebApp failed to connect to MQTT broker. Return code: {}".format(rc))
 			self.is_connected = False
@@ -61,12 +66,32 @@ class SmartGateMQTTClient:
 			print("[+] WebApp received message on topic: {}".format(topic))
 			print("[+] Message payload: {}".format(payload))
 			
-			# Parse JSON status message
-			status_data = json.loads(payload)
-			device_id = status_data.get('device_id')
-			status = status_data.get('status')
-			message = status_data.get('message')
-			timestamp = status_data.get('timestamp')
+			# Parse JSON message
+			message_data = json.loads(payload)
+			device_id = message_data.get('device_id')
+			
+			# Handle detection messages
+			if topic == self.detection_topic:
+				animal = message_data.get('animal')
+				confidence = message_data.get('confidence')
+				timestamp = message_data.get('timestamp')
+				all_detections = message_data.get('all_detections', [])
+				
+				if animal:
+					self.latest_detection = {
+						"animal": animal,
+						"confidence": confidence,
+						"timestamp": timestamp,
+						"device_id": device_id,
+						"all_detections": all_detections
+					}
+					print("[+] Latest detection updated: {} ({}%)".format(animal, confidence * 100))
+				return
+			
+			# Handle status messages
+			status = message_data.get('status')
+			message = message_data.get('message')
+			timestamp = message_data.get('timestamp')
 			
 			if device_id:
 				# Update device tracking

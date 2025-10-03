@@ -295,8 +295,29 @@
                     <td><span class="status-value">smartgate/status</span></td>
                     <td><span class="timestamp">Static</span></td>
                 </tr>
+                <tr>
+                    <td><strong>Last Detected Animal</strong></td>
+                    <td><span class="status-value" id="lastDetectedAnimal">No detections</span></td>
+                    <td><span class="timestamp" id="lastDetectedAnimalTime">Never</span></td>
+                </tr>
+                <tr>
+                    <td><strong>Detection Topic</strong></td>
+                    <td><span class="status-value">smartgate/detections</span></td>
+                    <td><span class="timestamp">Static</span></td>
+                </tr>
             </tbody>
         </table>
+
+        <!-- Detection Image Section -->
+        <div class="camera-section">
+            <h3>Latest Detection</h3>
+            <div class="detection-image-container">
+                <img id="detectionImage" src="/mqtt/get_detection_image" alt="Latest Detection" 
+                     style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px;"
+                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjVmNWY1Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIERldGVjdGlvbiBJbWFnZTwvdGV4dD48L3N2Zz4='">
+            </div>
+            <div class="detection-info" id="detectionInfo">No detection data available</div>
+        </div>
 
         <!-- Camera Stream Section -->
         <div class="camera-section">
@@ -489,32 +510,12 @@
             
             logInfo('Starting camera stream...');
             
-            // First, send START_CAMERA command to SmartGate
-            try {
-                const startResponse = await fetch('/mqtt/start_camera', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        device_id: 'smartgate_device_001'
-                    })
-                });
-                
-                if (startResponse.ok) {
-                    logSuccess('Camera start command sent successfully');
-                    // Wait a moment for camera server to start
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                } else {
-                    logError('Failed to send camera start command');
-                }
-            } catch (error) {
-                logError(`Error sending camera start command: ${error.message}`);
-            }
+            // Camera stream is now handled via HTTP + reverse tunnel
+            // No MQTT commands needed for camera control
             
-            // Use MQTT-based camera streaming
-            const streamUrl = `http://3.27.77.237:8000/stream`;
-            logInfo(`Using MQTT camera stream: ${streamUrl}`);
+            // Use HTTP stream via reverse tunnel
+            const streamUrl = `http://3.27.77.237:8001/stream`;
+            logInfo(`Using HTTP camera stream via reverse tunnel: ${streamUrl}`);
             
             // Update debug info (with null checks)
             const currentUrlElement = document.getElementById('currentCameraUrl');
@@ -637,26 +638,8 @@
             const cameraStatus = document.getElementById('cameraStatusText');
             const cameraBtn = document.getElementById('cameraBtn');
             
-            // Send STOP_CAMERA command to SmartGate
-            try {
-                const stopResponse = await fetch('/mqtt/stop_camera', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        device_id: 'smartgate_device_001'
-                    })
-                });
-                
-                if (stopResponse.ok) {
-                    logSuccess('Camera stop command sent successfully');
-                } else {
-                    logError('Failed to send camera stop command');
-                }
-            } catch (error) {
-                logError(`Error sending camera stop command: ${error.message}`);
-            }
+            // Camera stream is now handled via HTTP + reverse tunnel
+            // No MQTT commands needed for camera control
             
             cameraFeed.src = '';
             cameraFeed.style.display = 'none';
@@ -716,19 +699,42 @@
                  const data = await response.json();
                  const checkTime = new Date().toISOString();
                  
-                 if (response.ok && data.animal && data.animal !== 'None') {
-                     updateTableValue('lastDetectedAnimal', `${data.animal} (${Math.round(data.confidence * 100)}%)`, 'success');
-                     updateTableValue('lastDetectedAnimalTime', formatTime(data.timestamp || checkTime));
-                 } else {
-                     updateTableValue('lastDetectedAnimal', 'No detections', 'status-unknown');
-                     updateTableValue('lastDetectedAnimalTime', formatTime(checkTime));
-                 }
+                if (response.ok && data.animal && data.animal !== 'None') {
+                    // Display the latest detection (overwrites previous)
+                    updateTableValue('lastDetectedAnimal', `${data.animal} (${Math.round(data.confidence * 100)}%)`, 'success');
+                    updateTableValue('lastDetectedAnimalTime', formatTime(data.timestamp || checkTime));
+                    
+                    // Update detection image and info
+                    updateDetectionDisplay(data);
+                } else {
+                    updateTableValue('lastDetectedAnimal', 'No detections', 'status-unknown');
+                    updateTableValue('lastDetectedAnimalTime', formatTime(checkTime));
+                    
+                    // Clear detection display
+                    document.getElementById('detectionInfo').textContent = 'No detection data available';
+                }
              } catch (error) {
                  logError('Error checking latest detection: ' + error.message);
                  updateTableValue('lastDetectedAnimal', 'Error', 'error');
                  updateTableValue('lastDetectedAnimalTime', formatTime(new Date().toISOString()));
              }
          }
+
+        // Update detection display with new detection data
+        function updateDetectionDisplay(data) {
+            // Update detection info text
+            const detectionInfo = document.getElementById('detectionInfo');
+            detectionInfo.innerHTML = `
+                <strong>Animal:</strong> ${data.animal}<br>
+                <strong>Confidence:</strong> ${Math.round(data.confidence * 100)}%<br>
+                <strong>Detected:</strong> ${formatTime(data.timestamp)}<br>
+                <strong>Device:</strong> ${data.device_id}
+            `;
+            
+            // Refresh detection image (add timestamp to force refresh)
+            const detectionImage = document.getElementById('detectionImage');
+            detectionImage.src = `/mqtt/get_detection_image?t=${Date.now()}`;
+        }
 
         // Check MQTT status
         async function checkMQTTStatus() {

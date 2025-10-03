@@ -270,6 +270,7 @@ async def broadcast_user_overview():
     user_data = fetch_user_data()
     await broadcast_data("user_overview", user_data)
 
+
 # --------------------
 # WebSocket Functions
 # -------------------
@@ -545,57 +546,23 @@ async def mqtt_get_gate_status(gate_id: str):
             status_code=500
         )
 
-@root_router.post("/mqtt/start_camera")
-async def start_camera(request: Request):
-    """Start camera stream on SmartGate device"""
-    try:
-        data = await request.json()
-        device_id = data.get("device_id", "smartgate_device_001")
-        
-        mqtt_client = get_mqtt_client()
-        success = mqtt_client.send_command(device_id, "START_CAMERA")
-        
-        if success:
-            return JSONResponse({
-                "message": f"Camera start command sent to device {device_id}",
-                "timestamp": datetime.now().isoformat()
-            })
-        else:
-            return JSONResponse(
-                {"error": f"Failed to send camera start command to device {device_id}"},
-                status_code=500
-            )
-            
-    except Exception as e:
-        return JSONResponse(
-            {"error": f"Error starting camera: {str(e)}"},
-            status_code=500
-        )
 
-@root_router.post("/mqtt/stop_camera")
-async def stop_camera(request: Request):
-    """Stop camera stream on SmartGate device"""
+
+
+@root_router.get("/stream")
+async def camera_stream():
+    """Camera stream endpoint - redirects to reverse tunnel stream"""
     try:
-        data = await request.json()
-        device_id = data.get("device_id", "smartgate_device_001")
+        # The camera stream is now available via reverse tunnel
+        # Redirect to the tunneled stream
+        tunnel_stream_url = "http://localhost:8001/stream"
         
-        mqtt_client = get_mqtt_client()
-        success = mqtt_client.send_command(device_id, "STOP_CAMERA")
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=tunnel_stream_url, status_code=302)
         
-        if success:
-            return JSONResponse({
-                "message": f"Camera stop command sent to device {device_id}",
-                "timestamp": datetime.now().isoformat()
-            })
-        else:
-            return JSONResponse(
-                {"error": f"Failed to send camera stop command to device {device_id}"},
-                status_code=500
-            )
-            
     except Exception as e:
         return JSONResponse(
-            {"error": f"Error stopping camera: {str(e)}"},
+            {"error": f"Error with stream endpoint: {str(e)}"},
             status_code=500
         )
 
@@ -622,7 +589,8 @@ async def get_latest_detection():
                     "animal": latest_detection.get("animal", "Unknown"),
                     "confidence": latest_detection.get("confidence", 0.0),
                     "timestamp": latest_detection.get("timestamp", datetime.now().isoformat()),
-                    "device_id": latest_detection.get("device_id", "unknown")
+                    "device_id": latest_detection.get("device_id", "unknown"),
+                    "all_detections": latest_detection.get("all_detections", [])
                 })
             else:
                 return JSONResponse({
@@ -646,88 +614,23 @@ async def get_latest_detection():
             status_code=500
         )
 
-@root_router.get("/mqtt/start_camera")
-async def start_camera():
-    """Start camera stream (placeholder endpoint)"""
+@root_router.get("/mqtt/get_detection_image")
+async def get_detection_image():
+    """Get the latest detection image (still image with bounding boxes)"""
     try:
-        return JSONResponse({
-            "message": "Camera stream endpoint - use reverse tunnel from device",
-            "status": "info",
-            "timestamp": datetime.now().isoformat()
-        })
+        # The detection image is served via the reverse tunnel
+        # This endpoint redirects to the tunneled detection image
+        tunnel_image_url = "http://localhost:8001/detection_image"
+        
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=tunnel_image_url, status_code=302)
+        
     except Exception as e:
         return JSONResponse(
-            {"error": f"Error with camera endpoint: {str(e)}"},
+            {"error": f"Error with detection image endpoint: {str(e)}"},
             status_code=500
         )
 
-@root_router.get("/stream")
-async def camera_stream():
-    """Camera stream endpoint - serves latest frame from MQTT"""
-    try:
-        from mqtt_client import get_latest_camera_frame, get_mqtt_client
-        import base64
-        
-        # Debug: Check what we have
-        mqtt_client = get_mqtt_client()
-        print(f"[DEBUG] MQTT client latest_camera_frame: {mqtt_client.latest_camera_frame}")
-        
-        camera_frame = get_latest_camera_frame()
-        print(f"[DEBUG] get_latest_camera_frame() returned: {camera_frame}")
-        
-        if camera_frame and camera_frame.get('frame'):
-            # Decode base64 frame
-            frame_b64 = camera_frame['frame']
-            frame_data = base64.b64decode(frame_b64)
-            
-            print(f"[DEBUG] Successfully decoded frame, size: {len(frame_data)} bytes")
-            
-            # Return as JPEG image
-            from fastapi.responses import Response
-            return Response(content=frame_data, media_type="image/jpeg")
-        else:
-            # Return placeholder image or error
-            return JSONResponse({
-                "message": "No camera stream available",
-                "status": "not_available",
-                "timestamp": datetime.now().isoformat(),
-                "debug": {
-                    "camera_frame": camera_frame,
-                    "mqtt_client_frame": mqtt_client.latest_camera_frame
-                }
-            })
-            
-    except Exception as e:
-        return JSONResponse(
-            {"error": f"Error with stream endpoint: {str(e)}"},
-            status_code=500
-        )
-
-@root_router.get("/mqtt/devices")
-async def get_all_devices():
-    """Get all connected devices"""
-    try:
-        mqtt_client = get_mqtt_client()
-        if mqtt_client:
-            devices = mqtt_client.get_all_devices()
-            return JSONResponse({
-                "devices": devices,
-                "count": len(devices),
-                "timestamp": datetime.now().isoformat()
-            })
-        else:
-            return JSONResponse({
-                "devices": {},
-                "count": 0,
-                "message": "MQTT client not available",
-                "timestamp": datetime.now().isoformat()
-            })
-            
-    except Exception as e:
-        return JSONResponse(
-            {"error": f"Error getting devices: {str(e)}"},
-            status_code=500
-        )
 
 # Initialize MQTT on startup
 def initialize_mqtt():

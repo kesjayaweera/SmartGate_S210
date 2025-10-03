@@ -20,41 +20,107 @@ class SmartGateController:
     Handles door control and state management.
     """
     
-    def __init__(self):
-        self.web_server = None
-        self.camera_stream = None
-        self.detection_engine = None
-        self.door_controller = None
-        self.config = None
-        self.is_running = False
-        self.main_thread = None
+    def __init__(self, mqtt_client=None, device_id="smartgate_device_001"):
+        """
+        Initialize the SmartGate controller.
+        
+        MODIFIED: Added MQTT client parameter for dashboard notifications
+        Initializes all components with comprehensive error handling
+        """
+        print("[DEBUG] Initializing SmartGateController...")
+        
+        try:
+            self.web_server = None
+            self.camera_stream = None
+            self.detection_engine = None
+            self.door_controller = None
+            self.config = None
+            self.is_running = False
+            self.main_thread = None
+            
+            # MODIFIED: Added MQTT client and device ID for dashboard notifications
+            self.mqtt_client = mqtt_client
+            self.device_id = device_id
+            
+            print("[SUCCESS] SmartGateController initialized")
+            print("[INFO] Device ID: {}".format(self.device_id))
+            print("[INFO] MQTT client: {}".format("Available" if mqtt_client else "Not provided"))
+            
+        except Exception as e:
+            print("[ERROR] Failed to initialize SmartGateController: {}".format(e))
+            raise
         
     def initialize(self):
-        """Initialize all components of the SmartGate system."""
+        """
+        Initialize all components of the SmartGate system.
+        Sets up configuration, GPIO, door controller, detection engine, camera, and web server
+        """
+        print("[DEBUG] Starting SmartGate system initialization...")
+        
         try:
-            print("Initializing SmartGate system...")
+            print("[INFO] Initializing SmartGate system...")
             
-            # Initialize configuration
-            self.config = JsonConfig()
-            server_config = self.config.get_server_config()
+            # Initialize configuration with error checking
+            print("[DEBUG] Initializing configuration...")
+            try:
+                self.config = JsonConfig()
+                server_config = self.config.get_server_config()
+                print("[SUCCESS] Configuration initialized")
+            except Exception as e:
+                print("[ERROR] Failed to initialize configuration: {}".format(e))
+                raise
             
-            # Initialize GPIO
-            GPIO.setmode(GPIO.BOARD)
-            GPIO.setup(7, GPIO.OUT, initial=GPIO.LOW)
+            # Initialize GPIO with error checking
+            print("[DEBUG] Initializing GPIO...")
+            try:
+                GPIO.setmode(GPIO.BOARD)
+                GPIO.setup(7, GPIO.OUT, initial=GPIO.LOW)
+                print("[SUCCESS] GPIO initialized")
+            except Exception as e:
+                print("[ERROR] Failed to initialize GPIO: {}".format(e))
+                raise
             
-            # Initialize IO pins and door control
-            io.set_all_pins()
-            self.door_controller = DoorControl()
+            # Initialize IO pins and door control with error checking
+            print("[DEBUG] Initializing IO pins and door controller...")
+            try:
+                io.set_all_pins()
+                self.door_controller = DoorControl()
+                print("[SUCCESS] Door controller initialized")
+            except Exception as e:
+                print("[ERROR] Failed to initialize door controller: {}".format(e))
+                raise
             
-            # Initialize camera stream
-            self.camera_stream = CameraStream(frame_callback=self._on_frame_received)
+            # Initialize camera stream with error checking
+            print("[DEBUG] Initializing camera stream...")
+            try:
+                self.camera_stream = CameraStream(frame_callback=self._on_frame_received)
+                print("[SUCCESS] Camera stream initialized")
+            except Exception as e:
+                print("[ERROR] Failed to initialize camera stream: {}".format(e))
+                raise
             
-            # Initialize detection engine
-            self.detection_engine = DetectionEngine(detection_callback=self._on_detection_complete)
+            # Initialize detection engine with MQTT client for dashboard notifications
+            print("[DEBUG] Initializing detection engine...")
+            try:
+                self.detection_engine = DetectionEngine(
+                    detection_callback=self._on_detection_complete,
+                    mqtt_client=self.mqtt_client,
+                    device_id=self.device_id
+                )
+                print("[SUCCESS] Detection engine initialized with MQTT client")
+            except Exception as e:
+                print("[ERROR] Failed to initialize detection engine: {}".format(e))
+                raise
             
-            # Initialize and start web server
-            self.web_server = Initialize_Server(server_config)
-            set_door_controller_reference(self.door_controller)
+            # Initialize and start web server with error checking
+            print("[DEBUG] Initializing web server...")
+            try:
+                self.web_server = Initialize_Server(server_config)
+                set_door_controller_reference(self.door_controller)
+                print("[SUCCESS] Web server initialized")
+            except Exception as e:
+                print("[ERROR] Failed to initialize web server: {}".format(e))
+                raise
             
             print("SmartGate system initialized successfully.")
             
@@ -220,33 +286,85 @@ def signal_handler(sig, frame):
         controller.cleanup()
     sys.exit(0)
 
-def main():
-    """Main entry point for the SmartGate application."""
+def main(mqtt_client=None, device_id="smartgate_device_001"):
+    """
+    Main entry point for the SmartGate application.
+    
+    MODIFIED: Added optional MQTT client parameter for dashboard notifications
+    Provides comprehensive error handling and debugging information
+    
+    Args:
+        mqtt_client: Optional MQTT client instance for sending detections to dashboard
+        device_id: Device identifier for MQTT messages
+    """
     global controller
     
+    print("=" * 60)
+    print("SmartGate Main Application - Starting...")
+    print("=" * 60)
+    print("[INFO] Device ID: {}".format(device_id))
+    print("[INFO] MQTT client: {}".format("Available" if mqtt_client else "Not provided"))
+    print("[INFO] Press Ctrl+C to exit")
+    print("=" * 60)
+    
     # Set up signal handler for keyboard interrupt
-    signal.signal(signal.SIGINT, signal_handler)
+    print("[DEBUG] Setting up signal handler...")
+    try:
+        signal.signal(signal.SIGINT, signal_handler)
+        print("[SUCCESS] Signal handler configured")
+    except Exception as e:
+        print("[ERROR] Failed to set up signal handler: {}".format(e))
+        return
     
     try:
-        # Create and initialize controller
-        controller = SmartGateController()
-        controller.initialize()
+        # Create and initialize controller with MQTT client
+        print("[DEBUG] Creating SmartGate controller...")
+        try:
+            controller = SmartGateController(mqtt_client=mqtt_client, device_id=device_id)
+            print("[SUCCESS] Controller created")
+        except Exception as e:
+            print("[ERROR] Failed to create controller: {}".format(e))
+            return
+        
+        print("[DEBUG] Initializing SmartGate system...")
+        try:
+            controller.initialize()
+            print("[SUCCESS] System initialized")
+        except Exception as e:
+            print("[ERROR] Failed to initialize system: {}".format(e))
+            return
         
         # Start the system
-        controller.start()
+        print("[DEBUG] Starting SmartGate system...")
+        try:
+            controller.start()
+            print("[SUCCESS] System started")
+        except Exception as e:
+            print("[ERROR] Failed to start system: {}".format(e))
+            return
         
         # Keep the main thread alive
-        print("SmartGate system is running. Press Ctrl+C to exit.")
+        print("[SUCCESS] SmartGate system is running. Press Ctrl+C to exit.")
         while controller.is_running:
             time.sleep(1)
             
     except KeyboardInterrupt:
-        print("Received keyboard interrupt")
+        print("[INFO] Received keyboard interrupt (Ctrl+C)")
+        print("[INFO] Shutting down gracefully...")
     except Exception as e:
-        print(f"Fatal error: {e}")
+        print("[ERROR] Fatal error in main application: {}".format(e))
+        print("[ERROR] Stack trace:", exc_info=True)
     finally:
-        if 'controller' in globals():
-            controller.cleanup()
+        print("[DEBUG] Cleaning up system...")
+        try:
+            if 'controller' in globals() and controller:
+                controller.cleanup()
+                print("[SUCCESS] System cleanup completed")
+            else:
+                print("[WARNING] No controller to cleanup")
+        except Exception as e:
+            print("[ERROR] Error during cleanup: {}".format(e))
+        print("[INFO] SmartGate application stopped")
 
 if __name__ == "__main__":
     main()

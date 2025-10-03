@@ -396,3 +396,109 @@ docker-compose exec smartgate-webapp netstat -tulpn | grep 1883
 # Check gate MQTT client logs
 python src/main/mqtt_client.py
 ```
+
+## Camera Stream Implementation (HTTP + Reverse Tunnel)
+
+The SmartGate system now implements camera streaming using **HTTP + Reverse SSH Tunnel** instead of MQTT. This approach provides better performance, lower resource usage, and more reliable streaming while maintaining AI detection capabilities.
+
+### Integration Flow
+
+1. **Camera Capture**: Uses `camera_stream.py` with GStreamer pipeline for optimal Jetson performance
+2. **AI Detection**: `DetectionEngine` processes frames for object detection in real-time
+3. **HTTP Server**: `HTTPCameraServer` serves MJPEG stream on local port 8080
+4. **Reverse Tunnel**: SSH tunnel forwards local port 8080 to EC2 port 8001
+5. **WebApp Integration**: WebApp redirects `/stream` to tunneled stream
+6. **Browser Display**: Frontend displays the stream using standard HTML `<img>` tag
+
+### Performance Specifications
+
+- **Target FPS**: 15 FPS (67ms intervals)
+- **Frame Size**: 640x480 pixels (with AI detection overlays)
+- **JPEG Quality**: 80%
+- **Stream Type**: MJPEG (Motion JPEG)
+- **Bandwidth**: ~1-2MB per second
+- **Resource Usage**: Lower CPU/memory than MQTT approach
+
+### Key Components
+
+**HTTP Camera Server** (`http_camera_server.py`):
+```python
+class HTTPCameraServer:
+    def __init__(self, camera_stream, detection_engine=None, port=8080):
+        self.camera_stream = camera_stream
+        self.detection_engine = detection_engine
+        # Serves MJPEG stream with AI detection overlays
+```
+
+**Reverse Tunnel Manager** (`reverse_tunnel.py`):
+```python
+class ReverseTunnelManager:
+    def __init__(self, ec2_ip, ec2_user="ubuntu", local_port=8080, remote_port=8001):
+        # Manages SSH reverse tunnel with auto-reconnection
+```
+
+**AI Detection Integration**:
+```python
+# AI detection runs alongside camera stream
+self.detection_engine = DetectionEngine(detection_callback=self._on_detection_result)
+self.detection_engine.start_detection()
+
+# Detection results published via MQTT
+def _on_detection_result(self, detections, frame):
+    detection_info = {
+        "device_id": self.device_id,
+        "detections": detections,
+        "timestamp": time.time()
+    }
+    self.client.publish("smartgate/detections", json.dumps(detection_info))
+```
+
+### Stream Endpoints
+
+**Local HTTP Stream**: `http://localhost:8080/stream`
+**Tunneled Stream**: `http://ec2-ip:8001/stream`
+**WebApp Redirect**: `http://webapp:8000/stream` → redirects to tunneled stream
+
+### MQTT Integration
+
+While camera streaming uses HTTP, MQTT is still used for:
+- **Status Updates**: Device status notifications
+- **AI Detection Results**: Object detection data
+- **Device Communication**: General device control (door commands, etc.)
+
+**Note**: Camera control commands (`START_CAMERA`, `STOP_CAMERA`) have been removed from MQTT as camera streaming is now handled entirely via HTTP + reverse tunnel.
+
+### WebApp Integration
+
+The WebApp now redirects camera stream requests to the tunneled stream:
+
+```python
+@root_router.get("/stream")
+async def camera_stream():
+    tunnel_stream_url = "http://localhost:8001/stream"
+    return RedirectResponse(url=tunnel_stream_url, status_code=302)
+```
+
+### Frontend Usage
+
+The frontend displays the camera stream using the tunneled URL:
+
+```html
+<img id="cameraFeed" src="http://ec2-ip:8001/stream" alt="Camera Stream" />
+```
+
+### Advantages Over MQTT Approach
+
+1. **Lower Resource Usage**: HTTP streaming is more efficient than MQTT
+2. **Better Performance**: Direct HTTP connection vs MQTT overhead
+3. **Standard Protocol**: MJPEG is widely supported
+4. **AI Detection**: Real-time object detection with visual overlays
+5. **Reliability**: SSH tunnel provides stable connection
+6. **Fallback Support**: Falls back to MQTT if HTTP fails
+
+### Error Handling
+
+- **Tunnel Disconnection**: Automatic reconnection with health monitoring
+- **HTTP Server**: Graceful startup/shutdown with thread management
+- **AI Detection**: Continues running independently of stream
+- **Fallback Mode**: Automatic fallback to MQTT if HTTP fails

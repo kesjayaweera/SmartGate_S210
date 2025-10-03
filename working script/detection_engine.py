@@ -13,9 +13,11 @@ class DetectionEngine:
     """
     Handles motion detection, YOLO inference, and decision making.
     Operates independently from the web server and camera stream.
+    
+    MODIFIED: Added dashboard notification functionality via MQTT
     """
     
-    def __init__(self, detection_callback: Optional[Callable] = None):
+    def __init__(self, detection_callback: Optional[Callable] = None, mqtt_client=None, device_id="smartgate_device_001"):
         self.config = JsonConfig()
         self.model = None
         self.decider = None
@@ -25,6 +27,12 @@ class DetectionEngine:
         self.current_state = State.IDLE
         self.object_list = []
         self.state_lock = threading.Lock()
+        
+        # MODIFIED: Added MQTT client and dashboard notification settings
+        self.mqtt_client = mqtt_client
+        self.device_id = device_id
+        self.last_detection_time = 0
+        self.detection_cooldown = 2.0  # Send at most one detection every 2 seconds
         
         # Initialize components
         self._initialize_components()
@@ -132,6 +140,8 @@ class DetectionEngine:
         """
         Process a frame for object detection.
         Returns list of detected objects.
+        
+        MODIFIED: Added automatic dashboard notification via MQTT
         """
         if not self.model or frame is None:
             return []
@@ -145,6 +155,14 @@ class DetectionEngine:
             
             # Extract object classes
             self.object_list = [obj['class'] for obj in detections]
+            
+            # MODIFIED: Send detection to dashboard via MQTT if detections found
+            if detections and self.mqtt_client:
+                import time
+                current_time = time.time()
+                if current_time - self.last_detection_time >= self.detection_cooldown:
+                    self._send_detection_to_dashboard(detections)
+                    self.last_detection_time = current_time
             
             # Call detection callback if provided
             if self.detection_callback:
@@ -181,4 +199,103 @@ class DetectionEngine:
         """Clean up detection engine resources."""
         self.stop_detection()
         print("Detection engine cleaned up.")
+    
+    # MODIFIED: Added dashboard notification method
+    def _send_detection_to_dashboard(self, detections):
+        """
+        Send detection notification to dashboard via MQTT
+        
+        MODIFIED: This method was added to send detections to dashboard
+        Processes detection data and publishes to MQTT with comprehensive error handling
+        """
+        print("[DEBUG] Attempting to send detection to dashboard")
+        
+        if not detections or not self.mqtt_client:
+            print("[WARNING] Cannot send detection - no detections or MQTT client")
+            return
+        
+        try:
+            import json
+            import time
+            
+            print("[DEBUG] Processing {} detections for dashboard".format(len(detections)))
+            
+            # Get the most confident detection with error checking
+            try:
+                best_detection = max(detections, key=lambda x: x.get('conf', 0))
+                print("[DEBUG] Best detection: {} (confidence: {:.2f})".format(
+                    best_detection.get('class', 'Unknown'), 
+                    best_detection.get('conf', 0.0)))
+            except Exception as e:
+                print("[ERROR] Error finding best detection: {}".format(e))
+                return
+            
+            # Prepare detection data with error checking
+            try:
+                detection_data = {
+                    "device_id": self.device_id,
+                    "animal": best_detection.get('class', 'Unknown'),
+                    "confidence": float(best_detection.get('conf', 0.0)),
+                    "timestamp": time.time(),
+                    "all_detections": [
+                        {
+                            "class": det.get('class', 'Unknown'),
+                            "confidence": float(det.get('conf', 0.0))
+                        }
+                        for det in detections
+                    ]
+                }
+                print("[DEBUG] Detection data prepared: {}".format(detection_data['animal']))
+            except Exception as e:
+                print("[ERROR] Error preparing detection data: {}".format(e))
+                return
+            
+            # Publish to MQTT with multiple fallback methods
+            try:
+                json_data = json.dumps(detection_data)
+                print("[DEBUG] JSON data prepared ({} bytes)".format(len(json_data)))
+                
+                # Try different MQTT client methods
+                published = False
+                
+                if hasattr(self.mqtt_client, 'publish'):
+                    try:
+                        result = self.mqtt_client.publish("smartgate/detections", json_data)
+                        print("[SUCCESS] Detection sent via mqtt_client.publish (result: {})".format(result))
+                        published = True
+                    except Exception as e:
+                        print("[ERROR] Failed mqtt_client.publish: {}".format(e))
+                
+                if not published and hasattr(self.mqtt_client, 'client') and hasattr(self.mqtt_client.client, 'publish'):
+                    try:
+                        result = self.mqtt_client.client.publish("smartgate/detections", json_data)
+                        print("[SUCCESS] Detection sent via mqtt_client.client.publish (result: {})".format(result.rc))
+                        published = True
+                    except Exception as e:
+                        print("[ERROR] Failed mqtt_client.client.publish: {}".format(e))
+                
+                if not published:
+                    print("[ERROR] No valid MQTT publish method found")
+                    
+            except Exception as e:
+                print("[ERROR] Error publishing detection to MQTT: {}".format(e))
+            
+        except Exception as e:
+            print("[ERROR] Unexpected error sending detection to dashboard: {}".format(e))
+            print("[ERROR] Detection data: {}".format(detections))
 
+
+# ============================================================================
+# MODIFICATION NOTES
+# ============================================================================
+# The DetectionEngine class has been modified to include dashboard notification
+# functionality. The following changes were made:
+#
+# 1. Added mqtt_client and device_id parameters to __init__()
+# 2. Added dashboard notification settings (last_detection_time, detection_cooldown)
+# 3. Modified process_frame() to automatically send detections to dashboard
+# 4. Added _send_detection_to_dashboard() method
+#
+# The old separate DetectionEngineWithDashboard class has been removed as
+# the functionality is now integrated into the main DetectionEngine class.
+# ============================================================================
