@@ -1,0 +1,32 @@
+{
+  "_comment": "SmartGate Configuration Template",
+  "_instructions": "Modify the values below as needed for your setup",
+  "mqtt": {
+    "_comment": "MQTT broker configuration",
+    "broker_ip": "3.27.77.237",
+    "broker_port": 1883,
+    "device_id": "smartgate_device_001"
+  },
+  "camera": {
+    "_comment": "Camera and tunnel configuration",
+    "ec2_ip": "3.27.77.237",
+    "ec2_user": "admin",
+    "local_base_port": 8080,
+    "remote_base_port": 8001,
+    "ssh_key_path": "tunnel/UvicornServerAWS"
+  },
+  "gate": {
+    "_comment": "Gate control configuration",
+    "control_available": true
+  },
+  "detection": {
+    "_comment": "AI detection configuration",
+    "enabled": true,
+    "model_path": "models/yolov5s.engine"
+  },
+  "system": {
+    "_comment": "System settings",
+    "status_interval": 30,
+    "heartbeat_interval": 30
+  }
+}

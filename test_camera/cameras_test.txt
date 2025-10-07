@@ -1,0 +1,20 @@
+# Run full mode (fix + diagnostic + test)
+./fix_cameras.sh
+
+# Fix camera issues only
+./fix_cameras.sh fix
+
+# Run diagnostics only
+./fix_cameras.sh diagnostic
+
+# Run tests only
+./fix_cameras.sh test
+
+# Open Jetson-IO configuration
+./fix_cameras.sh jetson-io
+
+# Test 2 cameras for 5 seconds
+./fix_cameras.sh test -c 2 -d 5
+
+# Capture 10 test images
+./fix_cameras.sh test -n 10

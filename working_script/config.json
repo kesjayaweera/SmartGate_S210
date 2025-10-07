@@ -1,0 +1,20 @@
+{
+  "model": {
+    "engine_path": "models/yolov5s.engine",
+    "class_names_path": "models/classes/yolov5s.txt",
+    "input_size": [640, 640],
+    "confidence_threshold": 0.5,
+    "nms_threshold": 0.4
+  },
+  "rules": {
+    "allowed_animals": ["person", "dog", "cat"],
+    "blocked_animals": ["bear", "wolf"],
+    "detection_timeout": 5.0,
+    "decision_delay": 2.0
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8080,
+    "debug": true
+  }
+}
