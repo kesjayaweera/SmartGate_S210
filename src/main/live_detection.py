@@ -16,6 +16,11 @@ from json_config import JsonConfig
 
 import signal
 import sys
+import datetime
+import os
+
+logs =[]
+LOG_ID=0
 
 def gstreamer_pipeline(
     sensor_id=0,
@@ -48,6 +53,33 @@ def signal_handler(sig, frame):
     cleanup()
     sys.exit(0)
 
+def log_event(animal_type, LOG_ID, frame, camera_id):
+    
+    img_dir = "logs\image_logs"
+    
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    file_name = os.path.join(img_dir, f"{LOG_ID}_{timestamp}.jpg \n" )
+    cv2.imwrite(file_name, frame)
+    
+    log_entry = {
+        
+        "time": timestamp,
+        "animal_type": animal_type,
+        "LOG_ID": LOG_ID,
+        "file_name": file_name,
+        "camera_id": camera_id
+        
+    }
+    LOG_ID += 1
+    logs.append(log_entry)
+    cv2.imwrite=(f"{animal_type} | {file_name}".jpg, frame,camera_id)
+
+    log_path = "logs\logs.txt"
+    with open(log_path, "a") as f:
+        f.write(f"{timestamp} | {animal_type} | {LOG_ID} | {file_name} {camera_id}\n")
+
+
+
 def main():
     #Global HTTP server for resource allocation and deallocation
     global web_server
@@ -73,6 +105,11 @@ def main():
     #Should also make the web server optional as well
     web_server = Initialize_Server(server_config)
 
+    def newfunc(abc, this):
+        if this <5:
+            this = this+1
+            set_latest_frame0 sfvsasd
+        else newfunc()
     #Set up the GPIO channel
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(7, GPIO.OUT, initial=GPIO.LOW)
@@ -98,12 +135,18 @@ def main():
     while True:
         #----------Check for commands from POST requests coming from HTTP server------------
         command = Fetch_Queued_Command()
+        
+        frame0 = cap0.read()
+        frame1 = cap1.read()
         if command:
             if command == 'OPEN_DOOR':
                 current_state = State.DOOR_OPEN
+                log_event("prey",LOG_ID, frame0, camera_id=0)
+                log_event("prey",LOG_ID, frame1, camera_id=1)
             elif command == 'CLOSE_DOOR':
                 current_state = State.DOOR_CLOSE
-
+                log_event("predator", LOG_ID,frame0,camera_id=0)
+                log_event("predator", LOG_ID,frame1,camera_id=1)
         #------------IDLE State ------------------------------------------------------------
         if current_state == State.IDLE:
             print("System is idle.")
