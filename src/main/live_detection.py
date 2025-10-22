@@ -105,11 +105,6 @@ def main():
     #Should also make the web server optional as well
     web_server = Initialize_Server(server_config)
 
-    def newfunc(abc, this):
-        if this <5:
-            this = this+1
-            set_latest_frame0 sfvsasd
-        else newfunc()
     #Set up the GPIO channel
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(7, GPIO.OUT, initial=GPIO.LOW)
