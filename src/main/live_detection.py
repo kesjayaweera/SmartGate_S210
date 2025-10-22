@@ -9,6 +9,7 @@ import io_control as io
 from enum import Enum, auto
 import threading
 
+import http_server
 from http_server import Initialize_Server, Shutdown_Server, set_latest_frame0, set_latest_frame1, set_door_controller_reference, Fetch_Queued_Command
 from ruleset_decider import RulesetDecider
 from gate_states import State
@@ -16,7 +17,7 @@ from json_config import JsonConfig
 
 import signal
 import sys
-import datetime
+from datetime import datetime
 import os
 
 logs =[]
@@ -53,30 +54,29 @@ def signal_handler(sig, frame):
     cleanup()
     sys.exit(0)
 
-def log_event(animal_type, LOG_ID, frame, camera_id):
+def log_event(animal_list, frame, camera_id):
+    global LOG_ID
     
-    img_dir = "logs\image_logs"
-    
+    img_dir = os.path.join("logs", "image_logs")    
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    file_name = os.path.join(img_dir, f"{LOG_ID}_{timestamp}.jpg \n" )
+    file_name = os.path.join(img_dir, f"{LOG_ID}_{timestamp}.jpg")   
     cv2.imwrite(file_name, frame)
     
     log_entry = {
-        
+
         "time": timestamp,
-        "animal_type": animal_type,
+        "animal_type": animal_list,
         "LOG_ID": LOG_ID,
         "file_name": file_name,
         "camera_id": camera_id
-        
+
     }
     LOG_ID += 1
     logs.append(log_entry)
-    cv2.imwrite=(f"{animal_type} | {file_name}".jpg, frame,camera_id)
 
-    log_path = "logs\logs.txt"
+    log_path = os.path.join("logs", "logs.txt")
     with open(log_path, "a") as f:
-        f.write(f"{timestamp} | {animal_type} | {LOG_ID} | {file_name} {camera_id}\n")
+        f.write(f"{timestamp} | {animal_list} | {LOG_ID} | {file_name} | {camera_id}\n")
 
 
 
@@ -136,12 +136,8 @@ def main():
         if command:
             if command == 'OPEN_DOOR':
                 current_state = State.DOOR_OPEN
-                log_event("prey",LOG_ID, frame0, camera_id=0)
-                log_event("prey",LOG_ID, frame1, camera_id=1)
             elif command == 'CLOSE_DOOR':
                 current_state = State.DOOR_CLOSE
-                log_event("predator", LOG_ID,frame0,camera_id=0)
-                log_event("predator", LOG_ID,frame1,camera_id=1)
         #------------IDLE State ------------------------------------------------------------
         if current_state == State.IDLE:
             print("System is idle.")
@@ -187,6 +183,13 @@ def main():
             
             #Decide on ruleset
             current_state = decider.decide(object_list)
+            if(current_state) == State.DOOR_OPEN:
+                log_event(object_list, http_server.latest_frame0, camera_id=0)
+                log_event(object_list, http_server.latest_frame1, camera_id=1)
+            if(current_state) == State.DOOR_CLOSE:
+                log_event(object_list, http_server.latest_frame0, camera_id=0)
+                log_event(object_list, http_server.latest_frame1, camera_id=1)
+
 
         #------------DOOR OPEN State -------------------------------------------------------
         elif current_state == State.DOOR_OPEN:
