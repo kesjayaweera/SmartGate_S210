@@ -54,7 +54,7 @@ def signal_handler(sig, frame):
     cleanup()
     sys.exit(0)
 
-def log_event(animal_list, frame, camera_id):
+def log_event(object_list, frame, camera_id):
     global LOG_ID
     
     img_dir = os.path.join("logs", "image_logs")    
@@ -65,7 +65,7 @@ def log_event(animal_list, frame, camera_id):
     log_entry = {
 
         "time": timestamp,
-        "animal_type": animal_list,
+        "animal_type": object_list,
         "LOG_ID": LOG_ID,
         "file_name": file_name,
         "camera_id": camera_id
@@ -76,7 +76,7 @@ def log_event(animal_list, frame, camera_id):
 
     log_path = os.path.join("logs", "logs.txt")
     with open(log_path, "a") as f:
-        f.write(f"{timestamp} | {animal_list} | {LOG_ID} | {file_name} | {camera_id}\n")
+        f.write(f"{timestamp} | {object_list} | {LOG_ID} | {file_name} | {camera_id}\n")
 
 
 
