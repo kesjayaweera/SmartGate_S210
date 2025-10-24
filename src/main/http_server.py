@@ -112,24 +112,12 @@ class HTTPHandler(http.server.BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-<<<<<<< HEAD
-=======
 
-        print(f"[+] POST request received from: {self.client_address[0]}")
-        print(f"[+] Request path: {self.path}")
-        print(f"[+] Content length: {content_length}")
-        print(f"[+] Raw POST data: {post_data.decode('utf-8')}")
->>>>>>> ce3a10e (Add support for dual camera streams in AI detection)
 
         try:
             data = json.loads(post_data.decode('utf-8'))
             command = data.get('command')
-<<<<<<< HEAD
-=======
 
-            print(f"[+] Parsed command: {command}")
-            print(f"[+] Full request data: {data}")
->>>>>>> ce3a10e (Add support for dual camera streams in AI detection)
 
             if command in ['OPEN_DOOR', 'CLOSE_DOOR']:
                 command_queue.put(command)
